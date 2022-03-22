@@ -1,48 +1,19 @@
 var infraRED = (function() {
     function init() {
         console.log("InfraRED is starting.");
+
         infraRED.nodes.init();
+        infraRED.relationships.init();
 
-        let node1 = {
-            id: 1,
-            type: "tosca.nodes.Compute",
-            
-            properties: null,
+        infraRED.nodes.create("my_server");
+        infraRED.nodes.create("my_storage");
 
-            capabilities: null,
-            requirements: null,
-        };
+        infraRED.nodes.addCapability(infraRED.nodes.get(2), infraRED.relationships.create("local_storage"));
+        infraRED.nodes.addRequirement(infraRED.nodes.get(1), infraRED.relationships.get("local_storage"));
 
-        let node2 = {
-            id: 2,
-            type: "tosca.nodes.DBMS.MySQL",
+        infraRED.nodes.addCapability(infraRED.nodes.get(1), infraRED.relationships.create("host"));
 
-            properties: null,
-
-            capabilities: null,
-            requirements: null,
-        };
-
-        let relationship1 = {
-            id: 1,
-            type: "tosca.relationships.HostedOn"
-        };
-
-        infraRED.events.DEBUG = false;
-        infraRED.events.on("components:add", (node1) => {
-            console.log("Added the component with id: " + node1.id);
-        });
-
-        infraRED.nodes.add(node1);
-        infraRED.nodes.add(node2);
-
-        infraRED.nodes.addInput(node2, relationship1);
-        infraRED.nodes.addOutput(node1, relationship1);
-
-        console.log("InfraRED finished starting.");
-
-        console.log(infraRED.nodes.get(1));
-        console.log(infraRED.nodes.get(2));
+        console.log("InfraRED finished booting.");
     }
 
     return {
@@ -96,7 +67,21 @@ infraRED.events = (function() {
 })();
 
 infraRED.nodes = (function() {
-    // information about types of components
+    var currentID = 1;
+    class Node {
+        constructor(name) {
+            this.id = currentID++;
+            this.name = name;
+            
+            this.type = null;
+            this.properties = [];
+
+            this.capabilities = [];
+            this.requirements = [];
+        }
+    }
+
+    // information about types of nodes
     registry = (function() {
         let nodeTypes = [];
 
@@ -121,9 +106,23 @@ infraRED.nodes = (function() {
             return nodes[id];
         }
 
+        function getNodeByName(name) {
+            for (let id in nodes) {
+                if (nodes[id].name === name) {
+                    return nodes[id];
+                }
+            }
+        }
+
+        function getNodeList() {
+            return nodes;
+        }
+
         return {
           addNode: addNode,
           getNodeByID: getNodeByID,
+          getNodeByName: getNodeByName,
+          getNodeList: getNodeList,
         };
     })();
 
@@ -133,45 +132,59 @@ infraRED.nodes = (function() {
     }
 
     function relationshipExists(relationship) {
-        return infraRED.nodes.relationships.has(relationship);
+        return infraRED.relationships.has(relationship);
     }
 
     function addNodeInput(node, relationship) {
-        if (!relationshipExists(relationship)) infraRED.nodes.relationships.add(relationship);
-        allNodesList.getNodeByID(node.id).requirement = relationship;
+        if (!relationshipExists(relationship)) infraRED.relationships.add(relationship);
+        allNodesList.getNodeByID(node.id).requirements.push(relationship);
     }
 
     function addNodeOutput(node, relationship) {
-        if (!relationshipExists(relationship)) infraRED.nodes.relationships.add(relationship);
-        allNodesList.getNodeByID(node.id).capability = relationship;
-    }
-
-    function getNode(nodeID) {
-        return allNodesList.getNodeByID(nodeID);
+        if (!relationshipExists(relationship)) infraRED.relationships.add(relationship);
+        allNodesList.getNodeByID(node.id).capabilities.push(relationship);
     }
 
     return {
         init: function() {
             console.log("Starting the components functionality.");
-            infraRED.nodes.relationships.init();
         },
-        add: addNode,
-        get: getNode,
-        addInput: addNodeInput,
-        addOutput: addNodeOutput,
+        create: function(name) {
+            let node = new Node(name);
+            allNodesList.addNode(node);
+            return node;
+        },
+        get: function(query) {
+            if (typeof query === 'number') return allNodesList.getNodeByID(query);
+            else if (typeof query === 'string') {
+                return allNodesList.getNodeByName(query);
+            }
+        },
+        addRequirement: addNodeInput,
+        addCapability: addNodeOutput,
     };
 })();
 
-infraRED.nodes.relationships = (function() {
+infraRED.relationships = (function() {
+    var currentID = 1;
+    class Relationship {
+        constructor(name) {
+            this.id = currentID++;
+            this.name = name;
+
+            this.type = null;
+            this.properties = [];
+        }
+    }
+
     registry = (function() {
         let relationshipTypes = [];
 
-        /**
-         * Adds the relationship type to the registry
-         * @param {Relationship} relationship 
-         */
         function addRelationshipType(relationship) {
-            relationshipTypes.push(relationship.type);
+            // check if type is set, if not do nothing
+            if (relationship.type) {
+                relationshipTypes.push(relationship.type);
+            }
         }
 
         return {
@@ -191,12 +204,26 @@ infraRED.nodes.relationships = (function() {
             return relationships[id];
         }
 
+        function getRelationshipByName(name) {
+            for (let id in relationships) {
+                if (relationships[id].name === name) {
+                    return relationships[id];
+                }
+            }
+        }
+
+        function getRelationshipList() {
+            return relationships;
+        }
+
         return {
           addRelationship: addRelationship,
           getRelationshipByID: getRelationshipByID,
+          getRelationshipByName: getRelationshipByName,
+          getRelationshipList: getRelationshipList,
           has: function(relationship) {
               relationships.hasOwnProperty(relationship);
-          }
+          },
         };
     })();
 
@@ -207,7 +234,6 @@ infraRED.nodes.relationships = (function() {
     }
 
     function relationshipExists(relationship) {
-        console.log("Checking if exists: " + JSON.stringify(relationship));
         return allRelationshipsList.has(relationship);
     }
     
@@ -218,6 +244,17 @@ infraRED.nodes.relationships = (function() {
 
         add: addRelationship,
         has: relationshipExists,
+        get: function(query) {
+            if (typeof query === 'number') return allRelationshipsList.getRelationshipByID(query);
+            else if (typeof query === 'string') {
+                return allRelationshipsList.getRelationshipByName(query);
+            }
+        },
+        create: function(name) {
+            let relationship = new Relationship(name);
+            allRelationshipsList.addRelationship(relationship); 
+            return relationship;
+        }
     };
 })();
 

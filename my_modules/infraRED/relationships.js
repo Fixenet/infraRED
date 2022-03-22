@@ -1,13 +1,23 @@
-infraRED.nodes.relationships = (function() {
+infraRED.relationships = (function() {
+    var currentID = 1;
+    class Relationship {
+        constructor(name) {
+            this.id = currentID++;
+            this.name = name;
+
+            this.type = null;
+            this.properties = [];
+        }
+    }
+
     registry = (function() {
         let relationshipTypes = [];
 
-        /**
-         * Adds the relationship type to the registry
-         * @param {Relationship} relationship 
-         */
         function addRelationshipType(relationship) {
-            relationshipTypes.push(relationship.type);
+            // check if type is set, if not do nothing
+            if (relationship.type) {
+                relationshipTypes.push(relationship.type);
+            }
         }
 
         return {
@@ -27,12 +37,26 @@ infraRED.nodes.relationships = (function() {
             return relationships[id];
         }
 
+        function getRelationshipByName(name) {
+            for (let id in relationships) {
+                if (relationships[id].name === name) {
+                    return relationships[id];
+                }
+            }
+        }
+
+        function getRelationshipList() {
+            return relationships;
+        }
+
         return {
           addRelationship: addRelationship,
           getRelationshipByID: getRelationshipByID,
+          getRelationshipByName: getRelationshipByName,
+          getRelationshipList: getRelationshipList,
           has: function(relationship) {
               relationships.hasOwnProperty(relationship);
-          }
+          },
         };
     })();
 
@@ -43,7 +67,6 @@ infraRED.nodes.relationships = (function() {
     }
 
     function relationshipExists(relationship) {
-        console.log("Checking if exists: " + JSON.stringify(relationship));
         return allRelationshipsList.has(relationship);
     }
     
@@ -54,5 +77,16 @@ infraRED.nodes.relationships = (function() {
 
         add: addRelationship,
         has: relationshipExists,
+        get: function(query) {
+            if (typeof query === 'number') return allRelationshipsList.getRelationshipByID(query);
+            else if (typeof query === 'string') {
+                return allRelationshipsList.getRelationshipByName(query);
+            }
+        },
+        create: function(name) {
+            let relationship = new Relationship(name);
+            allRelationshipsList.addRelationship(relationship); 
+            return relationship;
+        }
     };
 })();

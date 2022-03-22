@@ -4,7 +4,8 @@
   "description": "",
   "main": "dist/infraRED.js",
   "scripts": {
-    "run": "grunt",
+    "start": "grunt",
+    "exec": "node ./dist/infraRED.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
