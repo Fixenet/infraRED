@@ -1,0 +1,27 @@
+{
+  "name": "infrared-translation",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/infraRED.js",
+  "scripts": {
+    "run": "grunt",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "js-yaml": "^4.1.0",
+    "moment": "^2.29.1"
+  },
+  "devDependencies": {
+    "grunt": "^1.4.1",
+    "grunt-concurrent": "^3.0.0",
+    "grunt-contrib-concat": "^2.0.0",
+    "grunt-contrib-jshint": "^3.2.0",
+    "grunt-contrib-watch": "^1.1.0",
+    "grunt-nodemon": "^0.4.2",
+    "nodemon": "^2.0.15"
+  },
+  "nodemonConfig": {
+  }
+}
