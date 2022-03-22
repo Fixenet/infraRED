@@ -1,4 +1,4 @@
-infraRED.components.relationships = (function() {
+infraRED.nodes.relationships = (function() {
     registry = (function() {
         let relationshipTypes = [];
 

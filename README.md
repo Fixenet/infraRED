@@ -2,7 +2,7 @@
 
 ## PROJECT: InfraRED: A Visual and Flow-based Designer of Smart IT Infrastructures
 
-#### Objectivos
+#### Objectives
 The DevOps "culture" advocates software engineering best practices and tools in order to ensure continuously evolving complex systems, promoting a tight collaboration between the developers (Dev) and the teams that deploy and operate the systems (Ops). 
 
 Current solutions and tools lack mechanisms for the ease of Design and for continuous deployment and evolution of the systems across different spaces (from IoT, to edge, core and clouds) as well as for the continuous quality assurance, such as mechanisms to ensure end-to-end security and privacy, and mechanisms to allow continuous testing of IT Infrastructures (within emulated and simulated infrastructures). 

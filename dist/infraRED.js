@@ -1,16 +1,26 @@
 var infraRED = (function() {
     function init() {
         console.log("InfraRED is starting.");
-        infraRED.components.init();
+        infraRED.nodes.init();
 
-        let component1 = {
+        let node1 = {
             id: 1,
-            type: "tosca.nodes.Compute"
+            type: "tosca.nodes.Compute",
+            
+            properties: null,
+
+            capabilities: null,
+            requirements: null,
         };
 
-        let component2 = {
+        let node2 = {
             id: 2,
-            type: "tosca.nodes.Database"
+            type: "tosca.nodes.DBMS.MySQL",
+
+            properties: null,
+
+            capabilities: null,
+            requirements: null,
         };
 
         let relationship1 = {
@@ -18,16 +28,21 @@ var infraRED = (function() {
             type: "tosca.relationships.HostedOn"
         };
 
-        infraRED.components.add(component1);
-        infraRED.components.add(component2);
+        infraRED.events.DEBUG = false;
+        infraRED.events.on("components:add", (node1) => {
+            console.log("Added the component with id: " + node1.id);
+        });
 
-        infraRED.components.addInput(component2, relationship1);
-        infraRED.components.addOutput(component1, relationship1);
+        infraRED.nodes.add(node1);
+        infraRED.nodes.add(node2);
+
+        infraRED.nodes.addInput(node2, relationship1);
+        infraRED.nodes.addOutput(node1, relationship1);
 
         console.log("InfraRED finished starting.");
 
-        console.log(infraRED.components.get(1));
-        console.log(infraRED.components.get(2));
+        console.log(infraRED.nodes.get(1));
+        console.log(infraRED.nodes.get(2));
     }
 
     return {
@@ -59,7 +74,7 @@ infraRED.events = (function() {
         var eventName = arguments[0];
         var args = Array.prototype.slice.call(arguments, 1);
 
-        console.log("Emitting: " + eventName);
+        if (infraRED.events.DEBUG) console.log("Emitting event called: " + eventName);
         
         if (handlers[eventName]) {
             for (let i = 0; i < handlers[eventName].length; i++) {
@@ -80,74 +95,74 @@ infraRED.events = (function() {
     };
 })();
 
-infraRED.components = (function() {
+infraRED.nodes = (function() {
     // information about types of components
     registry = (function() {
-        let componentTypes = [];
+        let nodeTypes = [];
 
-        function addComponentType(component) {
-            componentTypes.push(component.type);
+        function addNodeType(node) {
+            nodeTypes.push(node.type);
         }
 
         return {
-            addType: addComponentType,  
+            addType: addNodeType,  
         };
     })();
     
-    allComponentsList = (function() {
-        let components = {};
+    allNodesList = (function() {
+        let nodes = {};
 
-        function addComponent(component) {
-            registry.addType(component);
-            components[component.id] = component;
+        function addNode(node) {
+            registry.addType(node);
+            nodes[node.id] = node;
         }
 
-        function getComponentByID(id) {
-            return components[id];
+        function getNodeByID(id) {
+            return nodes[id];
         }
 
         return {
-          addComponent: addComponent,
-          getComponentByID: getComponentByID,
+          addNode: addNode,
+          getNodeByID: getNodeByID,
         };
     })();
 
-    function addComponent(component) {
-        allComponentsList.addComponent(component);
-        infraRED.events.emit("components:add", component);
+    function addNode(node) {
+        allNodesList.addNode(node);
+        infraRED.events.emit("components:add", node);
     }
 
     function relationshipExists(relationship) {
-        return infraRED.components.relationships.has(relationship);
+        return infraRED.nodes.relationships.has(relationship);
     }
 
-    function addComponentInput(component, relationship) {
-        if (!relationshipExists(relationship)) infraRED.components.relationships.add(relationship);
-        allComponentsList.getComponentByID(component.id).in = relationship;
+    function addNodeInput(node, relationship) {
+        if (!relationshipExists(relationship)) infraRED.nodes.relationships.add(relationship);
+        allNodesList.getNodeByID(node.id).requirement = relationship;
     }
 
-    function addComponentOutput(component, relationship) {
-        if (!relationshipExists(relationship)) infraRED.components.relationships.add(relationship);
-        allComponentsList.getComponentByID(component.id).out = relationship;
+    function addNodeOutput(node, relationship) {
+        if (!relationshipExists(relationship)) infraRED.nodes.relationships.add(relationship);
+        allNodesList.getNodeByID(node.id).capability = relationship;
     }
 
-    function getComponent(componentID) {
-        return allComponentsList.getComponentByID(componentID);
+    function getNode(nodeID) {
+        return allNodesList.getNodeByID(nodeID);
     }
 
     return {
         init: function() {
             console.log("Starting the components functionality.");
-            infraRED.components.relationships.init();
+            infraRED.nodes.relationships.init();
         },
-        add: addComponent,
-        get: getComponent,
-        addInput: addComponentInput,
-        addOutput: addComponentOutput,
+        add: addNode,
+        get: getNode,
+        addInput: addNodeInput,
+        addOutput: addNodeOutput,
     };
 })();
 
-infraRED.components.relationships = (function() {
+infraRED.nodes.relationships = (function() {
     registry = (function() {
         let relationshipTypes = [];
 

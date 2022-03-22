@@ -1,16 +1,26 @@
 var infraRED = (function() {
     function init() {
         console.log("InfraRED is starting.");
-        infraRED.components.init();
+        infraRED.nodes.init();
 
-        let component1 = {
+        let node1 = {
             id: 1,
-            type: "tosca.nodes.Compute"
+            type: "tosca.nodes.Compute",
+            
+            properties: null,
+
+            capabilities: null,
+            requirements: null,
         };
 
-        let component2 = {
+        let node2 = {
             id: 2,
-            type: "tosca.nodes.Database"
+            type: "tosca.nodes.DBMS.MySQL",
+
+            properties: null,
+
+            capabilities: null,
+            requirements: null,
         };
 
         let relationship1 = {
@@ -18,16 +28,21 @@ var infraRED = (function() {
             type: "tosca.relationships.HostedOn"
         };
 
-        infraRED.components.add(component1);
-        infraRED.components.add(component2);
+        infraRED.events.DEBUG = false;
+        infraRED.events.on("components:add", (node1) => {
+            console.log("Added the component with id: " + node1.id);
+        });
 
-        infraRED.components.addInput(component2, relationship1);
-        infraRED.components.addOutput(component1, relationship1);
+        infraRED.nodes.add(node1);
+        infraRED.nodes.add(node2);
+
+        infraRED.nodes.addInput(node2, relationship1);
+        infraRED.nodes.addOutput(node1, relationship1);
 
         console.log("InfraRED finished starting.");
 
-        console.log(infraRED.components.get(1));
-        console.log(infraRED.components.get(2));
+        console.log(infraRED.nodes.get(1));
+        console.log(infraRED.nodes.get(2));
     }
 
     return {

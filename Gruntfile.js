@@ -19,7 +19,7 @@ module.exports = function(grunt) {
                 src: [
                     'my_modules/infraRED/infraRED.js',
                     'my_modules/infraRED/events.js',
-                    'my_modules/infraRED/components.js',
+                    'my_modules/infraRED/nodes.js',
                     'my_modules/infraRED/relationships.js',
                     'my_modules/infraRED/main.js',
                 ],
