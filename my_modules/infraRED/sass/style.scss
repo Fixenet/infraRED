@@ -1,0 +1,57 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: rgb(255, 255, 255);
+}
+
+#infraRED-ui-root {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    width: 100vw;
+
+    background-color: rgb(255, 255, 255);
+    font-weight: bold;
+
+    display: grid;
+    /* Canvas 4x Resource Bar 4x Category*/
+    grid-template-columns: 80px 200px 4fr;
+    grid-template-rows: 50px 1fr 50px;
+
+    text-align: center;
+}
+
+#infraRED-ui-category-bar {
+    background-color: #ea6b66;
+    grid-column: 1;
+    grid-row: 1 / 3;
+}
+
+#infraRED-ui-resource-bar {
+    background-color: #97d077;
+    grid-column: 2;
+    grid-row: 1 / 3;
+
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+#infraRED-ui-canvas {
+    background-color: #ffb570;
+    grid-column: 3;
+    grid-row: 2;
+}
+
+#infraRED-ui-menu-bar {
+    background-color: #7ea6e0;
+    grid-column: 3;
+    grid-row: 1;
+}
+
+#infraRED-ui-status-bar {
+    background-color: #ffd966;
+    grid-column: 1 / 4;
+    grid-row: 3;
+}
+
+@import 'node';

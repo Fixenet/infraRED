@@ -8,20 +8,38 @@ infraRED.relationships = (function() {
             this.type = null;
             this.properties = [];
         }
+
+        changeType(typeName) {
+            if (infraRED.validator.validateRelationshipType(typeName)) {
+                //Add the type to the relationship object
+                this.type = typeName;
+                //Update the registry if needed
+                if (!registry.has(typeName)) {
+                    registry.addType(this);
+                }
+            } else {
+                console.log("Incorrect Relationship Type was given.");
+            }
+        }
     }
 
-    registry = (function() {
+    var registry = (function() {
         let relationshipTypes = [];
 
         function addRelationshipType(relationship) {
             // check if type is set, if not do nothing
-            if (relationship.type) {
+            if (relationship.type != null) {
                 relationshipTypes.push(relationship.type);
             }
         }
 
+        function relationshipTypeExists(relationshipType) {
+            return relationshipTypes.includes(relationshipType);
+        }
+
         return {
-            addType: addRelationshipType,  
+            addType: addRelationshipType,
+            has: relationshipTypeExists,
         };
     })();
 
@@ -54,9 +72,6 @@ infraRED.relationships = (function() {
           getRelationshipByID: getRelationshipByID,
           getRelationshipByName: getRelationshipByName,
           getRelationshipList: getRelationshipList,
-          has: function(relationship) {
-              relationships.hasOwnProperty(relationship);
-          },
         };
     })();
 
@@ -65,10 +80,6 @@ infraRED.relationships = (function() {
         infraRED.events.emit("relationships:add", relationship);
         return relationship;
     }
-
-    function relationshipExists(relationship) {
-        return allRelationshipsList.has(relationship);
-    }
     
     return {
         init: function() {
@@ -76,17 +87,19 @@ infraRED.relationships = (function() {
         },
 
         add: addRelationship,
-        has: relationshipExists,
+        create: function(name) {
+            let relationship = new Relationship(name);
+            allRelationshipsList.addRelationship(relationship); 
+            return relationship;
+        },
         get: function(query) {
             if (typeof query === 'number') return allRelationshipsList.getRelationshipByID(query);
             else if (typeof query === 'string') {
                 return allRelationshipsList.getRelationshipByName(query);
             }
         },
-        create: function(name) {
-            let relationship = new Relationship(name);
-            allRelationshipsList.addRelationship(relationship); 
-            return relationship;
-        }
+        has: function(query) {
+            return this.get(query) !== undefined;
+        },
     };
 })();
