@@ -86,6 +86,37 @@ infraRED.nodes = (function() {
         };
     })();
 
+    canvasNodesList = (function() {
+        let nodes = {};
+
+        function addNode(node) {
+            nodes[node.id] = node;
+        }
+
+        function getNodeByID(id) {
+            return nodes[id];
+        }
+
+        function getNodeByName(name) {
+            for (let id in nodes) {
+                if (nodes[id].name === name) {
+                    return nodes[id];
+                }
+            }
+        }
+
+        function getNodeList() {
+            return nodes;
+        }
+
+        return {
+          addNode: addNode,
+          getNodeByID: getNodeByID,
+          getNodeByName: getNodeByName,
+          getNodeList: getNodeList,
+        };
+    })();
+
     function addToNodeList(node) {
         allNodesList.addNode(node);
         infraRED.events.emit("nodes:add", node);

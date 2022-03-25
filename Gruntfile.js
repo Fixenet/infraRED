@@ -10,7 +10,7 @@ module.exports = function(grunt) {
             options: {
                 esversion: 6
             },
-            all: ['Gruntfile.js', 'my_modules/infraRED/js/**/*.js'],
+            all: ['Gruntfile.js', 'development/infraRED-client/js/**/*.js', 'development/infraRED-api/js/**/*.js'],
         },
         concat: {
             options: {
@@ -19,20 +19,20 @@ module.exports = function(grunt) {
             js: {
                 src: [
                     // Load infraRED.js first, then each sub module and then the main
-                    'my_modules/infraRED/js/infraRED.js',
-                    'my_modules/infraRED/js/events.js',
-                    'my_modules/infraRED/js/validator.js',
-                    'my_modules/infraRED/js/nodes.js',
-                    'my_modules/infraRED/js/relationships.js',
+                    'development/infraRED-client/js/infraRED.js',
+                    'development/infraRED-client/js/events.js',
+                    'development/infraRED-client/js/validator.js',
+                    'development/infraRED-client/js/nodes.js',
+                    'development/infraRED-client/js/relationships.js',
 
                     // Respect ui's hierarchy
-                    'my_modules/infraRED/js/ui/editor.js',
-                    'my_modules/infraRED/js/ui/category.js',
-                    'my_modules/infraRED/js/ui/node.js',
+                    'development/infraRED-client/js/ui/editor.js',
+                    'development/infraRED-client/js/ui/category.js',
+                    'development/infraRED-client/js/ui/node.js',
 
-                    'my_modules/infraRED/js/main.js',
+                    'development/infraRED-client/js/main.js',
                 ],
-                dest: 'dist/public/infraRED.js',
+                dest: 'distribution/js/infraRED.js',
             },
         },
         sass: {
@@ -42,18 +42,18 @@ module.exports = function(grunt) {
                     outputStyle: 'compressed'
                 },
                 files: [{
-                    src: 'my_modules/infraRED/sass/style.scss',
-                    dest: 'dist/public/style.min.css',
+                    src: 'development/infraRED-client/sass/style.scss',
+                    dest: 'distribution/public/style.min.css',
                 }]
             }
         },
         watch: {
             js: {
-                files: 'my_modules/infraRED/js/**/*.js',
+                files: 'development/infraRED-client/js/**/*.js',
                 tasks: ['build'],
             },
             sass: {
-                files: 'my_modules/infraRED/sass/**/*.scss',
+                files: 'development/infraRED-client/sass/**/*.scss',
                 tasks: ['sass'],
             }
         },

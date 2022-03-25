@@ -1,12 +1,9 @@
 {
-  "name": "infrared-translation",
-  "version": "1.0.0",
-  "description": "",
-  "main": "dist/infraRED.js",
+  "name": "infrared",
+  "version": "0.0.0",
+  "description": "infraRED is a visual programming tool, browser-based to create and modify IaC and monitor said infrastructure.",
   "scripts": {
-    "start": "grunt",
-    "exec": "node ./dist/infraRED.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "grunt"
   },
   "author": "",
   "license": "ISC",
@@ -27,6 +24,5 @@
     "grunt-contrib-watch": "^1.1.0",
     "grunt-nodemon": "^0.4.2",
     "nodemon": "^2.0.15"
-  },
-  "nodemonConfig": {}
+  }
 }
