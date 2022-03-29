@@ -78,30 +78,70 @@ infraRED.nodes = (function() {
     class Node {
         constructor(type) {
             this.id = currentID++;
-            this.name = null;
+            this.name = "null";
             
             this.type = type;
-            this.properties = [];
+            this.properties = {};
 
-            this.capabilities = [];
-            this.requirements = [];
+            this.capabilities = {};
+            this.requirements = {};
         }
 
         changeName(name) {
             if (infraRED.validator.validateNodeType(name)) {
-                //Add the type to the node object
                 this.name = name;
             } else {
                 console.log("Incorrect Node name was given.");
             }
         }
 
-        addCapability(relationship) {
-            this.capabilities.push(relationship);
+        addCapabilities(cap) {
+            cap.forEach((capability) => {
+                this.capabilities[capability] = {};
+            });
         }
 
-        addRequirement(relationship) {
-            this.requirements.push(relationship);
+        addRequirements(req) {
+            req.forEach((requirement) => {
+                this.requirements[requirement] = {};
+            });
+        }
+
+        /**
+         * Creates a div representative of the node
+         * @returns {string} a div element
+         */
+        getDiv() {
+            let div = document.createElement("div");
+            div.className = "node resource-node";
+            div.id = this.type;
+
+            div.innerHTML += `<p class="type">${node.type}</p>`;
+
+            if (Object.keys(this.requirements).length) {
+                let requirements = document.createElement("div");
+                requirements.className = "requirements";
+                for (const requirement of Object.keys(this.requirements)) {
+                    requirements.innerHTML += `<p class="requirement">${requirement}</p>`;
+                }
+                if (Object.keys(this.capabilities).length && Object.keys(this.requirements).length) {
+                    $(requirements).css("border-bottom", "2px dashed black");
+                }
+                div.append(requirements);
+            }
+            
+            if (Object.keys(this.capabilities).length) {
+                let capabilities = document.createElement("div");
+                capabilities.className = "capabilities";
+                for (const capability of Object.keys(this.capabilities)) {
+                    capabilities.innerHTML += `<p class="capability">${capability}</p>`;
+                }
+                div.append(capabilities);
+            }
+
+            
+
+            return div;
         }
     }
 
@@ -345,7 +385,7 @@ $.ajax({
     dataType: 'json',
     async: false,
     success: function(data) {
-        console.log("Importing node types.");
+        console.log("Importing node types...");
         nodeTypes = data;
     }
 });
@@ -367,15 +407,15 @@ let canvas = $("#infraRED-ui-canvas");
 
 //TODO - this only gets the keys, i need a way to decompose the object of each type
 for (let type in nodeTypes) {
-    let node = infraRED.nodes.create(type);
+    var node = infraRED.nodes.create(type);
+    
+    const capabilities = nodeTypes[type].capabilities;
+    const requirements = nodeTypes[type].requirements;
 
-    $('#infraRED-ui-resource-bar').append(`<div class="node resource-node" id=${node.type}>
-                                            <p class="type">${node.type}</p>
-                                            <p>-----------------------------------------------</p>
-                                            <p class="requirements">${node.requirements.length ? node.requirements : "No Requirements"}</p>
-                                            <p>-----------------------------------------------</p>
-                                            <p class="capabilities">${node.capabilities.length ? node.capabilities : "No Capabilities"}</p>
-                                            </div>`);
+    if (capabilities) node.addCapabilities(nodeTypes[type].capabilities);
+    if (requirements) node.addRequirements(nodeTypes[type].requirements);
+
+    $('#infraRED-ui-resource-bar').append(node.getDiv());
 
     console.log("Imported: " + type);
 }

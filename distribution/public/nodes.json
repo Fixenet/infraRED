@@ -3,6 +3,7 @@
         "requirements": ["host"]
     },
     "tosca.node.Compute": {
+        "requirements": ["baremetal"],
         "capabilities": ["host", "os"]
     },
     "tosca.nodes.WebServer.Nodejs": {

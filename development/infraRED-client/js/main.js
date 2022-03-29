@@ -7,7 +7,7 @@ $.ajax({
     dataType: 'json',
     async: false,
     success: function(data) {
-        console.log("Importing node types.");
+        console.log("Importing node types...");
         nodeTypes = data;
     }
 });
