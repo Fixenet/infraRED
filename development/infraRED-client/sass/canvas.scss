@@ -1,12 +1,8 @@
-$border-size-for-hover: 5px;
-
 #infraRED-ui-canvas {
     background-color: #ffb570;
-
-    padding: $border-size-for-hover;
+    border-bottom: $layout-border;
 }
 
 .drop-hover {
-    border: $border-size-for-hover dashed red;
-    padding: 0px !important;
-}
+    background-color: #ff9029 !important;
+} 
