@@ -50,7 +50,7 @@ infraRED.nodes = (function() {
                     requirements.innerHTML += `<p class="requirement">${requirement}</p>`;
                 }
                 if (Object.keys(this.capabilities).length && Object.keys(this.requirements).length) {
-                    $(requirements).css("border-bottom", "2px dashed black");
+                    $(requirements).css("border-bottom", "0.30em dashed black");
                 }
                 div.append(requirements);
             }
