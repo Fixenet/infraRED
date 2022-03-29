@@ -2,8 +2,6 @@ var sass = require("sass");
 
 module.exports = function(grunt) {
     // Do grunt-related things in here
-
-    // Project configuration.
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         jshint: {
@@ -11,12 +9,14 @@ module.exports = function(grunt) {
                 esversion: 6
             },
             all: ['Gruntfile.js', 'development/infraRED-client/js/**/*.js', 'development/infraRED-api/js/**/*.js'],
+            client: ['development/infraRED-client/js/**/*.js'],
+            api: ['development/infraRED-api/js/**/*.js'],
         },
         concat: {
             options: {
-                separator: '\n\n',
+                separator: '\n',
             },
-            js: {
+            client: {
                 src: [
                     // Load infraRED.js first, then each sub module and then the main
                     'development/infraRED-client/js/infraRED.js',
@@ -25,14 +25,23 @@ module.exports = function(grunt) {
                     'development/infraRED-client/js/nodes.js',
                     'development/infraRED-client/js/relationships.js',
 
+                    'development/infraRED-client/js/main.js',
+
                     // Respect ui's hierarchy
                     'development/infraRED-client/js/ui/editor.js',
                     'development/infraRED-client/js/ui/category.js',
+                    'development/infraRED-client/js/ui/resource.js',
+                    'development/infraRED-client/js/ui/canvas.js',
                     'development/infraRED-client/js/ui/node.js',
-
-                    'development/infraRED-client/js/main.js',
                 ],
-                dest: 'distribution/js/infraRED.js',
+                dest: 'distribution/public/infraRED.js',
+            },
+            api: {
+                // using this as a copy, because i can just import the files
+                src: [
+                    'development/infraRED-api/js/index.js',
+                ],
+                dest: 'distribution/index.js',
             },
         },
         sass: {
@@ -48,9 +57,13 @@ module.exports = function(grunt) {
             }
         },
         watch: {
-            js: {
+            clientJS: {
                 files: 'development/infraRED-client/js/**/*.js',
-                tasks: ['build'],
+                tasks: ['build-client'],
+            },
+            apiJS: {
+                files: 'development/infraRED-api/js/**/*.js',
+                tasks: ['build-api'],
             },
             sass: {
                 files: 'development/infraRED-client/sass/**/*.scss',
@@ -66,6 +79,8 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-sass');
 
     // Default task(s).
-    grunt.registerTask('build', ['jshint', 'concat:js']);
+    grunt.registerTask('build-client', ['jshint:client', 'concat:client']);
+    grunt.registerTask('build-api', ['jshint:api', 'concat:api']);
+    grunt.registerTask('build', ['build-client', 'build-api', 'sass']);
     grunt.registerTask('default', ['watch']);
 };

@@ -1,27 +1,23 @@
 infraRED.nodes = (function() {
     var currentID = 1;
     class Node {
-        constructor(name) {
+        constructor(type) {
             this.id = currentID++;
-            this.name = name;
+            this.name = null;
             
-            this.type = null;
+            this.type = type;
             this.properties = [];
 
             this.capabilities = [];
             this.requirements = [];
         }
 
-        changeType(typeName) {
-            if (infraRED.validator.validateNodeType(typeName)) {
+        changeName(name) {
+            if (infraRED.validator.validateNodeType(name)) {
                 //Add the type to the node object
-                this.type = typeName;
-                //Update the registry if needed
-                if (!registry.has(typeName)) {
-                    registry.addType(this);
-                }
+                this.name = name;
             } else {
-                console.log("Incorrect Node Type was given.");
+                console.log("Incorrect Node name was given.");
             }
         }
 
@@ -55,7 +51,7 @@ infraRED.nodes = (function() {
         };
     })();
 
-    allNodesList = (function() {
+    resourceNodesList = (function() {
         let nodes = {};
 
         function addNode(node) {
@@ -79,10 +75,10 @@ infraRED.nodes = (function() {
         }
 
         return {
-          addNode: addNode,
-          getNodeByID: getNodeByID,
-          getNodeByName: getNodeByName,
-          getNodeList: getNodeList,
+          add: addNode,
+          getByID: getNodeByID,
+          getByName: getNodeByName,
+          getAll: getNodeList,
         };
     })();
 
@@ -110,43 +106,53 @@ infraRED.nodes = (function() {
         }
 
         return {
-          addNode: addNode,
-          getNodeByID: getNodeByID,
-          getNodeByName: getNodeByName,
-          getNodeList: getNodeList,
+          add: addNode,
+          getByID: getNodeByID,
+          getByName: getNodeByName,
+          getAll: getNodeList,
         };
     })();
 
-    function addToNodeList(node) {
-        allNodesList.addNode(node);
+    function addNodeToResourceList(node) {
+        resourceNodesList.add(node);
         infraRED.events.emit("nodes:add", node);
-    }
-
-    function addNodeCapability(node, relationship) {
-        allNodesList.getNodeByID(node.id).addCapability(relationship);
-    }
-
-    function addNodeRequirement(node, relationship) {
-        allNodesList.getNodeByID(node.id).addRequirement(relationship);
     }
 
     return {
         init: function() {
             console.log("Starting the nodes functionality.");
         },
+        /**
+         * Creates a node object and adds it to the resource list where all the nodes the system knowns about exist
+         * @param {string} name 
+         * @returns {Node} the created node
+         */
         create: function(name) {
             let node = new Node(name);
-            addToNodeList(node);
+            addNodeToResourceList(node);
             return node;
         },
+
+        /**
+         * Gets a node object from the resource list via its ID or its name
+         * @param {number | string} query 
+         * @returns {Node} the corresponding node
+         */
         get: function(query) {
-            if (typeof(query) === 'number') return allNodesList.getNodeByID(query);
-            else if (typeof(query) === 'string') return allNodesList.getNodeByName(query);
+            if (typeof(query) === 'number') return resourceNodesList.getByID(query);
+            else if (typeof(query) === 'string') return resourceNodesList.getByName(query);
         },
+
+        /**
+         * Checks if a node object exists in the resource list via its ID or its name
+         * @param {number | string} query 
+         * @returns {boolean} whether node exists or not
+         */
         has: function(query) {
             return this.get(query) !== undefined;
         },
-        addCapability: addNodeCapability,
-        addRequirement: addNodeRequirement,
+
+        resourceList: resourceNodesList,
+        canvasList: canvasNodesList,
     };
 })();

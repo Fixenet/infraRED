@@ -1,5 +1,1 @@
-$(".resource-node").draggable({
-    helper: "clone",
-    drag: function(event, ui) {
-    }
-});
+// use this file to define node behaviour

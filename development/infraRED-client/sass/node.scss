@@ -1,28 +1,39 @@
-.drop-hover {
-    background-color: aqua !important;
-}
-
-.resource-node, 
 .node {
     width: 20vh;
     height: auto;
     min-height: 6vh;
 
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-    font-size: 20px;
-
-    border-radius: 14%;
+    border-radius: 10px;
     border: 0.15em solid rgb(61, 61, 61);
     background-color: rgb(177, 177, 177);
 
     box-sizing: content-box;
 
+    font-family: Arial, sans-serif;
+    font-size: 10px;
     text-align: center;
 }
 
 .resource-node {
     margin: 20px auto;
 }
+
+.node p{
+    margin: 5px auto;
+    &.type {
+        font-weight: bold;
+        background-color: rgb(98, 179, 255);
+        padding: 5px 0px;
+    }
+    &.requirements {
+        font-size: 9px;
+    }
+    &.capabilities {
+        font-size: 9px;
+    }
+}
+
+//vvvvvvvvvv not implemented yet vvvvvvvvvv
 
 .node-flow-in, .node-flow-out, .node-content {
     height: 100%;

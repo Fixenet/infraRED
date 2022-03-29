@@ -1,0 +1,11 @@
+{
+    "tosca.nodes.Database": {
+        "requirements": ["host"]
+    },
+    "tosca.node.Compute": {
+        "capabilities": ["host", "os"]
+    },
+    "tosca.nodes.WebServer.Nodejs": {
+        "requirements": ["host"]
+    }
+}

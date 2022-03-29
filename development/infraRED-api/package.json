@@ -1,8 +1,8 @@
 {
   "name": "infrared-api",
   "version": "1.0.0",
-  "description": "infraRED-api\r ============",
-  "main": "index.js",
+  "description": "infraRED-api provides an Express application that can be used to serve the infraRED editor.",
+  "main": "js/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
