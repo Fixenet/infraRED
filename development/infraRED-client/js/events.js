@@ -2,6 +2,7 @@ infraRED.events = (function() {
     var handlers = {};
 
     function on(eventName, handlerFunction) {
+        //if the event doesn't exist create a new handler list for that event
         handlers[eventName] = handlers[eventName] ? handlers[eventName] : [];
         handlers[eventName].push(handlerFunction);
     }

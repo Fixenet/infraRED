@@ -4,13 +4,15 @@
 
     display: grid;
     /* Canvas 4x Resource Bar 4x Category*/
-    grid-template-columns: 80px 200px 4fr;
+    grid-template-columns: 90px 200px 4fr;
     grid-template-rows: 50px 1fr 50px;
-
-    text-align: center;
 }
 
-$layout-border: .5vh solid black;
+$layout-border: .5vh solid rgb(0, 0, 0);
+
+.title {
+    padding-left: 5px;
+}
 
 #infraRED-ui-category-bar {
     grid-column: 1;

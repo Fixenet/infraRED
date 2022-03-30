@@ -1,12 +1,11 @@
 .node {
-    width: 20vh;
+    box-sizing: border-box;
+
     height: auto;
 
     border-radius: 10px;
     border: 0.25em solid rgb(61, 61, 61);
     background-color: rgb(177, 177, 177);
-
-    box-sizing: content-box;
 
     font-family: Arial, sans-serif;
     font-size: 10px;
@@ -14,15 +13,24 @@
 }
 
 .resource-node {
+    width: 85%;
+    word-wrap: break-word;
     margin: 20px auto;
+}
+
+.canvas-node {
+    width: auto !important;
 }
 
 .node p{
     &.type {
+        box-sizing: border-box;
+        width: 100%;
+
         background-color: rgb(98, 179, 255);
         font-weight: bold;
         border-radius: 10px;
-        padding: 5px 0px;
+        padding: 5px 5px;
     }
     &.requirement {
         margin: 5px auto;

@@ -1,23 +1,30 @@
 // use this file to define the canvas bar
-canvas.droppable({
-    tolerance: "fit",
-    hoverClass: "drop-hover",
-    accept: ".resource-node",
-    drop: function(event, ui) {
-        let droppedNode = $(ui.helper).clone();
+infraRED.editor.canvas = (function() {
+    let canvas;
 
-        //let the editor know the node in question changed sides
-        droppedNode.removeClass("resource-node");
-        droppedNode.addClass("canvas-node");
+    return {
+        init: function() {
+            canvas = $("#infraRED-ui-canvas");
 
-        droppedNode.draggable({
-            containment: "parent",
-        });
+            canvas.droppable({
+                tolerance: "fit",
+                hoverClass: "node-hover-drop",
+                accept: ".resource-node",
+                drop: function(event, ui) {
+                    let droppedNode = $(ui.helper).clone();
+            
+                    //let the editor know the node in question changed sides
+                    infraRED.events.emit("node:canvas-drop", droppedNode);
+            
+                    $(this).append(droppedNode);
+                },
+            });
         
-        droppedNode.dblclick(() => {
-            droppedNode.remove();
-        });
-
-        $(this).append(droppedNode);
-    },
-});
+            let title = document.createElement("div");
+            title.className = "title";
+            title.innerHTML = "Canvas";
+        
+            canvas.append(title);
+        }
+    };
+})();

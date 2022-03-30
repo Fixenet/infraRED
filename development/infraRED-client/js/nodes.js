@@ -41,7 +41,7 @@ infraRED.nodes = (function() {
             div.className = "node resource-node";
             div.id = this.type;
 
-            div.innerHTML += `<p class="type">${node.type}</p>`;
+            div.innerHTML += `<p class="type">${this.type}</p>`;
 
             if (Object.keys(this.requirements).length) {
                 let requirements = document.createElement("div");
@@ -63,9 +63,6 @@ infraRED.nodes = (function() {
                 }
                 div.append(capabilities);
             }
-
-            
-
             return div;
         }
     }

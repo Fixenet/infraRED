@@ -1,12 +1,25 @@
 // use this file to define the base layout for the editor
-$("#infraRED-ui-root").append('<div id="infraRED-ui-menu-bar">Menu</div>');
+infraRED.editor = (function() {
+    return {
+        init: function() {
+            console.log("Creating Editor...");
 
-$("#infraRED-ui-root").append('<div id="infraRED-ui-category-bar">Category</div>');
+            $("#infraRED-ui-root").append('<div id="infraRED-ui-menu-bar"></div>');
+            infraRED.editor.menu.init();
 
-$("#infraRED-ui-root").append('<div id="infraRED-ui-resource-bar">Resource</div>');
+            $("#infraRED-ui-root").append('<div id="infraRED-ui-category-bar"></div>');
+            infraRED.editor.category.init();
+    
+            $("#infraRED-ui-root").append('<div id="infraRED-ui-resource-bar"></div>');
+            infraRED.editor.resource.init();
+    
+            $("#infraRED-ui-root").append('<div id="infraRED-ui-canvas"></div>');
+            infraRED.editor.canvas.init();
+    
+            $("#infraRED-ui-root").append('<div id="infraRED-ui-status-bar"></div>');
+            infraRED.editor.status.init();
 
-$("#infraRED-ui-root").append('<div id="infraRED-ui-canvas">Canvas</div>');
-
-$("#infraRED-ui-root").append('<div id="infraRED-ui-status-bar">Status</div>');
-
-let canvas = $("#infraRED-ui-canvas");
+            infraRED.editor.nodes.init();
+        },
+    };
+})();

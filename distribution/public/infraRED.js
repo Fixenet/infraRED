@@ -1,23 +1,24 @@
 var infraRED = (function() {
-    function init() {
-        console.log("infraRED is starting.");
-
-        infraRED.validator.init();
-
-        infraRED.nodes.init();
-        infraRED.relationships.init();
-
-        console.log("infraRED finished booting.");
-    }
-
     return {
-        init: init,
+        init: function() {
+            console.log("infraRED is starting.");
+    
+            infraRED.events.DEBUG = true;
+    
+            infraRED.validator.init();
+    
+            infraRED.nodes.init();
+            infraRED.relationships.init();
+    
+            console.log("infraRED finished booting.");
+        },
     };
 })();
 infraRED.events = (function() {
     var handlers = {};
 
     function on(eventName, handlerFunction) {
+        //if the event doesn't exist create a new handler list for that event
         handlers[eventName] = handlers[eventName] ? handlers[eventName] : [];
         handlers[eventName].push(handlerFunction);
     }
@@ -116,7 +117,7 @@ infraRED.nodes = (function() {
             div.className = "node resource-node";
             div.id = this.type;
 
-            div.innerHTML += `<p class="type">${node.type}</p>`;
+            div.innerHTML += `<p class="type">${this.type}</p>`;
 
             if (Object.keys(this.requirements).length) {
                 let requirements = document.createElement("div");
@@ -138,9 +139,6 @@ infraRED.nodes = (function() {
                 }
                 div.append(capabilities);
             }
-
-            
-
             return div;
         }
     }
@@ -376,76 +374,226 @@ infraRED.relationships = (function() {
         },
     };
 })();
-infraRED.init();
-
-//load known nodes from a JSON file into an object variable
-var nodeTypes;
-$.ajax({
-    url: '/nodes.json',
-    dataType: 'json',
-    async: false,
-    success: function(data) {
-        console.log("Importing node types...");
-        nodeTypes = data;
-    }
-});
-
 // use this file to define the base layout for the editor
-$("#infraRED-ui-root").append('<div id="infraRED-ui-menu-bar">Menu</div>');
+infraRED.editor = (function() {
+    return {
+        init: function() {
+            console.log("Creating Editor...");
 
-$("#infraRED-ui-root").append('<div id="infraRED-ui-category-bar">Category</div>');
+            $("#infraRED-ui-root").append('<div id="infraRED-ui-menu-bar"></div>');
+            infraRED.editor.menu.init();
 
-$("#infraRED-ui-root").append('<div id="infraRED-ui-resource-bar">Resource</div>');
-
-$("#infraRED-ui-root").append('<div id="infraRED-ui-canvas">Canvas</div>');
-
-$("#infraRED-ui-root").append('<div id="infraRED-ui-status-bar">Status</div>');
-
-let canvas = $("#infraRED-ui-canvas");
-// use this file to define the category bar
-// use this file to define the resource bar
-for (let type in nodeTypes) {
-    var node = infraRED.nodes.create(type);
+            $("#infraRED-ui-root").append('<div id="infraRED-ui-category-bar"></div>');
+            infraRED.editor.category.init();
     
-    const capabilities = nodeTypes[type].capabilities;
-    const requirements = nodeTypes[type].requirements;
+            $("#infraRED-ui-root").append('<div id="infraRED-ui-resource-bar"></div>');
+            infraRED.editor.resource.init();
+    
+            $("#infraRED-ui-root").append('<div id="infraRED-ui-canvas"></div>');
+            infraRED.editor.canvas.init();
+    
+            $("#infraRED-ui-root").append('<div id="infraRED-ui-status-bar"></div>');
+            infraRED.editor.status.init();
 
-    if (capabilities) node.addCapabilities(nodeTypes[type].capabilities);
-    if (requirements) node.addRequirements(nodeTypes[type].requirements);
+            infraRED.editor.nodes.init();
+        },
+    };
+})();
+// use this file to define the category bar
+infraRED.editor.category = (function() {
+    let categoryBar;
 
-    $('#infraRED-ui-resource-bar').append(node.getDiv());
+    return {
+        init: function() {
+            console.log("Creating Category Bar...");
 
-    console.log("Imported: " + type);
-}
+            categoryBar = $("#infraRED-ui-category-bar");
 
-$(".resource-node").draggable({
-    helper: "clone",
-    containment: "#infraRED-ui-root",
-    scroll: false,
-});
-
-
-// use this file to define the canvas bar
-canvas.droppable({
-    tolerance: "fit",
-    hoverClass: "drop-hover",
-    accept: ".resource-node",
-    drop: function(event, ui) {
-        let droppedNode = $(ui.helper).clone();
-
-        //let the editor know the node in question changed sides
-        droppedNode.removeClass("resource-node");
-        droppedNode.addClass("canvas-node");
-
-        droppedNode.draggable({
-            containment: "parent",
-        });
+            let title = document.createElement("div");
+            title.className = "title";
+            title.innerHTML = "Category";
         
-        droppedNode.dblclick(() => {
-            droppedNode.remove();
-        });
+            categoryBar.append(title);
+        },
+        get: function() {
+            return categoryBar;
+        },
+    };
+})();
+// use this file to define the resource bar
+infraRED.editor.resource = (function() {
+    let resourceBar;
 
-        $(this).append(droppedNode);
-    },
-});
+    //TODO - i may not want to have file handling behaviour on a supposed JS DOM manipulation only file
+    function importNodeTypesFromJSON() {
+        let nodeTypes;
+        $.ajax({
+            url: '/nodes.json',
+            dataType: 'json',
+            async: false,
+
+            //success function places value inside the return variable
+            success: function(data) {
+                nodeTypes = data;
+                console.log("Importing node types...");
+            }
+        });
+        return nodeTypes;
+    }
+
+    function loadNodeTypes() {
+        let nodeTypes = importNodeTypesFromJSON();
+        let importedNodes = [];
+        for (let type in nodeTypes) {
+            let node = infraRED.nodes.create(type);
+            
+            const capabilities = nodeTypes[type].capabilities;
+            const requirements = nodeTypes[type].requirements;
+        
+            if (capabilities) node.addCapabilities(nodeTypes[type].capabilities);
+            if (requirements) node.addRequirements(nodeTypes[type].requirements);
+        
+            importedNodes.push(node);
+        
+            console.log("Loaded: " + type);
+        }
+        return importedNodes;
+    }
+
+    return {
+        init: function() {
+            console.log("Creating Resource Bar...");
+
+            resourceBar = $("#infraRED-ui-resource-bar");
+
+            let title = document.createElement("div");
+            title.className = "title";
+            title.innerHTML = "Resource";
+        
+            resourceBar.append(title);
+
+            loadNodeTypes().forEach(node => {
+                resourceBar.append(node.getDiv());
+            });
+        },
+        get: function() {
+            return resourceBar;
+        },
+    };
+})();
+// use this file to define the canvas bar
+infraRED.editor.canvas = (function() {
+    let canvas;
+
+    return {
+        init: function() {
+            canvas = $("#infraRED-ui-canvas");
+
+            canvas.droppable({
+                tolerance: "fit",
+                hoverClass: "node-hover-drop",
+                accept: ".resource-node",
+                drop: function(event, ui) {
+                    let droppedNode = $(ui.helper).clone();
+            
+                    //let the editor know the node in question changed sides
+                    infraRED.events.emit("node:canvas-drop", droppedNode);
+            
+                    $(this).append(droppedNode);
+                },
+            });
+        
+            let title = document.createElement("div");
+            title.className = "title";
+            title.innerHTML = "Canvas";
+        
+            canvas.append(title);
+        }
+    };
+})();
+// use this file to define the menu bar
+infraRED.editor.menu = (function() {
+    let menuBar;
+
+    return {
+        init: function() {
+            console.log("Creating Menu Bar...");
+
+            menuBar = $("#infraRED-ui-menu-bar");
+
+            let title = document.createElement("div");
+            title.className = "title";
+            title.innerHTML = "Menu";
+        
+            menuBar.append(title);
+        },
+        get: function() {
+            return menuBar;
+        },
+    };
+})();
+// use this file to define the status bar
+infraRED.editor.status = (function() {
+    let statusBar;
+
+    return {
+        init: function() {
+            console.log("Creating Status Bar...");
+
+            statusBar = $("#infraRED-ui-status-bar");
+
+            let title = document.createElement("div");
+            title.className = "title";
+            title.innerHTML = "Status";
+        
+            statusBar.append(title);
+        },
+        get: function() {
+            return statusBar;
+        },
+    };
+})();
 // use this file to define node behaviour
+infraRED.editor.nodes = (function () {
+    return {
+        init: function() {
+            $(".resource-node").draggable({
+                helper: "clone",
+                containment: "#infraRED-ui-root",
+                scroll: false,
+
+                create: function(event, ui) {
+                    console.log("Create Drag");
+                    $(this).css("width", $(this).width());
+                },
+                start: function(event, ui) {
+                    console.log("Start Drag");
+                    $(ui.helper).width();
+                },
+                drag: function(event, ui) {
+                    console.log("Dragging");
+                },
+                stop: function(event, ui) {
+                    console.log("Stop Drag");
+                },
+            });
+            
+            infraRED.events.on("node:canvas-drop", (droppedNode) => {
+                droppedNode.removeClass("resource-node");
+                droppedNode.addClass("canvas-node");
+            
+                droppedNode.draggable({
+                    containment: "parent",
+                });
+                    
+                droppedNode.dblclick(() => {
+                    droppedNode.remove();
+                });
+            });
+        }
+    };
+})();
+//"backend" client side
+infraRED.init();
+//frontend/views for client side
+infraRED.editor.init();

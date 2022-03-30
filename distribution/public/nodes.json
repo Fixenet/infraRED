@@ -8,5 +8,32 @@
     },
     "tosca.nodes.WebServer.Nodejs": {
         "requirements": ["host"]
+    },
+    "tosca.nodes.WebServer.Nodejs1": {
+        "requirements": ["host"]
+    },
+    "tosca.nodes.WebServer.Nodejs2": {
+        "requirements": ["host"]
+    },
+    "tosca.nodes.WebServer.Nodejs3": {
+        "requirements": ["host"]
+    },
+    "tosca.nodes.WebServer.Nodejs4": {
+        "requirements": ["host"]
+    },
+    "tosca.nodes.WebServer.Nodejs5": {
+        "requirements": ["host"]
+    },
+    "tosca.nodes.WebServer.Nodejs6": {
+        "requirements": ["host"]
+    },
+    "tosca.nodes.WebServer.Nodejs7": {
+        "requirements": ["host"]
+    },
+    "tosca.nodes.WebServer.Nodejs8": {
+        "requirements": ["host"]
+    },
+    "tosca.nodes.WebServer.Nodejs9": {
+        "requirements": ["host"]
     }
 }

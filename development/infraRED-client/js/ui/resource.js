@@ -1,21 +1,61 @@
 // use this file to define the resource bar
-for (let type in nodeTypes) {
-    var node = infraRED.nodes.create(type);
-    
-    const capabilities = nodeTypes[type].capabilities;
-    const requirements = nodeTypes[type].requirements;
+infraRED.editor.resource = (function() {
+    let resourceBar;
 
-    if (capabilities) node.addCapabilities(nodeTypes[type].capabilities);
-    if (requirements) node.addRequirements(nodeTypes[type].requirements);
+    //TODO - i may not want to have file handling behaviour on a supposed JS DOM manipulation only file
+    function importNodeTypesFromJSON() {
+        let nodeTypes;
+        $.ajax({
+            url: '/nodes.json',
+            dataType: 'json',
+            async: false,
 
-    $('#infraRED-ui-resource-bar').append(node.getDiv());
+            //success function places value inside the return variable
+            success: function(data) {
+                nodeTypes = data;
+                console.log("Importing node types...");
+            }
+        });
+        return nodeTypes;
+    }
 
-    console.log("Imported: " + type);
-}
+    function loadNodeTypes() {
+        let nodeTypes = importNodeTypesFromJSON();
+        let importedNodes = [];
+        for (let type in nodeTypes) {
+            let node = infraRED.nodes.create(type);
+            
+            const capabilities = nodeTypes[type].capabilities;
+            const requirements = nodeTypes[type].requirements;
+        
+            if (capabilities) node.addCapabilities(nodeTypes[type].capabilities);
+            if (requirements) node.addRequirements(nodeTypes[type].requirements);
+        
+            importedNodes.push(node);
+        
+            console.log("Loaded: " + type);
+        }
+        return importedNodes;
+    }
 
-$(".resource-node").draggable({
-    helper: "clone",
-    containment: "#infraRED-ui-root",
-    scroll: false,
-});
+    return {
+        init: function() {
+            console.log("Creating Resource Bar...");
 
+            resourceBar = $("#infraRED-ui-resource-bar");
+
+            let title = document.createElement("div");
+            title.className = "title";
+            title.innerHTML = "Resource";
+        
+            resourceBar.append(title);
+
+            loadNodeTypes().forEach(node => {
+                resourceBar.append(node.getDiv());
+            });
+        },
+        get: function() {
+            return resourceBar;
+        },
+    };
+})();

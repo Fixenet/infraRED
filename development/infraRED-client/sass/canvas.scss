@@ -1,8 +1,12 @@
 #infraRED-ui-canvas {
-    background-color: #ffb570;
+    background-color: #fdc28a;
     border-bottom: $layout-border;
 }
 
-.drop-hover {
+#infraRED-ui-canvas .title {
+    background-color: #ffb570;
+}
+
+.node-hover-drop {
     background-color: #ff9029 !important;
 } 
