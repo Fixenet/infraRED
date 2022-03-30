@@ -1,9 +1,19 @@
 #infraRED-ui-category-bar {
-    background-color: #fd9694;
     border-right: $layout-border;
     border-bottom: $layout-border;
+
+    display: flex;
+    flex-direction: column;
 }
 
 #infraRED-ui-category-bar .title {
     background-color: #ea6b66;
+}
+
+#infraRED-ui-category-bar .content {
+    background-color: #fd9694;
+
+    height: 100%;
+    overflow-y: scroll;
+    overflow-x: hidden;
 }

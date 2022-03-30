@@ -1,10 +1,21 @@
 #infraRED-ui-canvas {
-    background-color: #fdc28a;
     border-bottom: $layout-border;
+
+    display: flex;
+    flex-direction: column;
 }
 
 #infraRED-ui-canvas .title {
     background-color: #ffb570;
+}
+
+#infraRED-ui-canvas .content {
+    background-color: #ffc895;
+
+    height: 100%;
+
+    //prevents slider bars from appearing when the node touches the bottom/right of the div
+    padding: 1px;
 }
 
 .node-hover-drop {

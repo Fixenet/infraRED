@@ -5,8 +5,17 @@ infraRED.editor.canvas = (function() {
     return {
         init: function() {
             canvas = $("#infraRED-ui-canvas");
+        
+            let title = document.createElement("div");
+            title.className = "title";
+            title.innerHTML = "Canvas";
+        
+            canvas.append(title);
 
-            canvas.droppable({
+            let content = document.createElement("div");
+            content.className = "content";
+
+            $(content).droppable({
                 tolerance: "fit",
                 hoverClass: "node-hover-drop",
                 accept: ".resource-node",
@@ -19,12 +28,8 @@ infraRED.editor.canvas = (function() {
                     $(this).append(droppedNode);
                 },
             });
-        
-            let title = document.createElement("div");
-            title.className = "title";
-            title.innerHTML = "Canvas";
-        
-            canvas.append(title);
+
+            canvas.append(content);
         }
     };
 })();

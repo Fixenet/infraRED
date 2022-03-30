@@ -414,6 +414,11 @@ infraRED.editor.category = (function() {
             title.innerHTML = "Category";
         
             categoryBar.append(title);
+
+            let content = document.createElement("div");
+            content.className = "content";
+
+            categoryBar.append(content);
         },
         get: function() {
             return categoryBar;
@@ -472,9 +477,14 @@ infraRED.editor.resource = (function() {
         
             resourceBar.append(title);
 
+            let content = document.createElement("div");
+            content.className = "content";
+
             loadNodeTypes().forEach(node => {
-                resourceBar.append(node.getDiv());
+                content.append(node.getDiv());
             });
+
+            resourceBar.append(content);
         },
         get: function() {
             return resourceBar;
@@ -488,8 +498,17 @@ infraRED.editor.canvas = (function() {
     return {
         init: function() {
             canvas = $("#infraRED-ui-canvas");
+        
+            let title = document.createElement("div");
+            title.className = "title";
+            title.innerHTML = "Canvas";
+        
+            canvas.append(title);
 
-            canvas.droppable({
+            let content = document.createElement("div");
+            content.className = "content";
+
+            $(content).droppable({
                 tolerance: "fit",
                 hoverClass: "node-hover-drop",
                 accept: ".resource-node",
@@ -502,12 +521,8 @@ infraRED.editor.canvas = (function() {
                     $(this).append(droppedNode);
                 },
             });
-        
-            let title = document.createElement("div");
-            title.className = "title";
-            title.innerHTML = "Canvas";
-        
-            canvas.append(title);
+
+            canvas.append(content);
         }
     };
 })();

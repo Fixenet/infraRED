@@ -13,6 +13,11 @@ infraRED.editor.category = (function() {
             title.innerHTML = "Category";
         
             categoryBar.append(title);
+
+            let content = document.createElement("div");
+            content.className = "content";
+
+            categoryBar.append(content);
         },
         get: function() {
             return categoryBar;

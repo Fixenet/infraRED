@@ -50,9 +50,14 @@ infraRED.editor.resource = (function() {
         
             resourceBar.append(title);
 
+            let content = document.createElement("div");
+            content.className = "content";
+
             loadNodeTypes().forEach(node => {
-                resourceBar.append(node.getDiv());
+                content.append(node.getDiv());
             });
+
+            resourceBar.append(content);
         },
         get: function() {
             return resourceBar;
