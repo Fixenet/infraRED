@@ -21,4 +21,6 @@ This project intends to propose and develop InfraRED, a Proof-of-Concept (PoC) t
 A PoC prototype shall be built, deployed and tested. The results obtained shall be validated based on real scenarios to be defined.
 
 #### Running
-To be determined.
+`npm install`
+`grunt build`
+`node distribution/index.js`
