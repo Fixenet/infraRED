@@ -4,7 +4,6 @@ var infraRED = (function() {
             console.log("infraRED is starting.");
     
             infraRED.events.DEBUG = true;
-    
             infraRED.validator.init();
     
             infraRED.nodes.init();
@@ -75,10 +74,18 @@ infraRED.validator = (function() {
     };
 })();
 infraRED.nodes = (function() {
-    var currentID = 1;
+    const MAX_ID = 10000;
+    //TODO - MAJOR REFACTOR
+    //organize all of the structure, clearly define how elements will be defined
+    //so there is organization between this node class and the divs on the browser
+    let currentID = 0;
     class Node {
         constructor(type) {
-            this.id = currentID++;
+            //TODO - for now this ID is appended to the nodes in the resource list but on the canvas
+            //as it is, we will be duplicating IDs on the canvas
+            this.resourceID = -1;
+            this.canvasID = -1;
+
             this.name = "null";
             
             this.type = type;
@@ -96,26 +103,18 @@ infraRED.nodes = (function() {
             }
         }
 
-        addCapabilities(cap) {
-            cap.forEach((capability) => {
-                this.capabilities[capability] = {};
-            });
+        addCapability(capability) {
+            this.capabilities[capability] = {};
         }
 
-        addRequirements(req) {
-            req.forEach((requirement) => {
-                this.requirements[requirement] = {};
-            });
+        addRequirement(requirement) {
+            this.requirements[requirement] = {};
         }
 
-        /**
-         * Creates a div representative of the node
-         * @returns {string} a div element
-         */
         getDiv() {
             let div = document.createElement("div");
             div.className = "node resource-node";
-            div.id = this.type;
+            div.id = this.resourceID;
 
             div.innerHTML += `<p class="type">${this.type}</p>`;
 
@@ -143,127 +142,128 @@ infraRED.nodes = (function() {
         }
     }
 
-    // information about types of nodes
-    var registry = (function() {
-        let nodeTypes = [];
-
-        function addNodeType(node) {
-            // check if type is set, if not do nothing
-            if (node.type != null) {
-                nodeTypes.push(node.type);
-            }
-        }
-        
-        function nodeTypeExists(nodeType) {
-            return nodeTypes.includes(nodeType);
-        }
-
-        return {
-            addType: addNodeType,
-            has: nodeTypeExists,
-        };
-    })();
-
+    // this list holds information about the node types loaded into infraRED
     resourceNodesList = (function() {
-        let nodes = {};
+        let nodeList = {};
 
         function addNode(node) {
-            nodes[node.id] = node;
+            nodeList[node.resourceID] = node;
         }
 
         function getNodeByID(id) {
-            return nodes[id];
-        }
-
-        function getNodeByName(name) {
-            for (let id in nodes) {
-                if (nodes[id].name === name) {
-                    return nodes[id];
-                }
-            }
+            return nodeList[id];
         }
 
         function getNodeList() {
-            return nodes;
+            return nodeList;
         }
 
         return {
           add: addNode,
           getByID: getNodeByID,
-          getByName: getNodeByName,
           getAll: getNodeList,
         };
     })();
 
+    // this list holds information about the nodes in play
+    // these nodes will be different from the nodes present in the resource bar
+    // for that distinction, resource nodes will have sequential IDs
+    // and canvas nodes will have the random IDs
     canvasNodesList = (function() {
-        let nodes = {};
+        let nodeList = {};
 
         function addNode(node) {
-            nodes[node.id] = node;
+            node.canvasID = createID();
+            nodeList[node.canvasID] = node;
+        }
+
+        function removeNode(node) {
+            delete nodeList[node.canvasID];
         }
 
         function getNodeByID(id) {
-            return nodes[id];
-        }
-
-        function getNodeByName(name) {
-            for (let id in nodes) {
-                if (nodes[id].name === name) {
-                    return nodes[id];
-                }
-            }
+            return nodeList[id];
         }
 
         function getNodeList() {
-            return nodes;
+            return nodeList;
         }
 
         return {
           add: addNode,
+          remove: removeNode,
           getByID: getNodeByID,
-          getByName: getNodeByName,
           getAll: getNodeList,
         };
     })();
 
-    function addNodeToResourceList(node) {
+    function logResourceList() {
+        console.log("Logging resources list...");
+        infraRED.editor.status.log(JSON.stringify(resourceNodesList.getAll()));
+        console.log(resourceNodesList.getAll());
+    }
+
+    function logCanvasList() {
+        console.log("Logging canvas list...");
+        infraRED.editor.status.log(JSON.stringify(canvasNodesList.getAll()));
+        console.log(canvasNodesList.getAll());
+    }
+
+    function setUpEvents() {
+        infraRED.events.on("nodes:log-resources", logResourceList);
+        infraRED.events.on("nodes:log-canvas", logCanvasList);
+    }
+
+    function newResourceNode(type) {
+        let node = new Node(type);
+        node.resourceID = currentID++;
+
         resourceNodesList.add(node);
-        infraRED.events.emit("nodes:add", node);
+
+        infraRED.events.emit("nodes:add-resources", node);
+
+        return node;
+    }
+
+    function moveNodeToCanvas(resourceNode) {
+        let canvasNode = new Node(resourceNode.type);
+
+        canvasNode.resourceID = resourceNode.resourceID;
+        canvasNode.canvasID = createID();
+        canvasNode.capabilities = resourceNode.capabilities;
+        canvasNode.requirements = resourceNode.requirements;
+
+        canvasNodesList.add(canvasNode);
+
+        infraRED.events.emit("nodes:move-to-canvas", canvasNode);
+
+        return canvasNode;
+    }
+
+    function removeNodeFromCanvas(canvasNode) {
+        canvasNodesList.remove(canvasNode);
+    }
+
+    function createID() {
+        function generateID() {
+            return Math.floor(Math.random() * MAX_ID);
+        }
+
+        let newID = generateID();
+
+        while (canvasNodesList.getByID(newID) != undefined) newID = generateID();
+
+        return newID;
     }
 
     return {
         init: function() {
             console.log("Starting the nodes functionality.");
+            setUpEvents();
         },
-        /**
-         * Creates a node object and adds it to the resource list where all the nodes the system knowns about exist
-         * @param {string} name 
-         * @returns {Node} the created node
-         */
-        create: function(name) {
-            let node = new Node(name);
-            addNodeToResourceList(node);
-            return node;
-        },
-
-        /**
-         * Gets a node object from the resource list via its ID or its name
-         * @param {number | string} query 
-         * @returns {Node} the corresponding node
-         */
-        get: function(query) {
-            if (typeof(query) === 'number') return resourceNodesList.getByID(query);
-            else if (typeof(query) === 'string') return resourceNodesList.getByName(query);
-        },
-
-        /**
-         * Checks if a node object exists in the resource list via its ID or its name
-         * @param {number | string} query 
-         * @returns {boolean} whether node exists or not
-         */
-        has: function(query) {
-            return this.get(query) !== undefined;
-        },
+        new: newResourceNode,
+        add: moveNodeToCanvas,
+        remove: removeNodeFromCanvas,
 
         resourceList: resourceNodesList,
         canvasList: canvasNodesList,
@@ -446,20 +446,24 @@ infraRED.editor.resource = (function() {
         return nodeTypes;
     }
 
+    //TOOD - this should not be here, it is backend, move it outside UI folder
     function loadNodeTypes() {
         let nodeTypes = importNodeTypesFromJSON();
         let importedNodes = [];
         for (let type in nodeTypes) {
-            let node = infraRED.nodes.create(type);
+            let node = infraRED.nodes.new(type);
             
             const capabilities = nodeTypes[type].capabilities;
             const requirements = nodeTypes[type].requirements;
         
-            if (capabilities) node.addCapabilities(nodeTypes[type].capabilities);
-            if (requirements) node.addRequirements(nodeTypes[type].requirements);
+            if (capabilities) for(let capability in capabilities) {
+                node.addCapability(capabilities[capability]);
+            }
+            if (requirements) for(let requirement in requirements) {
+                node.addRequirement(requirements[requirement]);
+            }
         
             importedNodes.push(node);
-        
             console.log("Loaded: " + type);
         }
         return importedNodes;
@@ -513,12 +517,14 @@ infraRED.editor.canvas = (function() {
                 hoverClass: "node-hover-drop",
                 accept: ".resource-node",
                 drop: function(event, ui) {
-                    let droppedNode = $(ui.helper).clone();
+                    let droppedNodeElement = $(ui.helper).clone();
+
+                    let resourceNode = infraRED.nodes.resourceList.getByID(ui.draggable.data("node"));
+                    
+                    //let the any editor element know the node in question changed sides
+                    infraRED.events.emit("nodes:canvas-drop", resourceNode, droppedNodeElement);
             
-                    //let the editor know the node in question changed sides
-                    infraRED.events.emit("node:canvas-drop", droppedNode);
-            
-                    $(this).append(droppedNode);
+                    $(this).append(droppedNodeElement);
                 },
             });
 
@@ -541,6 +547,33 @@ infraRED.editor.menu = (function() {
             title.innerHTML = "Menu";
         
             menuBar.append(title);
+
+            let content = document.createElement("div");
+            content.className = "content";
+
+            menuBar.append(content);
+
+            let logCanvasButton = document.createElement("button");
+            let logResourcesButton = document.createElement("button");
+
+            logCanvasButton.className = "menu-button";
+            logCanvasButton.id = "log-canvas-button";
+            logCanvasButton.innerHTML = "Log Canvas Nodes";
+
+            $(logCanvasButton).on("click", () => {
+                infraRED.events.emit("nodes:log-canvas");
+            });
+
+            logResourcesButton.className = "menu-button";
+            logResourcesButton.id = "log-resources-button";
+            logResourcesButton.innerHTML = "Log Resource Nodes";
+
+            $(logResourcesButton).on("click", () => {
+                infraRED.events.emit("nodes:log-resources");
+            });
+
+            content.append(logResourcesButton);
+            content.append(logCanvasButton);
         },
         get: function() {
             return menuBar;
@@ -550,6 +583,7 @@ infraRED.editor.menu = (function() {
 // use this file to define the status bar
 infraRED.editor.status = (function() {
     let statusBar;
+    let content;
 
     return {
         init: function() {
@@ -562,10 +596,18 @@ infraRED.editor.status = (function() {
             title.innerHTML = "Status";
         
             statusBar.append(title);
+
+            content = document.createElement("div");
+            content.className = "content";
+
+            statusBar.append(content);
         },
         get: function() {
             return statusBar;
         },
+        log: function(msg) {
+            content.innerHTML = `<p>${msg}</p>`;
+        }
     };
 })();
 // use this file to define node behaviour
@@ -578,31 +620,32 @@ infraRED.editor.nodes = (function () {
                 scroll: false,
 
                 create: function(event, ui) {
-                    console.log("Create Drag");
+                    //HTML page loads with 90% width so it's responsive to the layout
+                    //this then creates the draggable with static width so the width doesnt change at the moment of drag
                     $(this).css("width", $(this).width());
                 },
                 start: function(event, ui) {
-                    console.log("Start Drag");
-                    $(ui.helper).width();
+                    $(this).data('node', event.currentTarget.id);
                 },
                 drag: function(event, ui) {
-                    console.log("Dragging");
                 },
                 stop: function(event, ui) {
-                    console.log("Stop Drag");
                 },
             });
             
-            infraRED.events.on("node:canvas-drop", (droppedNode) => {
-                droppedNode.removeClass("resource-node");
-                droppedNode.addClass("canvas-node");
+            infraRED.events.on("nodes:canvas-drop", (droppedNode, droppedNodeElement) => {
+                droppedNodeElement.removeClass("resource-node");
+                droppedNodeElement.addClass("canvas-node");
             
-                droppedNode.draggable({
+                droppedNodeElement.draggable({
                     containment: "parent",
                 });
-                    
-                droppedNode.dblclick(() => {
-                    droppedNode.remove();
+
+                let canvasNode = infraRED.nodes.add(droppedNode);
+
+                droppedNodeElement.dblclick(() => {
+                    droppedNodeElement.remove();
+                    infraRED.nodes.remove(canvasNode);
                 });
             });
         }

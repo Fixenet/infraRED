@@ -20,12 +20,14 @@ infraRED.editor.canvas = (function() {
                 hoverClass: "node-hover-drop",
                 accept: ".resource-node",
                 drop: function(event, ui) {
-                    let droppedNode = $(ui.helper).clone();
+                    let droppedNodeElement = $(ui.helper).clone();
+
+                    let resourceNode = infraRED.nodes.resourceList.getByID(ui.draggable.data("node"));
+                    
+                    //let the any editor element know the node in question changed sides
+                    infraRED.events.emit("nodes:canvas-drop", resourceNode, droppedNodeElement);
             
-                    //let the editor know the node in question changed sides
-                    infraRED.events.emit("node:canvas-drop", droppedNode);
-            
-                    $(this).append(droppedNode);
+                    $(this).append(droppedNodeElement);
                 },
             });
 

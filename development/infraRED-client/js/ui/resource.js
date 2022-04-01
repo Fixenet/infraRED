@@ -19,20 +19,24 @@ infraRED.editor.resource = (function() {
         return nodeTypes;
     }
 
+    //TOOD - this should not be here, it is backend, move it outside UI folder
     function loadNodeTypes() {
         let nodeTypes = importNodeTypesFromJSON();
         let importedNodes = [];
         for (let type in nodeTypes) {
-            let node = infraRED.nodes.create(type);
+            let node = infraRED.nodes.new(type);
             
             const capabilities = nodeTypes[type].capabilities;
             const requirements = nodeTypes[type].requirements;
         
-            if (capabilities) node.addCapabilities(nodeTypes[type].capabilities);
-            if (requirements) node.addRequirements(nodeTypes[type].requirements);
+            if (capabilities) for(let capability in capabilities) {
+                node.addCapability(capabilities[capability]);
+            }
+            if (requirements) for(let requirement in requirements) {
+                node.addRequirement(requirements[requirement]);
+            }
         
             importedNodes.push(node);
-        
             console.log("Loaded: " + type);
         }
         return importedNodes;
