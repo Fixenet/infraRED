@@ -1,7 +1,15 @@
 #infraRED-ui-status-bar {
-    background-color: #ffe493;
+    display: flex;
+    flex-direction: column;
 }
 
 #infraRED-ui-status-bar .title {
     background-color: #ffd966;
+}
+
+#infraRED-ui-status-bar .content {
+    background-color: #ffe493;
+
+    height: 100%;
+    overflow: hidden;
 }
