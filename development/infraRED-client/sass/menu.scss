@@ -1,8 +1,26 @@
 #infraRED-ui-menu-bar {
-    background-color: #a6c9ff;
     border-bottom: $layout-border;
+
+    display: flex;
+    flex-direction: column;
 }
 
 #infraRED-ui-menu-bar .title{
     background-color: #7ea6e0;
+}
+
+#infraRED-ui-menu-bar .content{
+    background-color: #a6c9ff;
+
+    height: 100%;
+
+    display: flex;
+    flex-direction: row;
+}
+
+#infraRED-ui-menu-bar .menu-button{
+    background-color: aqua;
+
+    margin: 2px 0px 2px 2px;
+    border: #7ea6e0 solid 0.2em;
 }
