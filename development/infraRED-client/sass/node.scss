@@ -12,6 +12,11 @@
     text-align: center;
 }
 
+.node:hover {
+    cursor: pointer;
+    border-color: rgb(98, 179, 255);
+}
+
 .resource-node {
     width: 85%;
     word-wrap: break-word;
