@@ -1,5 +1,5 @@
 // use this file to define the resource bar
-infraRED.editor.resource = (function() {
+infraRED.editor.resourceBar = (function() {
     let resourceBar;
 
     //TODO - i may not want to have file handling behaviour on a supposed JS DOM manipulation only file
@@ -48,14 +48,17 @@ infraRED.editor.resource = (function() {
 
             resourceBar = $("#infraRED-ui-resource-bar");
 
-            let title = document.createElement("div");
-            title.className = "title";
-            title.innerHTML = "Resource";
-        
+            let title = $("<div>", {
+                id: "resource-bar-title",
+                class: "title",
+                text: "Resource",
+            });
             resourceBar.append(title);
 
-            let content = document.createElement("div");
-            content.className = "content";
+            let content = $("<div>", {
+                id: "resource-bar-content",
+                class: "content",
+            });
 
             loadNodeTypes().forEach(node => {
                 content.append(node.getDiv());

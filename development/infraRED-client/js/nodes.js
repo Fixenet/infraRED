@@ -1,17 +1,14 @@
 infraRED.nodes = (function() {
     const MAX_ID = 10000;
-    //TODO - MAJOR REFACTOR
-    //organize all of the structure, clearly define how elements will be defined
-    //so there is organization between this node class and the divs on the browser
+    const EMPTY_NAME_NODE = "EMPTY_NAME_NODE";
+
     let currentID = 0;
     class Node {
         constructor(type) {
-            //TODO - for now this ID is appended to the nodes in the resource list but on the canvas
-            //as it is, we will be duplicating IDs on the canvas
             this.resourceID = -1;
             this.canvasID = -1;
 
-            this.name = "null";
+            this.name = EMPTY_NAME_NODE;
             
             this.type = type;
             this.properties = {};
@@ -37,33 +34,55 @@ infraRED.nodes = (function() {
         }
 
         getDiv() {
-            let div = document.createElement("div");
-            div.className = "node resource-node";
-            div.id = this.resourceID;
+            let div = $("<div>", {
+                id: this.resourceID,
+                class: "node resource-node",
+            });
 
-            div.innerHTML += `<p class="type">${this.type}</p>`;
+            div.append($("<p>", { 
+                class: "type", 
+                text: this.type,
+            }));
 
-            if (Object.keys(this.requirements).length) {
-                let requirements = document.createElement("div");
-                requirements.className = "requirements";
-                for (const requirement of Object.keys(this.requirements)) {
-                    requirements.innerHTML += `<p class="requirement">${requirement}</p>`;
+            if (!$.isEmptyObject(this.requirements)) {
+                let requirements = $("<div>", {
+                    class: "requirements",
+                });
+
+                Object.keys(this.requirements).forEach(requirement => {
+                    requirements.append($("<p>", {
+                        class: "requirement",
+                        text: requirement,
+                    }));
+                });
+
+                if (!$.isEmptyObject(this.requirements) && !$.isEmptyObject(this.capabilities)) {
+                    requirements.css("border-bottom", "0.30em dashed black");
                 }
-                if (Object.keys(this.capabilities).length && Object.keys(this.requirements).length) {
-                    $(requirements).css("border-bottom", "0.30em dashed black");
-                }
+
                 div.append(requirements);
             }
             
-            if (Object.keys(this.capabilities).length) {
-                let capabilities = document.createElement("div");
-                capabilities.className = "capabilities";
-                for (const capability of Object.keys(this.capabilities)) {
-                    capabilities.innerHTML += `<p class="capability">${capability}</p>`;
-                }
+            if (!$.isEmptyObject(this.capabilities)) {
+                let capabilities = $("<div>", {
+                    class: "capabilities",
+                });
+
+                Object.keys(this.capabilities).forEach(capability => {
+                    capabilities.append($("<p>", {
+                        class: "capability",
+                        text: capability,
+                    }));
+                });
+
                 div.append(capabilities);
             }
+            
             return div;
+        }
+
+        print() {
+            return `${this.type}: ${this.resourceID}|${this.canvasID} = ${this.name}`;
         }
     }
 
@@ -79,8 +98,9 @@ infraRED.nodes = (function() {
             return nodeList[id];
         }
 
+        // returns an array with the node class instances
         function getNodeList() {
-            return nodeList;
+            return Object.values(nodeList);
         }
 
         return {
@@ -110,8 +130,9 @@ infraRED.nodes = (function() {
             return nodeList[id];
         }
 
+        // returns an array with the node class instances
         function getNodeList() {
-            return nodeList;
+            return Object.values(nodeList);
         }
 
         return {
@@ -124,14 +145,28 @@ infraRED.nodes = (function() {
 
     function logResourceList() {
         console.log("Logging resources list...");
-        infraRED.editor.status.log(JSON.stringify(resourceNodesList.getAll()));
-        console.log(resourceNodesList.getAll());
+        let logString = [];
+
+        resourceNodesList.getAll().forEach(node => {
+            logString.push(node.print());
+        });
+
+        logString = logString.join(" || ");
+        infraRED.editor.statusBar.log(logString);
+        console.log(logString);
     }
 
     function logCanvasList() {
         console.log("Logging canvas list...");
-        infraRED.editor.status.log(JSON.stringify(canvasNodesList.getAll()));
-        console.log(canvasNodesList.getAll());
+        let logString = [];
+
+        canvasNodesList.getAll().forEach(node => {
+            logString.push(node.print());
+        });
+
+        logString = logString.join(" || ");
+        infraRED.editor.statusBar.log(logString);
+        console.log(logString);
     }
 
     function setUpEvents() {

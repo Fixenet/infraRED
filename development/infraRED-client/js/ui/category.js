@@ -1,5 +1,5 @@
 // use this file to define the category bar
-infraRED.editor.category = (function() {
+infraRED.editor.categoryBar = (function() {
     let categoryBar;
 
     return {
@@ -8,15 +8,17 @@ infraRED.editor.category = (function() {
 
             categoryBar = $("#infraRED-ui-category-bar");
 
-            let title = document.createElement("div");
-            title.className = "title";
-            title.innerHTML = "Category";
-        
+            let title = $("<div>", {
+                id: "category-bar-title",
+                class: "title",
+                text: "Category",
+            });
             categoryBar.append(title);
 
-            let content = document.createElement("div");
-            content.className = "content";
-
+            let content = $("<div>", {
+                id: "category-bar-content",
+                class: "content",
+            });
             categoryBar.append(content);
         },
         get: function() {

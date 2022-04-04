@@ -1,5 +1,5 @@
 // use this file to define the status bar
-infraRED.editor.status = (function() {
+infraRED.editor.statusBar = (function() {
     let statusBar;
     let content;
 
@@ -9,22 +9,24 @@ infraRED.editor.status = (function() {
 
             statusBar = $("#infraRED-ui-status-bar");
 
-            let title = document.createElement("div");
-            title.className = "title";
-            title.innerHTML = "Status";
-        
+            let title = $("<div>", {
+                id: "status-bar-title",
+                class: "title",
+                text: "Status",
+            });
             statusBar.append(title);
 
-            content = document.createElement("div");
-            content.className = "content";
-
+            content = $("<div>", {
+                id: "status-bar-content",
+                class: "content",
+            });
             statusBar.append(content);
         },
         get: function() {
             return statusBar;
         },
         log: function(msg) {
-            content.innerHTML = `<p>${msg}</p>`;
+            content.text(msg);
         }
     };
 })();

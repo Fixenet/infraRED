@@ -75,18 +75,15 @@ infraRED.validator = (function() {
 })();
 infraRED.nodes = (function() {
     const MAX_ID = 10000;
-    //TODO - MAJOR REFACTOR
-    //organize all of the structure, clearly define how elements will be defined
-    //so there is organization between this node class and the divs on the browser
+    const EMPTY_NAME_NODE = "EMPTY_NAME_NODE";
+
     let currentID = 0;
     class Node {
         constructor(type) {
-            //TODO - for now this ID is appended to the nodes in the resource list but on the canvas
-            //as it is, we will be duplicating IDs on the canvas
             this.resourceID = -1;
             this.canvasID = -1;
 
-            this.name = "null";
+            this.name = EMPTY_NAME_NODE;
             
             this.type = type;
             this.properties = {};
@@ -112,33 +109,55 @@ infraRED.nodes = (function() {
         }
 
         getDiv() {
-            let div = document.createElement("div");
-            div.className = "node resource-node";
-            div.id = this.resourceID;
+            let div = $("<div>", {
+                id: this.resourceID,
+                class: "node resource-node",
+            });
 
-            div.innerHTML += `<p class="type">${this.type}</p>`;
+            div.append($("<p>", { 
+                class: "type", 
+                text: this.type,
+            }));
 
-            if (Object.keys(this.requirements).length) {
-                let requirements = document.createElement("div");
-                requirements.className = "requirements";
-                for (const requirement of Object.keys(this.requirements)) {
-                    requirements.innerHTML += `<p class="requirement">${requirement}</p>`;
+            if (!$.isEmptyObject(this.requirements)) {
+                let requirements = $("<div>", {
+                    class: "requirements",
+                });
+
+                Object.keys(this.requirements).forEach(requirement => {
+                    requirements.append($("<p>", {
+                        class: "requirement",
+                        text: requirement,
+                    }));
+                });
+
+                if (!$.isEmptyObject(this.requirements) && !$.isEmptyObject(this.capabilities)) {
+                    requirements.css("border-bottom", "0.30em dashed black");
                 }
-                if (Object.keys(this.capabilities).length && Object.keys(this.requirements).length) {
-                    $(requirements).css("border-bottom", "0.30em dashed black");
-                }
+
                 div.append(requirements);
             }
             
-            if (Object.keys(this.capabilities).length) {
-                let capabilities = document.createElement("div");
-                capabilities.className = "capabilities";
-                for (const capability of Object.keys(this.capabilities)) {
-                    capabilities.innerHTML += `<p class="capability">${capability}</p>`;
-                }
+            if (!$.isEmptyObject(this.capabilities)) {
+                let capabilities = $("<div>", {
+                    class: "capabilities",
+                });
+
+                Object.keys(this.capabilities).forEach(capability => {
+                    capabilities.append($("<p>", {
+                        class: "capability",
+                        text: capability,
+                    }));
+                });
+
                 div.append(capabilities);
             }
+            
             return div;
+        }
+
+        print() {
+            return `${this.type}: ${this.resourceID}|${this.canvasID} = ${this.name}`;
         }
     }
 
@@ -154,8 +173,9 @@ infraRED.nodes = (function() {
             return nodeList[id];
         }
 
+        // returns an array with the node class instances
         function getNodeList() {
-            return nodeList;
+            return Object.values(nodeList);
         }
 
         return {
@@ -185,8 +205,9 @@ infraRED.nodes = (function() {
             return nodeList[id];
         }
 
+        // returns an array with the node class instances
         function getNodeList() {
-            return nodeList;
+            return Object.values(nodeList);
         }
 
         return {
@@ -199,14 +220,28 @@ infraRED.nodes = (function() {
 
     function logResourceList() {
         console.log("Logging resources list...");
-        infraRED.editor.status.log(JSON.stringify(resourceNodesList.getAll()));
-        console.log(resourceNodesList.getAll());
+        let logString = [];
+
+        resourceNodesList.getAll().forEach(node => {
+            logString.push(node.print());
+        });
+
+        logString = logString.join(" || ");
+        infraRED.editor.statusBar.log(logString);
+        console.log(logString);
     }
 
     function logCanvasList() {
         console.log("Logging canvas list...");
-        infraRED.editor.status.log(JSON.stringify(canvasNodesList.getAll()));
-        console.log(canvasNodesList.getAll());
+        let logString = [];
+
+        canvasNodesList.getAll().forEach(node => {
+            logString.push(node.print());
+        });
+
+        logString = logString.join(" || ");
+        infraRED.editor.statusBar.log(logString);
+        console.log(logString);
     }
 
     function setUpEvents() {
@@ -380,27 +415,32 @@ infraRED.editor = (function() {
         init: function() {
             console.log("Creating Editor...");
 
-            $("#infraRED-ui-root").append('<div id="infraRED-ui-menu-bar"></div>');
-            infraRED.editor.menu.init();
+            let menuBar = $("<div>", { id: "infraRED-ui-menu-bar"});
+            $("#infraRED-ui-root").append(menuBar);
+            infraRED.editor.menuBar.init();
 
-            $("#infraRED-ui-root").append('<div id="infraRED-ui-category-bar"></div>');
-            infraRED.editor.category.init();
+            let categoryBar = $("<div>", { id: "infraRED-ui-category-bar"});
+            $("#infraRED-ui-root").append(categoryBar);
+            infraRED.editor.categoryBar.init();
     
-            $("#infraRED-ui-root").append('<div id="infraRED-ui-resource-bar"></div>');
-            infraRED.editor.resource.init();
+            let resourceBar = $("<div>", { id: "infraRED-ui-resource-bar"});
+            $("#infraRED-ui-root").append(resourceBar);
+            infraRED.editor.resourceBar.init();
     
-            $("#infraRED-ui-root").append('<div id="infraRED-ui-canvas"></div>');
+            let canvas = $("<div>", { id: "infraRED-ui-canvas"});
+            $("#infraRED-ui-root").append(canvas);
             infraRED.editor.canvas.init();
-    
-            $("#infraRED-ui-root").append('<div id="infraRED-ui-status-bar"></div>');
-            infraRED.editor.status.init();
+
+            let statusBar = $("<div>", { id: "infraRED-ui-status-bar"});
+            $("#infraRED-ui-root").append(statusBar);
+            infraRED.editor.statusBar.init();
 
             infraRED.editor.nodes.init();
         },
     };
 })();
 // use this file to define the category bar
-infraRED.editor.category = (function() {
+infraRED.editor.categoryBar = (function() {
     let categoryBar;
 
     return {
@@ -409,15 +449,17 @@ infraRED.editor.category = (function() {
 
             categoryBar = $("#infraRED-ui-category-bar");
 
-            let title = document.createElement("div");
-            title.className = "title";
-            title.innerHTML = "Category";
-        
+            let title = $("<div>", {
+                id: "category-bar-title",
+                class: "title",
+                text: "Category",
+            });
             categoryBar.append(title);
 
-            let content = document.createElement("div");
-            content.className = "content";
-
+            let content = $("<div>", {
+                id: "category-bar-content",
+                class: "content",
+            });
             categoryBar.append(content);
         },
         get: function() {
@@ -426,7 +468,7 @@ infraRED.editor.category = (function() {
     };
 })();
 // use this file to define the resource bar
-infraRED.editor.resource = (function() {
+infraRED.editor.resourceBar = (function() {
     let resourceBar;
 
     //TODO - i may not want to have file handling behaviour on a supposed JS DOM manipulation only file
@@ -475,14 +517,17 @@ infraRED.editor.resource = (function() {
 
             resourceBar = $("#infraRED-ui-resource-bar");
 
-            let title = document.createElement("div");
-            title.className = "title";
-            title.innerHTML = "Resource";
-        
+            let title = $("<div>", {
+                id: "resource-bar-title",
+                class: "title",
+                text: "Resource",
+            });
             resourceBar.append(title);
 
-            let content = document.createElement("div");
-            content.className = "content";
+            let content = $("<div>", {
+                id: "resource-bar-content",
+                class: "content",
+            });
 
             loadNodeTypes().forEach(node => {
                 content.append(node.getDiv());
@@ -503,18 +548,22 @@ infraRED.editor.canvas = (function() {
         init: function() {
             canvas = $("#infraRED-ui-canvas");
         
-            let title = document.createElement("div");
-            title.className = "title";
-            title.innerHTML = "Canvas";
+            let title = $("<div>", {
+                id: "canvas-title",
+                class: "title",
+                text: "Canvas",
+            });
         
             canvas.append(title);
 
-            let content = document.createElement("div");
-            content.className = "content";
+            let content = $("<div>", {
+                id: "canvas-content",
+                class: "content",
+            });
 
-            $(content).droppable({
+            content.droppable({
                 tolerance: "fit",
-                hoverClass: "node-hover-drop",
+                hoverClass: "canvas-hover-drop",
                 accept: ".resource-node",
                 drop: function(event, ui) {
                     let droppedNodeElement = $(ui.helper).clone();
@@ -533,7 +582,7 @@ infraRED.editor.canvas = (function() {
     };
 })();
 // use this file to define the menu bar
-infraRED.editor.menu = (function() {
+infraRED.editor.menuBar = (function() {
     let menuBar;
 
     return {
@@ -542,34 +591,37 @@ infraRED.editor.menu = (function() {
 
             menuBar = $("#infraRED-ui-menu-bar");
 
-            let title = document.createElement("div");
-            title.className = "title";
-            title.innerHTML = "Menu";
-        
+            let title = $("<div>", {
+                id: "menu-bar-title",
+                class: "title",
+                html: "Menu",
+            });
             menuBar.append(title);
 
-            let content = document.createElement("div");
-            content.className = "content";
-
+            let content = $("<div>", {
+                id: "menu-bar-content",
+                class: "content",
+            });
             menuBar.append(content);
 
-            let logCanvasButton = document.createElement("button");
-            let logResourcesButton = document.createElement("button");
-
-            logCanvasButton.className = "menu-button";
-            logCanvasButton.id = "log-canvas-button";
-            logCanvasButton.innerHTML = "Log Canvas Nodes";
-
-            $(logCanvasButton).on("click", () => {
-                infraRED.events.emit("nodes:log-canvas");
+            let logResourcesButton = $("<button>", {
+                id: "log-resources-button",
+                class: "menu-bar-button",
+                html: "Log Resources Nodes",
             });
-
-            logResourcesButton.className = "menu-button";
-            logResourcesButton.id = "log-resources-button";
-            logResourcesButton.innerHTML = "Log Resource Nodes";
 
             $(logResourcesButton).on("click", () => {
                 infraRED.events.emit("nodes:log-resources");
+            });
+
+            let logCanvasButton = $("<button>", {
+                id: "log-canvas-button",
+                class: "menu-bar-button",
+                html: "Log Canvas Nodes",
+            });
+
+            $(logCanvasButton).on("click", () => {
+                infraRED.events.emit("nodes:log-canvas");
             });
 
             content.append(logResourcesButton);
@@ -581,7 +633,7 @@ infraRED.editor.menu = (function() {
     };
 })();
 // use this file to define the status bar
-infraRED.editor.status = (function() {
+infraRED.editor.statusBar = (function() {
     let statusBar;
     let content;
 
@@ -591,22 +643,24 @@ infraRED.editor.status = (function() {
 
             statusBar = $("#infraRED-ui-status-bar");
 
-            let title = document.createElement("div");
-            title.className = "title";
-            title.innerHTML = "Status";
-        
+            let title = $("<div>", {
+                id: "status-bar-title",
+                class: "title",
+                text: "Status",
+            });
             statusBar.append(title);
 
-            content = document.createElement("div");
-            content.className = "content";
-
+            content = $("<div>", {
+                id: "status-bar-content",
+                class: "content",
+            });
             statusBar.append(content);
         },
         get: function() {
             return statusBar;
         },
         log: function(msg) {
-            content.innerHTML = `<p>${msg}</p>`;
+            content.text(msg);
         }
     };
 })();

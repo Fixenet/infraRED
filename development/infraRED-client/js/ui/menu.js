@@ -1,5 +1,5 @@
 // use this file to define the menu bar
-infraRED.editor.menu = (function() {
+infraRED.editor.menuBar = (function() {
     let menuBar;
 
     return {
@@ -8,34 +8,37 @@ infraRED.editor.menu = (function() {
 
             menuBar = $("#infraRED-ui-menu-bar");
 
-            let title = document.createElement("div");
-            title.className = "title";
-            title.innerHTML = "Menu";
-        
+            let title = $("<div>", {
+                id: "menu-bar-title",
+                class: "title",
+                html: "Menu",
+            });
             menuBar.append(title);
 
-            let content = document.createElement("div");
-            content.className = "content";
-
+            let content = $("<div>", {
+                id: "menu-bar-content",
+                class: "content",
+            });
             menuBar.append(content);
 
-            let logCanvasButton = document.createElement("button");
-            let logResourcesButton = document.createElement("button");
-
-            logCanvasButton.className = "menu-button";
-            logCanvasButton.id = "log-canvas-button";
-            logCanvasButton.innerHTML = "Log Canvas Nodes";
-
-            $(logCanvasButton).on("click", () => {
-                infraRED.events.emit("nodes:log-canvas");
+            let logResourcesButton = $("<button>", {
+                id: "log-resources-button",
+                class: "menu-bar-button",
+                html: "Log Resources Nodes",
             });
-
-            logResourcesButton.className = "menu-button";
-            logResourcesButton.id = "log-resources-button";
-            logResourcesButton.innerHTML = "Log Resource Nodes";
 
             $(logResourcesButton).on("click", () => {
                 infraRED.events.emit("nodes:log-resources");
+            });
+
+            let logCanvasButton = $("<button>", {
+                id: "log-canvas-button",
+                class: "menu-bar-button",
+                html: "Log Canvas Nodes",
+            });
+
+            $(logCanvasButton).on("click", () => {
+                infraRED.events.emit("nodes:log-canvas");
             });
 
             content.append(logResourcesButton);

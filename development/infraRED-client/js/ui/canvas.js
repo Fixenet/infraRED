@@ -6,18 +6,22 @@ infraRED.editor.canvas = (function() {
         init: function() {
             canvas = $("#infraRED-ui-canvas");
         
-            let title = document.createElement("div");
-            title.className = "title";
-            title.innerHTML = "Canvas";
+            let title = $("<div>", {
+                id: "canvas-title",
+                class: "title",
+                text: "Canvas",
+            });
         
             canvas.append(title);
 
-            let content = document.createElement("div");
-            content.className = "content";
+            let content = $("<div>", {
+                id: "canvas-content",
+                class: "content",
+            });
 
-            $(content).droppable({
+            content.droppable({
                 tolerance: "fit",
-                hoverClass: "node-hover-drop",
+                hoverClass: "canvas-hover-drop",
                 accept: ".resource-node",
                 drop: function(event, ui) {
                     let droppedNodeElement = $(ui.helper).clone();
