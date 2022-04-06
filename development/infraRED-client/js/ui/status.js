@@ -14,7 +14,7 @@ infraRED.editor.statusBar = (function() {
                 class: "title",
                 text: "Status",
             });
-            statusBar.append(title);
+            //statusBar.append(title);
 
             content = $("<div>", {
                 id: "status-bar-content",

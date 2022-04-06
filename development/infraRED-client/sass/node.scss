@@ -3,7 +3,7 @@
 
     height: auto;
 
-    border-radius: 10px;
+    //border-radius: 10px;
     border: 0.25em solid rgb(61, 61, 61);
     background-color: rgb(177, 177, 177);
 
@@ -13,14 +13,13 @@
 }
 
 .node:hover {
-    cursor: pointer;
+    cursor: grab;
     border-color: rgb(98, 179, 255);
 }
 
 .resource-node {
     width: 85%;
     word-wrap: break-word;
-    margin: 20px auto;
 }
 
 .canvas-node {

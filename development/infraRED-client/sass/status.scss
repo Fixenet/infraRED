@@ -1,6 +1,5 @@
 #infraRED-ui-status-bar {
-    display: flex;
-    flex-direction: column;
+    border-right: dashed 5px black;
 }
 
 #infraRED-ui-status-bar .title {
@@ -10,6 +9,9 @@
 #infraRED-ui-status-bar .content {
     background-color: #ffe493;
 
-    height: 100%;
-    overflow: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
 }

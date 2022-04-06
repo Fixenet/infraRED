@@ -13,7 +13,7 @@ infraRED.editor.menuBar = (function() {
                 class: "title",
                 html: "Menu",
             });
-            menuBar.append(title);
+            //menuBar.append(title);
 
             let content = $("<div>", {
                 id: "menu-bar-content",

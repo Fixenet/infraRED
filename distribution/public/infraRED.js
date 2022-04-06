@@ -415,6 +415,14 @@ infraRED.editor = (function() {
         init: function() {
             console.log("Creating Editor...");
 
+            let canvas = $("<div>", { id: "infraRED-ui-canvas"});
+            $("#infraRED-ui-root").append(canvas);
+            infraRED.editor.canvas.init();
+
+            let resourceBar = $("<div>", { id: "infraRED-ui-resource-bar"});
+            $("#infraRED-ui-root").append(resourceBar);
+            infraRED.editor.resourceBar.init();
+
             let menuBar = $("<div>", { id: "infraRED-ui-menu-bar"});
             $("#infraRED-ui-root").append(menuBar);
             infraRED.editor.menuBar.init();
@@ -423,13 +431,7 @@ infraRED.editor = (function() {
             $("#infraRED-ui-root").append(categoryBar);
             infraRED.editor.categoryBar.init();
     
-            let resourceBar = $("<div>", { id: "infraRED-ui-resource-bar"});
-            $("#infraRED-ui-root").append(resourceBar);
-            infraRED.editor.resourceBar.init();
-    
-            let canvas = $("<div>", { id: "infraRED-ui-canvas"});
-            $("#infraRED-ui-root").append(canvas);
-            infraRED.editor.canvas.init();
+            
 
             let statusBar = $("<div>", { id: "infraRED-ui-status-bar"});
             $("#infraRED-ui-root").append(statusBar);
@@ -454,7 +456,7 @@ infraRED.editor.categoryBar = (function() {
                 class: "title",
                 text: "Category",
             });
-            categoryBar.append(title);
+            //categoryBar.append(title);
 
             let content = $("<div>", {
                 id: "category-bar-content",
@@ -522,7 +524,7 @@ infraRED.editor.resourceBar = (function() {
                 class: "title",
                 text: "Resource",
             });
-            resourceBar.append(title);
+            //resourceBar.append(title);
 
             let content = $("<div>", {
                 id: "resource-bar-content",
@@ -554,7 +556,7 @@ infraRED.editor.canvas = (function() {
                 text: "Canvas",
             });
         
-            canvas.append(title);
+            //canvas.append(title);
 
             let content = $("<div>", {
                 id: "canvas-content",
@@ -565,12 +567,26 @@ infraRED.editor.canvas = (function() {
                 tolerance: "fit",
                 hoverClass: "canvas-hover-drop",
                 accept: ".resource-node",
+                over: function(event, ui) {
+                },
                 drop: function(event, ui) {
                     let droppedNodeElement = $(ui.helper).clone();
 
                     let resourceNode = infraRED.nodes.resourceList.getByID(ui.draggable.data("node"));
+
+                    // use this so the node drops in the canvas on the place where the mouse was lifted
+                    let draggableOffset = ui.helper.offset(),
+                        droppableOffset = $(this).offset(),
+                        left = draggableOffset.left - droppableOffset.left,
+                        top = draggableOffset.top - droppableOffset.top;
+
+                    droppedNodeElement.css({
+                        "position": "absolute",
+                        "left": left,
+                        "top": top,
+                    });
                     
-                    //let the any editor element know the node in question changed sides
+                    //let any editor element know the node in question changed sides
                     infraRED.events.emit("nodes:canvas-drop", resourceNode, droppedNodeElement);
             
                     $(this).append(droppedNodeElement);
@@ -596,7 +612,7 @@ infraRED.editor.menuBar = (function() {
                 class: "title",
                 html: "Menu",
             });
-            menuBar.append(title);
+            //menuBar.append(title);
 
             let content = $("<div>", {
                 id: "menu-bar-content",
@@ -648,7 +664,7 @@ infraRED.editor.statusBar = (function() {
                 class: "title",
                 text: "Status",
             });
-            statusBar.append(title);
+            //statusBar.append(title);
 
             content = $("<div>", {
                 id: "status-bar-content",
@@ -669,10 +685,12 @@ infraRED.editor.nodes = (function () {
     return {
         init: function() {
             $(".resource-node").draggable({
+                appendTo: "#infraRED-ui-root",
                 helper: "clone",
                 containment: "#infraRED-ui-root",
                 scroll: false,
-
+                revert: "invalid",
+                revertDuration: 300,
                 create: function(event, ui) {
                     //HTML page loads with 90% width so it's responsive to the layout
                     //this then creates the draggable with static width so the width doesnt change at the moment of drag
@@ -693,6 +711,7 @@ infraRED.editor.nodes = (function () {
             
                 droppedNodeElement.draggable({
                     containment: "parent",
+                    stack: ".canvas-node",
                 });
 
                 let canvasNode = infraRED.nodes.add(droppedNode);

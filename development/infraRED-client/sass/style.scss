@@ -1,15 +1,22 @@
 //setup the window environment
 body {
-    margin: 0;
-    padding: 0;
     background-color: rgb(255, 255, 255);
-}
 
-#infraRED-ui-root {
     margin: 0;
     padding: 0;
     height: 100vh;
     width: 100vw;
+}
+
+#infraRED-ui-root {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+
+    margin: 0;
+    padding: 5;
 }
 
 @import 'editor';

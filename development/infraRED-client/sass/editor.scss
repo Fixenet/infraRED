@@ -1,46 +1,67 @@
 //setup the editor layout
 #infraRED-ui-root {
-    background-color: rgb(255, 255, 255);
-
-    display: grid;
-    /* Canvas 4x Resource Bar 4x Category*/
-    grid-template-columns: 90px 200px 4fr;
-    grid-template-rows: 50px 1fr 50px;
+    background-color: rgb(255, 0, 225);
 }
 
-$layout-border: .4vh solid rgb(0, 0, 0);
+$border-width: 2.5px;
+$layout-border: $border-width solid rgb(0, 0, 0);
+
+$menu-height: 50px;
+$status-height: 50px;
+
+$category-width: 100px;
+$resource-width: 200px;
 
 .title {
     padding-left: 5px;
 }
 
 #infraRED-ui-category-bar {
-    grid-column: 1;
-    grid-row: 1 / 3;  
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: $status-height - 1;
+    
+    width: $category-width;
 }
 @import 'category';
 
 #infraRED-ui-resource-bar {
-    grid-column: 2;
-    grid-row: 1 / 3;
+    position: absolute;
+    top: 0;
+    left: $category-width + $border-width;
+    bottom: $status-height - 1;
+    
+    width: $resource-width;
 }
 @import 'resource';
 
 #infraRED-ui-canvas {
-    grid-column: 3;
-    grid-row: 2;
+    position: absolute;
+    top: $menu-height + $border-width;
+    left: $category-width + $resource-width + $border-width * 2;
+    bottom: $status-height - 1;
+    right: 0;
 }
 @import 'canvas';
 
 #infraRED-ui-menu-bar {
-    grid-column: 3;
-    grid-row: 1;
+    position: absolute;
+    top: 0;
+    left: $category-width + $resource-width + $border-width * 2;
+    right: 0;
+
+    height: $menu-height;
 }
 @import 'menu';
 
 #infraRED-ui-status-bar {
-    grid-column: 1 / 4;
-    grid-row: 3;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    right: 0;
+
+    height: $status-height;
 }
 @import 'status';
 

@@ -13,7 +13,7 @@ infraRED.editor.categoryBar = (function() {
                 class: "title",
                 text: "Category",
             });
-            categoryBar.append(title);
+            //categoryBar.append(title);
 
             let content = $("<div>", {
                 id: "category-bar-content",

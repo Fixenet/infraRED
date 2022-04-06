@@ -53,7 +53,7 @@ infraRED.editor.resourceBar = (function() {
                 class: "title",
                 text: "Resource",
             });
-            resourceBar.append(title);
+            //resourceBar.append(title);
 
             let content = $("<div>", {
                 id: "resource-bar-content",

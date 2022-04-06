@@ -1,8 +1,6 @@
 #infraRED-ui-menu-bar {
     border-bottom: $layout-border;
-
-    display: flex;
-    flex-direction: column;
+    border-right: dashed 5px black;
 }
 
 #infraRED-ui-menu-bar .title{
@@ -12,15 +10,19 @@
 #infraRED-ui-menu-bar .content{
     background-color: #a6c9ff;
 
-    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
 
-    display: flex;
-    flex-direction: row;
+    padding: 5px;
 }
 
 #infraRED-ui-menu-bar .menu-bar-button{
     background-color: aqua;
-
-    margin: 2px 0px 2px 2px;
     border: #7ea6e0 solid 0.2em;
+
+    height: 100%;
+    margin-right: 5px;
 }

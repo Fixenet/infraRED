@@ -3,10 +3,12 @@ infraRED.editor.nodes = (function () {
     return {
         init: function() {
             $(".resource-node").draggable({
+                appendTo: "#infraRED-ui-root",
                 helper: "clone",
                 containment: "#infraRED-ui-root",
                 scroll: false,
-
+                revert: "invalid",
+                revertDuration: 300,
                 create: function(event, ui) {
                     //HTML page loads with 90% width so it's responsive to the layout
                     //this then creates the draggable with static width so the width doesnt change at the moment of drag
@@ -27,6 +29,7 @@ infraRED.editor.nodes = (function () {
             
                 droppedNodeElement.draggable({
                     containment: "parent",
+                    stack: ".canvas-node",
                 });
 
                 let canvasNode = infraRED.nodes.add(droppedNode);

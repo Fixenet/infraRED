@@ -1,9 +1,6 @@
 #infraRED-ui-resource-bar {
     border-right: $layout-border;
     border-bottom: $layout-border;
-
-    display: flex;
-    flex-direction: column;
 }
 
 #infraRED-ui-resource-bar .title {
@@ -13,7 +10,19 @@
 #infraRED-ui-resource-bar .content {
     background-color: #c2ff9f;
 
-    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+
+    padding-top: 20px;
+
     overflow-y: scroll;
     overflow-x: hidden;
+
+    display: flex;
+    flex-direction: column;
+    row-gap: 20px;
+    align-items: center;
 }
