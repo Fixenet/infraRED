@@ -9,13 +9,6 @@ infraRED.editor.statusBar = (function() {
 
             statusBar = $("#infraRED-ui-status-bar");
 
-            let title = $("<div>", {
-                id: "status-bar-title",
-                class: "title",
-                text: "Status",
-            });
-            //statusBar.append(title);
-
             content = $("<div>", {
                 id: "status-bar-content",
                 class: "content",

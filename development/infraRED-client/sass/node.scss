@@ -3,7 +3,7 @@
 
     height: auto;
 
-    //border-radius: 10px;
+    border-radius: 10px;
     border: 0.25em solid rgb(61, 61, 61);
     background-color: rgb(177, 177, 177);
 
@@ -26,8 +26,8 @@
     width: auto !important;
 }
 
-.node p{
-    &.type {
+.node {
+    .type {
         box-sizing: border-box;
         width: 100%;
 
@@ -36,13 +36,13 @@
         border-radius: 10px;
         padding: 5px 5px;
     }
-    &.requirement {
+    .requirement {
         margin: 5px auto;
         border: 0.15em solid red;
         background-color: rgb(223, 84, 84);
         width: 95%;
     }
-    &.capability {
+    .capability {
         margin: 5px auto;
         border: 0.15em solid green;
         background-color: rgb(47, 160, 47);

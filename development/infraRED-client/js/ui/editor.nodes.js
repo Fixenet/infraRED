@@ -30,6 +30,8 @@ infraRED.editor.nodes = (function () {
                 droppedNodeElement.draggable({
                     containment: "parent",
                     stack: ".canvas-node",
+                    scroll: false,
+                    grid: [gridSizeGap, gridSizeGap],
                 });
 
                 let canvasNode = infraRED.nodes.add(droppedNode);

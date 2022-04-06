@@ -15,10 +15,34 @@
     bottom: 0;
     right: 0;
 
-    //prevents slider bars from appearing when the node touches the bottom/right of the div
-    padding: 4px;
+    //prevents slider bars from appearing when a dragged node touches the bottom/right of the div
+    //padding: 5px;
+
+    cursor: crosshair;
+    overflow: auto;
+}
+
+#infraRED-ui-canvas .content svg{
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
 }
 
 .canvas-hover-drop {
     background-color: #ff9029 !important;
-} 
+}
+
+@mixin canvas-grid-line {
+    stroke: #000000;
+    stroke-width: 1px;
+}
+
+#infraRED-ui-canvas .content .canvas-grid-horizontal-line {
+    @include canvas-grid-line;
+}
+
+#infraRED-ui-canvas .content .canvas-grid-vertical-line {
+    @include canvas-grid-line;
+}

@@ -48,13 +48,6 @@ infraRED.editor.resourceBar = (function() {
 
             resourceBar = $("#infraRED-ui-resource-bar");
 
-            let title = $("<div>", {
-                id: "resource-bar-title",
-                class: "title",
-                text: "Resource",
-            });
-            //resourceBar.append(title);
-
             let content = $("<div>", {
                 id: "resource-bar-content",
                 class: "content",

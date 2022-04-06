@@ -8,13 +8,6 @@ infraRED.editor.categoryBar = (function() {
 
             categoryBar = $("#infraRED-ui-category-bar");
 
-            let title = $("<div>", {
-                id: "category-bar-title",
-                class: "title",
-                text: "Category",
-            });
-            //categoryBar.append(title);
-
             let content = $("<div>", {
                 id: "category-bar-content",
                 class: "content",

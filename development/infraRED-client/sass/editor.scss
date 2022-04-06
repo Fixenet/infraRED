@@ -1,9 +1,9 @@
 //setup the editor layout
 #infraRED-ui-root {
-    background-color: rgb(255, 0, 225);
+    background-color: rgb(255, 255, 255);
 }
 
-$border-width: 2.5px;
+$border-width: 3px;
 $layout-border: $border-width solid rgb(0, 0, 0);
 
 $menu-height: 50px;
@@ -20,7 +20,7 @@ $resource-width: 200px;
     position: absolute;
     top: 0;
     left: 0;
-    bottom: $status-height - 1;
+    bottom: $status-height;
     
     width: $category-width;
 }
@@ -30,7 +30,7 @@ $resource-width: 200px;
     position: absolute;
     top: 0;
     left: $category-width + $border-width;
-    bottom: $status-height - 1;
+    bottom: $status-height;
     
     width: $resource-width;
 }
@@ -40,7 +40,7 @@ $resource-width: 200px;
     position: absolute;
     top: $menu-height + $border-width;
     left: $category-width + $resource-width + $border-width * 2;
-    bottom: $status-height - 1;
+    bottom: $status-height;
     right: 0;
 }
 @import 'canvas';
