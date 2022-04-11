@@ -8,6 +8,7 @@ var infraRED = (function() {
     
             infraRED.nodes.init();
             infraRED.relationships.init();
+            infraRED.canvas.init();
     
             console.log("infraRED finished booting.");
         },
@@ -70,6 +71,23 @@ infraRED.validator = (function() {
         },
         validateRelationshipType: function(relationshipType) {
             return typeof(relationshipType) === 'string';
+        },
+    };
+})();
+infraRED.canvas = (function() {
+    //TODO - this infraRED element should be in charge of managing nodes and relationships together
+    function createConnection(req, cap) {
+        //TODO - do stuff with relationships
+    }
+
+    function setUpEvents() {
+        infraRED.events.on("canvas:create-connection", createConnection);
+    }
+
+    return {
+        init: function() {
+            console.log("%cStarting the canvas functionality.", "color: #ffc895;");
+            setUpEvents();
         },
     };
 })();
@@ -413,25 +431,23 @@ infraRED.relationships = (function() {
 infraRED.editor = (function() {
     return {
         init: function() {
-            console.log("Creating Editor...");
+            console.log("%cCreating Editor...", "color: red");
 
-            let canvas = $("<div>", { id: "infraRED-ui-canvas"});
-            $("#infraRED-ui-root").append(canvas);
-            infraRED.editor.canvas.init();
+            let categoryBar = $("<div>", { id: "infraRED-ui-category-bar"});
+            $("#infraRED-ui-root").append(categoryBar);
+            infraRED.editor.categoryBar.init();
 
             let resourceBar = $("<div>", { id: "infraRED-ui-resource-bar"});
             $("#infraRED-ui-root").append(resourceBar);
             infraRED.editor.resourceBar.init();
 
+            let canvas = $("<div>", { id: "infraRED-ui-canvas"});
+            $("#infraRED-ui-root").append(canvas);
+            infraRED.editor.canvas.init();
+
             let menuBar = $("<div>", { id: "infraRED-ui-menu-bar"});
             $("#infraRED-ui-root").append(menuBar);
             infraRED.editor.menuBar.init();
-
-            let categoryBar = $("<div>", { id: "infraRED-ui-category-bar"});
-            $("#infraRED-ui-root").append(categoryBar);
-            infraRED.editor.categoryBar.init();
-    
-            
 
             let statusBar = $("<div>", { id: "infraRED-ui-status-bar"});
             $("#infraRED-ui-root").append(statusBar);
@@ -447,7 +463,7 @@ infraRED.editor.categoryBar = (function() {
 
     return {
         init: function() {
-            console.log("Creating Category Bar...");
+            console.log("%cCreating Category Bar...", "color: #fd9694");
 
             categoryBar = $("#infraRED-ui-category-bar");
 
@@ -508,7 +524,7 @@ infraRED.editor.resourceBar = (function() {
 
     return {
         init: function() {
-            console.log("Creating Resource Bar...");
+            console.log("%cCreating Resource Bar...", "color: #c2ff9f");
 
             resourceBar = $("#infraRED-ui-resource-bar");
 
@@ -543,7 +559,7 @@ infraRED.editor.canvas = (function() {
         return roundToGrid(position) + gridSizeGap / 4;
     }
 
-    function updateGrid(ya) {
+    function updateGrid() {
         let grid = document.createElementNS(SVGnamespace, "g");
         grid.id = "canvas-grid";
 
@@ -577,6 +593,8 @@ infraRED.editor.canvas = (function() {
 
     return {
         init: function() {
+            console.log("%cCreating Canvas...", "color: #ffc895");
+
             canvas = $("#infraRED-ui-canvas");
 
             let content = $("<div>", {
@@ -603,8 +621,8 @@ infraRED.editor.canvas = (function() {
                         left = draggableOffset.left - droppableOffset.left + scrollOffsetLeft,
                         top = draggableOffset.top - droppableOffset.top + scrollOffsetTop;
 
-                        left = roundToGridCenter(left);
-                        top = roundToGridCenter(top);
+                    left = roundToGridCenter(left);
+                    top = roundToGridCenter(top);
 
                     droppedNodeElement.css({
                         "position": "absolute",
@@ -623,7 +641,38 @@ infraRED.editor.canvas = (function() {
             canvasSVG.setAttribute("width", canvasSizeW);
             canvasSVG.setAttribute("height", canvasSizeH);
 
+            $(canvasSVG).addClass("canvas-svg");
             $(canvasSVG).append(updateGrid());
+
+            //TODO - redesign this whole process, I need to have named connections between these
+            //must make use of the relationships.js file
+            infraRED.events.on("canvas:draw-connection", (req, cap) => {
+                //TODO - rethink my svg use,
+                //right now i have a svg and divs in play together
+                //maybe i should draw everything as a svg composition so i can more easily move elements 
+                let connectionLine = document.createElementNS(SVGnamespace, "line");
+
+                //TODO - this is the whole node position
+                let requirementPosition = req.parent().parent().position();
+                let capabilityPosition = cap.parent().parent().position();
+
+                console.log(req.position(), cap.position());
+
+                //TODO - x1,y1 may not be the requirement per say (and vice-versa)
+                //but the values are interchangeable since it's a line from one to the other
+
+                //learned that .position() gives me the boundary of the margin box
+                //so i must subtract that from the value the margin
+                $(connectionLine).attr({
+                    class: "canvas-relationship-line",
+                    x1: requirementPosition.left + req.position().left,
+                    y1: requirementPosition.top + req.position().top + parseFloat(req.css("margin")) + req.height(),
+                    x2: capabilityPosition.left + cap.position().left + cap.width(),
+                    y2: capabilityPosition.top + cap.position().top + parseFloat(cap.css("margin")) + cap.height(),
+                });
+
+                $(canvasSVG).append(connectionLine);
+            });
 
             content.append(canvasSVG);
 
@@ -637,7 +686,7 @@ infraRED.editor.menuBar = (function() {
 
     return {
         init: function() {
-            console.log("Creating Menu Bar...");
+            console.log("%cCreating Menu Bar...", "color: #a6c9ff");
 
             menuBar = $("#infraRED-ui-menu-bar");
 
@@ -682,7 +731,7 @@ infraRED.editor.statusBar = (function() {
 
     return {
         init: function() {
-            console.log("Creating Status Bar...");
+            console.log("%cCreating Status Bar...", "color: #ffe493");
 
             statusBar = $("#infraRED-ui-status-bar");
 
@@ -724,6 +773,10 @@ infraRED.editor.nodes = (function () {
                 stop: function(event, ui) {
                 },
             });
+
+            var connecting = false;
+            var req = null;
+            var cap = null;
             
             infraRED.events.on("nodes:canvas-drop", (droppedNode, droppedNodeElement) => {
                 droppedNodeElement.removeClass("resource-node");
@@ -734,13 +787,54 @@ infraRED.editor.nodes = (function () {
                     stack: ".canvas-node",
                     scroll: false,
                     grid: [gridSizeGap, gridSizeGap],
+
+                    drag: function() {
+                    },
                 });
 
                 let canvasNode = infraRED.nodes.add(droppedNode);
 
-                droppedNodeElement.dblclick(() => {
+                droppedNodeElement.on("dblclick", () => {
                     droppedNodeElement.remove();
                     infraRED.nodes.remove(canvasNode);
+                });
+
+                $(droppedNodeElement).children("div.requirements").children().on("click", (e) => {
+                    e.stopPropagation();
+
+                    if (connecting && cap != null) {
+                        req = $(e.currentTarget);
+                        console.log(`Connected ${cap.text()} to ${req.text()}`);
+
+                        infraRED.events.emit("canvas:create-connection", req, cap);
+                        infraRED.events.emit("canvas:draw-connection", req, cap);
+
+                        connecting = false; req = null; cap = null;
+                    } else if (req == null) {
+                        req = $(e.currentTarget);
+                        connecting = true;
+                    } else {
+                        console.log("Already chose requirement.");
+                    }
+                });
+
+                $(droppedNodeElement).children("div.capabilities").children().on("click", (e) => {
+                    e.stopPropagation();
+
+                    if (connecting && req != null) {
+                        cap = $(e.currentTarget);
+                        console.log(`Connected ${cap.text()} to ${req.text()}`);
+
+                        infraRED.events.emit("canvas:create-connection", req, cap);
+                        infraRED.events.emit("canvas:draw-connection", req, cap);
+
+                        connecting = false; req = null; cap = null;
+                    } else if (cap == null) {
+                        cap = $(e.currentTarget);
+                        connecting = true;
+                    } else {
+                        console.log("Already chose capability.");
+                    }
                 });
             });
         }

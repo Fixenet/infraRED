@@ -44,7 +44,7 @@ infraRED.editor.resourceBar = (function() {
 
     return {
         init: function() {
-            console.log("Creating Resource Bar...");
+            console.log("%cCreating Resource Bar...", "color: #c2ff9f");
 
             resourceBar = $("#infraRED-ui-resource-bar");
 

@@ -4,9 +4,13 @@
     },
     "tosca.node.Compute": {
         "requirements": ["baremetal"],
-        "capabilities": ["host", "os"]
+        "capabilities": ["host", "os", "server"]
     },
     "tosca.nodes.WebServer.Nodejs": {
         "requirements": ["host"]
+    },
+    "tosca.nodes.WebServer.Python": {
+        "requirements": ["host"],
+        "capabilities": ["database"]
     }
 }

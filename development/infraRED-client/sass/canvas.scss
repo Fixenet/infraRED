@@ -39,6 +39,11 @@
     stroke-width: 1px;
 }
 
+#infraRED-ui-canvas .canvas-relationship-line {
+    stroke: green;
+    stroke-width: 2px;
+}
+
 #infraRED-ui-canvas .content .canvas-grid-horizontal-line {
     @include canvas-grid-line;
 }

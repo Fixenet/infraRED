@@ -5,7 +5,7 @@ infraRED.editor.statusBar = (function() {
 
     return {
         init: function() {
-            console.log("Creating Status Bar...");
+            console.log("%cCreating Status Bar...", "color: #ffe493");
 
             statusBar = $("#infraRED-ui-status-bar");
 

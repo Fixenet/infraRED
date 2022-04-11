@@ -13,7 +13,7 @@ infraRED.editor.canvas = (function() {
         return roundToGrid(position) + gridSizeGap / 4;
     }
 
-    function updateGrid(ya) {
+    function updateGrid() {
         let grid = document.createElementNS(SVGnamespace, "g");
         grid.id = "canvas-grid";
 
@@ -47,6 +47,8 @@ infraRED.editor.canvas = (function() {
 
     return {
         init: function() {
+            console.log("%cCreating Canvas...", "color: #ffc895");
+
             canvas = $("#infraRED-ui-canvas");
 
             let content = $("<div>", {
@@ -73,8 +75,8 @@ infraRED.editor.canvas = (function() {
                         left = draggableOffset.left - droppableOffset.left + scrollOffsetLeft,
                         top = draggableOffset.top - droppableOffset.top + scrollOffsetTop;
 
-                        left = roundToGridCenter(left);
-                        top = roundToGridCenter(top);
+                    left = roundToGridCenter(left);
+                    top = roundToGridCenter(top);
 
                     droppedNodeElement.css({
                         "position": "absolute",
@@ -93,7 +95,38 @@ infraRED.editor.canvas = (function() {
             canvasSVG.setAttribute("width", canvasSizeW);
             canvasSVG.setAttribute("height", canvasSizeH);
 
+            $(canvasSVG).addClass("canvas-svg");
             $(canvasSVG).append(updateGrid());
+
+            //TODO - redesign this whole process, I need to have named connections between these
+            //must make use of the relationships.js file
+            infraRED.events.on("canvas:draw-connection", (req, cap) => {
+                //TODO - rethink my svg use,
+                //right now i have a svg and divs in play together
+                //maybe i should draw everything as a svg composition so i can more easily move elements 
+                let connectionLine = document.createElementNS(SVGnamespace, "line");
+
+                //TODO - this is the whole node position
+                let requirementPosition = req.parent().parent().position();
+                let capabilityPosition = cap.parent().parent().position();
+
+                console.log(req.position(), cap.position());
+
+                //TODO - x1,y1 may not be the requirement per say (and vice-versa)
+                //but the values are interchangeable since it's a line from one to the other
+
+                //learned that .position() gives me the boundary of the margin box
+                //so i must subtract that from the value the margin
+                $(connectionLine).attr({
+                    class: "canvas-relationship-line",
+                    x1: requirementPosition.left + req.position().left,
+                    y1: requirementPosition.top + req.position().top + parseFloat(req.css("margin")) + req.height(),
+                    x2: capabilityPosition.left + cap.position().left + cap.width(),
+                    y2: capabilityPosition.top + cap.position().top + parseFloat(cap.css("margin")) + cap.height(),
+                });
+
+                $(canvasSVG).append(connectionLine);
+            });
 
             content.append(canvasSVG);
 

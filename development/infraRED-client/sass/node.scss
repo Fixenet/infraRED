@@ -3,7 +3,7 @@
 
     height: auto;
 
-    border-radius: 10px;
+    //border-radius: 10px;
     border: 0.25em solid rgb(61, 61, 61);
     background-color: rgb(177, 177, 177);
 
@@ -50,6 +50,15 @@
     }
 }
 
+.canvas-node {
+    .requirement {
+        cursor: pointer;
+    }
+    .capability {
+        cursor: pointer;
+    }
+}
+
 //vvvvvvvvvv not implemented yet vvvvvvvvvv
 
 .node-flow-in, .node-flow-out, .node-content {
@@ -87,9 +96,4 @@ button.flow-in:hover, button.flow-out:hover {
     border-radius: 40%;
     border: 0.2em solid rgb(221, 221, 221);
     background-color: rgb(105, 105, 105);
-}
-
-.node-content input, p {
-    margin: 0;
-    width: 100%;
 }

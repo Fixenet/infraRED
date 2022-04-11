@@ -4,7 +4,7 @@ infraRED.editor.menuBar = (function() {
 
     return {
         init: function() {
-            console.log("Creating Menu Bar...");
+            console.log("%cCreating Menu Bar...", "color: #a6c9ff");
 
             menuBar = $("#infraRED-ui-menu-bar");
 

@@ -4,7 +4,7 @@ infraRED.editor.categoryBar = (function() {
 
     return {
         init: function() {
-            console.log("Creating Category Bar...");
+            console.log("%cCreating Category Bar...", "color: #fd9694");
 
             categoryBar = $("#infraRED-ui-category-bar");
 
