@@ -22,6 +22,7 @@ module.exports = function(grunt) {
                     'development/infraRED-client/js/infraRED.js',
                     'development/infraRED-client/js/events.js',
                     'development/infraRED-client/js/validator.js',
+                    'development/infraRED-client/js/canvas.js',
                     'development/infraRED-client/js/nodes.js',
                     'development/infraRED-client/js/relationships.js',
 
