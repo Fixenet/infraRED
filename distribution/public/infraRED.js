@@ -472,6 +472,31 @@ infraRED.editor.categoryBar = (function() {
                 class: "content",
             });
             categoryBar.append(content);
+
+            let nodeCategory = $("<img>", {
+                id: "node-category",
+                class: "category",
+                alt: "Node Category",
+                src: "./icons/computer-svgrepo-com.svg",
+            });
+
+            nodeCategory.on("click", () => {
+                infraRED.editor.statusBar.log("Nodes!");
+            });
+
+            let relationshipCategory = $("<img>", {
+                id: "relationship-category",
+                class: "category",
+                alt: "Relationship Category",
+                src: "./icons/arrow-svgrepo-com.svg",
+            });
+
+            relationshipCategory.on("click", () => {
+                infraRED.editor.statusBar.log("Relationships!");
+            });
+
+            content.append(nodeCategory);
+            content.append(relationshipCategory);
         },
         get: function() {
             return categoryBar;
