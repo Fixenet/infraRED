@@ -1,33 +1,33 @@
 #infraRED-ui-canvas {
     border-bottom: $layout-border;
-}
 
-#infraRED-ui-canvas .title {
-    background-color: #ffb570;
-}
+    .title {
+        background-color: #ffb570;
+    }
 
-#infraRED-ui-canvas .content {
-    background-color: #ffc895;
+    .content {
+        background-color: #ffc895;
+    
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+    
+        //prevents slider bars from appearing when a dragged node touches the bottom/right of the div
+        //padding: 5px;
+    
+        cursor: crosshair;
+        overflow: auto;
 
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-
-    //prevents slider bars from appearing when a dragged node touches the bottom/right of the div
-    //padding: 5px;
-
-    cursor: crosshair;
-    overflow: auto;
-}
-
-#infraRED-ui-canvas .content svg{
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
+        svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+    }
 }
 
 .canvas-hover-drop {
@@ -44,10 +44,10 @@
     stroke-width: 2px;
 }
 
-#infraRED-ui-canvas .content .canvas-grid-horizontal-line {
+#infraRED-ui-canvas .canvas-grid-horizontal-line {
     @include canvas-grid-line;
 }
 
-#infraRED-ui-canvas .content .canvas-grid-vertical-line {
+#infraRED-ui-canvas .canvas-grid-vertical-line {
     @include canvas-grid-line;
 }

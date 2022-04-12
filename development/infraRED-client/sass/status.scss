@@ -1,16 +1,18 @@
 #infraRED-ui-status-bar {
-}
+    .title {
+        background-color: #ffd966;
+    }
 
-#infraRED-ui-status-bar .title {
-    background-color: #ffd966;
-}
-
-#infraRED-ui-status-bar .content {
-    background-color: #ffe493;
-
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
+    .content {
+        background-color: #ffe493;
+    
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+    
+        padding-left: 5px;
+        padding-top: 5px;
+    }
 }

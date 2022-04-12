@@ -1,27 +1,27 @@
 #infraRED-ui-menu-bar {
     border-bottom: $layout-border;
-}
 
-#infraRED-ui-menu-bar .title{
-    background-color: #7ea6e0;
-}
+    .title {
+        background-color: #7ea6e0;
+    }
 
-#infraRED-ui-menu-bar .content{
-    background-color: #a6c9ff;
+    .content {
+        background-color: #a6c9ff;
+    
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+    
+        padding: 5px;
+    }
 
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-
-    padding: 5px;
-}
-
-#infraRED-ui-menu-bar .menu-bar-button{
-    background-color: aqua;
-    border: #7ea6e0 solid 0.2em;
-
-    height: 100%;
-    margin-right: 5px;
+    .menu-bar-button {
+        background-color: aqua;
+        border: #7ea6e0 solid 0.2em;
+    
+        height: 100%;
+        margin-right: 5px;
+    }
 }
