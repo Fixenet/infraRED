@@ -14,14 +14,26 @@
         left: 0;
         bottom: 0;
         right: 0;
-        
-        padding: 5px;
     
         overflow-y: scroll;
         overflow-x: hidden;
     
         .category {
-    
+            width: auto;
+
+            margin-left: 5px;
+            padding: 8px;
+        }
+
+        .category:hover {
+            background-color: #ea6b66;
+            border-left: #ea6b66 5px solid;
+            margin-left: 0px;
+        }
+
+        .category-selected {
+            border-left: rgb(255, 255, 255) 5px solid !important;
+            margin-left: 0px !important;
         }
     }
 }

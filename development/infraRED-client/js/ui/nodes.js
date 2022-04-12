@@ -15,7 +15,10 @@ infraRED.editor.nodes = (function () {
                     $(this).css("width", $(this).width());
                 },
                 start: function(event, ui) {
-                    $(this).data('node', event.currentTarget.id);
+                    $(this).data({
+                        id: event.currentTarget.id,
+                        type: "node",
+                    });
                 },
                 drag: function(event, ui) {
                 },
@@ -37,7 +40,7 @@ infraRED.editor.nodes = (function () {
                     scroll: false,
                     grid: [gridSizeGap, gridSizeGap],
 
-                    drag: function() {
+                    drag: function(event, ui) {
                     },
                 });
 

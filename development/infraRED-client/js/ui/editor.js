@@ -25,6 +25,7 @@ infraRED.editor = (function() {
             infraRED.editor.statusBar.init();
 
             infraRED.editor.nodes.init();
+            infraRED.editor.relationships.init();
         },
     };
 })();

@@ -13,6 +13,7 @@ $category-width: 100px;
 $resource-width: 200px;
 
 .title {
+    width: 100%;
     padding-left: 5px;
 }
 
@@ -66,3 +67,4 @@ $resource-width: 200px;
 @import 'status';
 
 @import 'node';
+@import 'relationship';

@@ -1,105 +1,149 @@
 infraRED.relationships = (function() {
-    var currentID = 1;
-    class Relationship {
-        constructor(name) {
-            this.id = currentID++;
-            this.name = name;
+    const MAX_ID = 10000;
+    const EMPTY_NAME_RELATIONSHIP = "EMPTY_NAME_NODE";
 
-            this.type = null;
+    let currentID = 0;
+    class Relationship {
+        constructor(type) {
+            this.resourceID = -1;
+            this.canvasID = -1;
+
+            this.name = EMPTY_NAME_RELATIONSHIP;
+
+            this.type = type;
             this.properties = [];
         }
 
-        changeType(typeName) {
-            if (infraRED.validator.validateRelationshipType(typeName)) {
+        changeName(name) {
+            if (infraRED.validator.validateRelationshipType(name)) {
                 //Add the type to the relationship object
-                this.type = typeName;
-                //Update the registry if needed
-                if (!registry.has(typeName)) {
-                    registry.addType(this);
-                }
+                this.name = name;
             } else {
-                console.log("Incorrect Relationship Type was given.");
+                console.log("Incorrect Relationship Name was given.");
             }
+        }
+
+        getDiv() {
+            let div = $("<div>", {
+                id: this.resourceID,
+                class: "resource relationship resource-relationship",
+            });
+
+            div.append($("<p>", { 
+                class: "type", 
+                text: this.type,
+            }));
+            
+            return div;
         }
     }
 
-    var registry = (function() {
-        let relationshipTypes = [];
-
-        function addRelationshipType(relationship) {
-            // check if type is set, if not do nothing
-            if (relationship.type != null) {
-                relationshipTypes.push(relationship.type);
-            }
-        }
-
-        function relationshipTypeExists(relationshipType) {
-            return relationshipTypes.includes(relationshipType);
-        }
-
-        return {
-            addType: addRelationshipType,
-            has: relationshipTypeExists,
-        };
-    })();
-
-    allRelationshipsList = (function() {
-        let relationships = {};
+    // this list holds information about the node types loaded into infraRED
+    resourceRelationshipList = (function() {
+        let relationshipList = {};
 
         function addRelationship(relationship) {
-            registry.addType(relationship);
-            relationships[relationship.id] = relationship;
+            relationshipList[relationship.resourceID] = relationship;
         }
 
         function getRelationshipByID(id) {
-            return relationships[id];
+            return relationshipList[id];
         }
 
-        function getRelationshipByName(name) {
-            for (let id in relationships) {
-                if (relationships[id].name === name) {
-                    return relationships[id];
-                }
-            }
-        }
-
+        // returns an array with the node class instances
         function getRelationshipList() {
-            return relationships;
+            return Object.values(relationshipList);
         }
 
         return {
-          addRelationship: addRelationship,
-          getRelationshipByID: getRelationshipByID,
-          getRelationshipByName: getRelationshipByName,
-          getRelationshipList: getRelationshipList,
+          add: addRelationship,
+          getByID: getRelationshipByID,
+          getAll: getRelationshipList,
         };
     })();
 
-    function addRelationship(relationship) {
-        allRelationshipsList.addRelationship(relationship);
-        infraRED.events.emit("relationships:add", relationship);
+    // this list holds information about the nodes in play
+    // these nodes will be different from the nodes present in the resource bar
+    // for that distinction, resource nodes will have sequential IDs
+    // and canvas nodes will have the random IDs
+    canvasRelationshipList = (function() {
+        let relationshipList = {};
+
+        function addRelationship(relationship) {
+            relationship.canvasID = createID();
+            relationshipList[relationship.canvasID] = relationship;
+        }
+
+        function removeRelationship(relationship) {
+            delete relationshipList[relationship.canvasID];
+        }
+
+        function getRelationshipByID(id) {
+            return relationshipList[id];
+        }
+
+        // returns an array with the node class instances
+        function getRelationshipList() {
+            return Object.values(relationshipList);
+        }
+
+        return {
+          add: addRelationship,
+          remove: removeRelationship,
+          getByID: getRelationshipByID,
+          getAll: getRelationshipList,
+        };
+    })();
+
+    function newResourceRelationship(type) {
+        let relationship = new Relationship(type);
+        relationship.resourceID = currentID++;
+
+        resourceRelationshipList.add(relationship);
+
+        infraRED.events.emit("relationship:add-resources", relationship);
+
         return relationship;
+    }
+
+    function moveRelationshipToCanvas(resourceRelationship) {
+        let canvasRelationship = new Relationship(resourceRelationship.type);
+
+        canvasRelationship.resourceID = resourceRelationship.resourceID;
+        canvasRelationship.canvasID = createID();
+
+        canvasNodesList.add(canvasRelationship);
+
+        infraRED.events.emit("relationship:move-to-canvas", canvasRelationship);
+
+        return canvasRelationship;
+    }
+
+    function removeRelationshipFromCanvas(canvasRelationship) {
+        canvasRelationshipList.remove(canvasRelationship);
+    }
+
+    function createID() {
+        function generateID() {
+            return Math.floor(Math.random() * MAX_ID);
+        }
+
+        let newID = generateID();
+
+        while (canvasRelationshipList.getByID(newID) != undefined) newID = generateID();
+
+        return newID;
     }
     
     return {
         init: function() {
             console.log("Starting the relationships functionality.");
         },
+        new: newResourceRelationship,
+        add: moveRelationshipToCanvas,
+        remove: removeRelationshipFromCanvas,
 
-        add: addRelationship,
-        create: function(name) {
-            let relationship = new Relationship(name);
-            allRelationshipsList.addRelationship(relationship); 
-            return relationship;
-        },
-        get: function(query) {
-            if (typeof query === 'number') return allRelationshipsList.getRelationshipByID(query);
-            else if (typeof query === 'string') {
-                return allRelationshipsList.getRelationshipByName(query);
-            }
-        },
-        has: function(query) {
-            return this.get(query) !== undefined;
-        },
+        resourceList: resourceRelationshipList,
+        canvasList: canvasRelationshipList,
     };
 })();

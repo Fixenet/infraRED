@@ -36,7 +36,7 @@ infraRED.nodes = (function() {
         getDiv() {
             let div = $("<div>", {
                 id: this.resourceID,
-                class: "node resource-node",
+                class: "resource node resource-node",
             });
 
             div.append($("<p>", { 

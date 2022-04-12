@@ -6,6 +6,11 @@
         background-color: #97d077;
     }
 
+    .resource {
+        width: 160px;
+        word-wrap: break-word;
+    }
+
     .content {
         background-color: #c2ff9f;
     
@@ -14,15 +19,31 @@
         left: 0;
         bottom: 0;
         right: 0;
-    
-        padding-top: 20px;
-    
-        overflow-y: scroll;
-        overflow-x: hidden;
-    
-        display: flex;
-        flex-direction: column;
-        row-gap: 20px;
-        align-items: center;
+
+        #resource-tabs {
+            .tab {
+                position: absolute;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                right: 0;
+
+                overflow-y: scroll;
+                overflow-x: hidden;
+            
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+
+                .title {
+                    margin-top: 5px;
+                    margin-bottom: 5px;
+                }
+
+                .resource + .resource {
+                    margin-top: 20px;
+                }
+            }
+        }
     }
 }

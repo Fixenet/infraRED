@@ -2,6 +2,18 @@
 infraRED.editor.categoryBar = (function() {
     let categoryBar;
 
+    let selectedCategory;
+    function toggleCategory(category) {
+        if (selectedCategory == category) {
+            return false;
+        } else {
+            selectedCategory.toggleClass("category-selected");
+            selectedCategory = category;
+            category.toggleClass("category-selected");
+            return true;
+        }
+    }
+
     return {
         init: function() {
             console.log("%cCreating Category Bar...", "color: #fd9694");
@@ -16,14 +28,20 @@ infraRED.editor.categoryBar = (function() {
 
             let nodeCategory = $("<img>", {
                 id: "node-category",
-                class: "category",
+                class: "category category-selected",
                 alt: "Node Category",
                 src: "./icons/computer-svgrepo-com.svg",
             });
 
             nodeCategory.on("click", () => {
-                infraRED.editor.statusBar.log("Nodes!");
+                if (toggleCategory(nodeCategory)) {
+                    infraRED.editor.statusBar.log("Nodes!");
+                    infraRED.editor.resourceBar.toggleNodesTab();
+                    infraRED.editor.resourceBar.toggleRelationshipsTab();
+                }
             });
+
+            selectedCategory = nodeCategory;
 
             let relationshipCategory = $("<img>", {
                 id: "relationship-category",
@@ -33,7 +51,11 @@ infraRED.editor.categoryBar = (function() {
             });
 
             relationshipCategory.on("click", () => {
-                infraRED.editor.statusBar.log("Relationships!");
+                if (toggleCategory(relationshipCategory)) {
+                    infraRED.editor.statusBar.log("Relationships!");
+                    infraRED.editor.resourceBar.toggleRelationshipsTab();
+                    infraRED.editor.resourceBar.toggleNodesTab();
+                }
             });
 
             content.append(nodeCategory);

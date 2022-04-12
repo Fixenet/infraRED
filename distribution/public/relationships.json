@@ -1,0 +1,41 @@
+{
+    "tosca.relationships.HostedOn": {
+        "type": ["host"]
+    },
+    "tosca.relationships.HostedOn1": {
+        "type": ["host"]
+    },
+    "tosca.relationships.HostedOn2": {
+        "type": ["host"]
+    },
+    "tosca.relationships.HostedOn3": {
+        "type": ["host"]
+    },
+    "tosca.relationships.HostedOn4": {
+        "type": ["host"]
+    },
+    "tosca.relationships.HostedOn5": {
+        "type": ["host"]
+    },
+    "tosca.relationships.HostedOn6": {
+        "type": ["host"]
+    },
+    "tosca.relationships.HostedOn7": {
+        "type": ["host"]
+    },
+    "tosca.relationships.HostedOn82": {
+        "type": ["host"]
+    },
+    "tosca.relationships.HostedOn825": {
+        "type": ["host"]
+    },
+    "tosca.relationships.HostedOn822": {
+        "type": ["host"]
+    },
+    "tosca.relationships.HostedOn83": {
+        "type": ["host"]
+    },
+    "tosca.relationships.HostedOn84": {
+        "type": ["host"]
+    }
+}

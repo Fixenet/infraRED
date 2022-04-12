@@ -2,9 +2,6 @@
 infraRED.editor.canvas = (function() {
     let canvas;
 
-    //maybe move this somewhere or not, since only the canvas should deal with svg stuff
-    const SVGnamespace = "http://www.w3.org/2000/svg";
-
     function roundToGrid(position) {
         return Math.round(position / gridSizeGap) * gridSizeGap;
     }
@@ -59,12 +56,10 @@ infraRED.editor.canvas = (function() {
             content.droppable({
                 tolerance: "fit",
                 hoverClass: "canvas-hover-drop",
-                accept: ".resource-node",
+                accept: ".resource",
 
                 drop: function(event, ui) {
-                    let droppedNodeElement = $(ui.helper).clone();
-
-                    let resourceNode = infraRED.nodes.resourceList.getByID(ui.draggable.data("node"));
+                    let droppedElement = $(ui.helper).clone();
 
                     // use this so the node drops in the canvas on the place where the mouse was lifted at
                     let draggableOffset = ui.helper.offset(),
@@ -78,16 +73,25 @@ infraRED.editor.canvas = (function() {
                     left = roundToGridCenter(left);
                     top = roundToGridCenter(top);
 
-                    droppedNodeElement.css({
+                    droppedElement.css({
                         "position": "absolute",
                         "left": left,
                         "top": top,
                     });
-                    
-                    //let any editor element know the node in question changed sides
-                    infraRED.events.emit("nodes:canvas-drop", resourceNode, droppedNodeElement);
+
+                    droppedElement.removeClass("resource");
+
+                    if (ui.draggable.data("type") === "node") {
+                        let resourceNode = infraRED.nodes.resourceList.getByID(ui.draggable.data("id"));
+                        //let any editor element know the node in question changed sides
+                        infraRED.events.emit("nodes:canvas-drop", resourceNode, droppedElement);
+                    } else if (ui.draggable.data("type") === "relationship") {
+                        let resourceRelationship = infraRED.relationships.resourceList.getByID(ui.draggable.data("id"));
+                        //let any editor element know the relationship in question changed sides
+                        infraRED.events.emit("relationship:canvas-drop", resourceRelationship, droppedElement);
+                    }
             
-                    $(this).append(droppedNodeElement);
+                    $(this).append(droppedElement);
                 },
             });
 

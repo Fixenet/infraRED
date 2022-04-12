@@ -12,5 +12,37 @@
     "tosca.nodes.WebServer.Python": {
         "requirements": ["host"],
         "capabilities": ["database"]
+    },
+    "tosca.nodes.WebServer.Python9": {
+        "requirements": ["host"],
+        "capabilities": ["database"]
+    },
+    "tosca.nodes.WebServer.Python8": {
+        "requirements": ["host"],
+        "capabilities": ["database"]
+    },
+    "tosca.nodes.WebServer.Python7": {
+        "requirements": ["host"],
+        "capabilities": ["database"]
+    },
+    "tosca.nodes.WebServer.Python6": {
+        "requirements": ["host"],
+        "capabilities": ["database"]
+    },
+    "tosca.nodes.WebServer.Python5": {
+        "requirements": ["host"],
+        "capabilities": ["database"]
+    },
+    "tosca.nodes.WebServer.Python4": {
+        "requirements": ["host"],
+        "capabilities": ["database"]
+    },
+    "tosca.nodes.WebServer.Python3": {
+        "requirements": ["host"],
+        "capabilities": ["database"]
+    },
+    "tosca.nodes.WebServer.Python2": {
+        "requirements": ["host"],
+        "capabilities": ["database"]
     }
 }
