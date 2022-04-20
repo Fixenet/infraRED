@@ -81,15 +81,10 @@ infraRED.editor.canvas = (function() {
 
                     droppedElement.removeClass("resource");
 
-                    if (ui.draggable.data("type") === "node") {
-                        let resourceNode = infraRED.nodes.resourceList.getByID(ui.draggable.data("id"));
-                        //let any editor element know the node in question changed sides
-                        infraRED.events.emit("nodes:canvas-drop", resourceNode, droppedElement);
-                    } else if (ui.draggable.data("type") === "relationship") {
-                        let resourceRelationship = infraRED.relationships.resourceList.getByID(ui.draggable.data("id"));
-                        //let any editor element know the relationship in question changed sides
-                        infraRED.events.emit("relationship:canvas-drop", resourceRelationship, droppedElement);
-                    }
+                    let resourceNode = infraRED.nodes.resourceList.getByID(ui.draggable.data("id"));
+                    //let any editor element know the node in question changed sides
+                    
+                    infraRED.events.emit("nodes:canvas-drop", resourceNode, droppedElement);
             
                     $(this).append(droppedElement);
                 },
@@ -104,7 +99,7 @@ infraRED.editor.canvas = (function() {
 
             //TODO - redesign this whole process, I need to have named connections between these
             //must make use of the relationships.js file
-            infraRED.events.on("canvas:draw-connection", (req, cap) => {
+            infraRED.events.on("canvas:draw-connection", (req, cap, reqNode, capNode) => {
                 //TODO - rethink my svg use,
                 //right now i have a svg and divs in play together
                 //maybe i should draw everything as a svg composition so i can more easily move elements 
@@ -113,8 +108,6 @@ infraRED.editor.canvas = (function() {
                 //TODO - this is the whole node position
                 let requirementPosition = req.parent().parent().position();
                 let capabilityPosition = cap.parent().parent().position();
-
-                console.log(req.position(), cap.position());
 
                 //TODO - x1,y1 may not be the requirement per say (and vice-versa)
                 //but the values are interchangeable since it's a line from one to the other

@@ -36,30 +36,11 @@ infraRED.editor.categoryBar = (function() {
             nodeCategory.on("click", () => {
                 if (toggleCategory(nodeCategory)) {
                     infraRED.editor.statusBar.log("Nodes!");
-                    infraRED.editor.resourceBar.toggleNodesTab();
-                    infraRED.editor.resourceBar.toggleRelationshipsTab();
                 }
             });
 
             selectedCategory = nodeCategory;
-
-            let relationshipCategory = $("<img>", {
-                id: "relationship-category",
-                class: "category",
-                alt: "Relationship Category",
-                src: "./icons/arrow-svgrepo-com.svg",
-            });
-
-            relationshipCategory.on("click", () => {
-                if (toggleCategory(relationshipCategory)) {
-                    infraRED.editor.statusBar.log("Relationships!");
-                    infraRED.editor.resourceBar.toggleRelationshipsTab();
-                    infraRED.editor.resourceBar.toggleNodesTab();
-                }
-            });
-
             content.append(nodeCategory);
-            content.append(relationshipCategory);
         },
         get: function() {
             return categoryBar;

@@ -1,20 +1,18 @@
 {
-    "tosca.nodes.Database": {
-        "requirements": ["host"]
-    },
     "tosca.node.Compute": {
-        "requirements": ["baremetal"],
-        "capabilities": ["host", "os", "server"]
+        "requirements": ["local_storage"],
+        "capabilities": ["host", "os"]
+    },
+    "tosca.nodes.Storage.BlockStorage": {
+        "requirements": ["host"]
     },
     "tosca.nodes.WebServer.Nodejs": {
         "requirements": ["host"]
     },
     "tosca.nodes.WebServer.Python": {
-        "requirements": ["host"],
         "capabilities": ["database"]
     },
-    "tosca.nodes.WebServer.Python9": {
-        "requirements": ["host"],
+    "tosca.nodes.Database": {
         "capabilities": ["database"]
     },
     "tosca.nodes.WebServer.Python8": {

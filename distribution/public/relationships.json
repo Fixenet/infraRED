@@ -1,5 +1,5 @@
 {
-    "tosca.relationships.HostedOn": {
+    "tosca.relationships.AttachesTo": {
         "type": ["host"]
     },
     "tosca.relationships.HostedOn1": {

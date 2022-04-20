@@ -37,21 +37,7 @@ infraRED.loader = (function() {
         return importedNodes;
     }
 
-    function loadRelationshipTypes() {
-        let relationshipTypes = importTypesFromJSON("relationships.json");
-        let importedRelationships = [];
-        for (let type in relationshipTypes) {
-            let relationship = infraRED.relationships.new(type);
-
-            importedRelationships.push(relationship);
-
-            console.log("Loaded: " + type);
-        }
-        return importedRelationships;
-    }
-
     return {
         importNodes: loadNodeTypes,
-        importRelationships: loadRelationshipTypes,
     };
 })();

@@ -7,7 +7,6 @@ var infraRED = (function() {
             infraRED.validator.init();
     
             infraRED.nodes.init();
-            infraRED.relationships.init();
             infraRED.canvas.init();
     
             console.log("infraRED finished booting.");
@@ -74,9 +73,40 @@ infraRED.validator = (function() {
         },
     };
 })();
+infraRED.settings = (function() {
+    nodes = (function() {
+        return {
+            MAX_ID: 10000,
+            EMPTY_NAME: "No Name Node",
+        };
+    })();
+
+    capabilities = (function() {
+        return {
+        };
+    })();
+
+    requirements = (function() {
+        return {
+        };
+    })();
+
+    relationships = (function() {
+        return {
+            EMPTY_NAME: "No Name Relationship",
+        };
+    })();
+
+    return {
+        capabilities: capabilities,
+        requirements: requirements,
+        nodes: nodes,
+        relationships: relationships,
+    };
+})();
 infraRED.canvas = (function() {
     //TODO - this infraRED element should be in charge of managing nodes and relationships together
-    function createConnection(req, cap) {
+    function createConnection(capability, requirement) {
         //TODO - do stuff with relationships
     }
 
@@ -92,16 +122,48 @@ infraRED.canvas = (function() {
     };
 })();
 infraRED.nodes = (function() {
-    const MAX_ID = 10000;
-    const EMPTY_NAME_NODE = "EMPTY_NAME_NODE";
+    /**
+     * Represents a capability of a Node, a possible functionality that can be served to another Node.
+     */
+    class Capability {
+        constructor() {
+            this.id = null;
 
-    let currentID = 0;
+            this.type = null;
+        }
+    }
+    /**
+     * Represents a requirement of a Node, a necessary functionality for a Node to work correctly.
+     */
+    class Requirement {
+        constructor() {
+            this.id = null;
+
+            this.type = null;
+        }
+    }
+    /**
+     * Represents a connection between 2 Nodes via a Capability from one 
+     * and a Requirement from another. 
+     */
+    class Relationship {
+        constructor() {
+            this.id = null;
+
+            this.name = infraRED.settings.relationships.EMPTY_NAME;
+
+            this.type = null;
+        }
+    }
+    /**
+     * Represents any piece of physical/virtual infrastructure.
+     */
     class Node {
         constructor(type) {
-            this.resourceID = -1;
-            this.canvasID = -1;
+            this.resourceID = null;
+            this.canvasID = null;
 
-            this.name = EMPTY_NAME_NODE;
+            this.name = infraRED.settings.nodes.EMPTY_NAME;
             
             this.type = type;
             this.properties = {};
@@ -110,7 +172,7 @@ infraRED.nodes = (function() {
             this.requirements = {};
         }
 
-        changeName(name) {
+        setName(name) {
             if (infraRED.validator.validateNodeType(name)) {
                 this.name = name;
             } else {
@@ -175,7 +237,12 @@ infraRED.nodes = (function() {
         }
 
         print() {
-            return `${this.type}: ${this.resourceID}|${this.canvasID} = ${this.name}`;
+            // this node is only present in the resource bar
+            let printResult = `Resource Node:\n${this.resourceIdentifier}-\n${this.type}\n`;
+            if (this.canvasIdentifier != null) { // this node also exists in the canvas
+                printResult += `Canvas Node:\n${this.resourceIdentifier}:${this.canvasIdentifier}\n${this.name}\n`;
+            }
+            return printResult;
         }
     }
 
@@ -187,7 +254,7 @@ infraRED.nodes = (function() {
             nodeList[node.resourceID] = node;
         }
 
-        function getNodeByID(id) {
+        function getNodeByIdentifier(id) {
             return nodeList[id];
         }
 
@@ -198,7 +265,7 @@ infraRED.nodes = (function() {
 
         return {
           add: addNode,
-          getByID: getNodeByID,
+          getByID: getNodeByIdentifier,
           getAll: getNodeList,
         };
     })();
@@ -211,7 +278,7 @@ infraRED.nodes = (function() {
         let nodeList = {};
 
         function addNode(node) {
-            node.canvasID = createID();
+            node.canvasID = createCanvasID();
             nodeList[node.canvasID] = node;
         }
 
@@ -219,7 +286,7 @@ infraRED.nodes = (function() {
             delete nodeList[node.canvasID];
         }
 
-        function getNodeByID(id) {
+        function getNodeByIdentifier(id) {
             return nodeList[id];
         }
 
@@ -231,7 +298,7 @@ infraRED.nodes = (function() {
         return {
           add: addNode,
           remove: removeNode,
-          getByID: getNodeByID,
+          getByID: getNodeByIdentifier,
           getAll: getNodeList,
         };
     })();
@@ -267,6 +334,7 @@ infraRED.nodes = (function() {
         infraRED.events.on("nodes:log-canvas", logCanvasList);
     }
 
+    let currentID = 0;
     function newResourceNode(type) {
         let node = new Node(type);
         node.resourceID = currentID++;
@@ -282,7 +350,9 @@ infraRED.nodes = (function() {
         let canvasNode = new Node(resourceNode.type);
 
         canvasNode.resourceID = resourceNode.resourceID;
-        canvasNode.canvasID = createID();
+        canvasNode.canvasID = createCanvasID();
+
+        //TODO - this is an object atribution so i'm passing a reference
         canvasNode.capabilities = resourceNode.capabilities;
         canvasNode.requirements = resourceNode.requirements;
 
@@ -297,9 +367,9 @@ infraRED.nodes = (function() {
         canvasNodesList.remove(canvasNode);
     }
 
-    function createID() {
+    function createCanvasID() {
         function generateID() {
-            return Math.floor(Math.random() * MAX_ID);
+            return Math.floor(Math.random() * infraRED.settings.nodes.MAX_ID);
         }
 
         let newID = generateID();
@@ -320,155 +390,6 @@ infraRED.nodes = (function() {
 
         resourceList: resourceNodesList,
         canvasList: canvasNodesList,
-    };
-})();
-infraRED.relationships = (function() {
-    const MAX_ID = 10000;
-    const EMPTY_NAME_RELATIONSHIP = "EMPTY_NAME_NODE";
-
-    let currentID = 0;
-    class Relationship {
-        constructor(type) {
-            this.resourceID = -1;
-            this.canvasID = -1;
-
-            this.name = EMPTY_NAME_RELATIONSHIP;
-
-            this.type = type;
-            this.properties = [];
-        }
-
-        changeName(name) {
-            if (infraRED.validator.validateRelationshipType(name)) {
-                //Add the type to the relationship object
-                this.name = name;
-            } else {
-                console.log("Incorrect Relationship Name was given.");
-            }
-        }
-
-        getDiv() {
-            let div = $("<div>", {
-                id: this.resourceID,
-                class: "resource relationship resource-relationship",
-            });
-
-            div.append($("<p>", { 
-                class: "type", 
-                text: this.type,
-            }));
-            
-            return div;
-        }
-    }
-
-    // this list holds information about the node types loaded into infraRED
-    resourceRelationshipList = (function() {
-        let relationshipList = {};
-
-        function addRelationship(relationship) {
-            relationshipList[relationship.resourceID] = relationship;
-        }
-
-        function getRelationshipByID(id) {
-            return relationshipList[id];
-        }
-
-        // returns an array with the node class instances
-        function getRelationshipList() {
-            return Object.values(relationshipList);
-        }
-
-        return {
-          add: addRelationship,
-          getByID: getRelationshipByID,
-          getAll: getRelationshipList,
-        };
-    })();
-
-    // this list holds information about the nodes in play
-    // these nodes will be different from the nodes present in the resource bar
-    // for that distinction, resource nodes will have sequential IDs
-    // and canvas nodes will have the random IDs
-    canvasRelationshipList = (function() {
-        let relationshipList = {};
-
-        function addRelationship(relationship) {
-            relationship.canvasID = createID();
-            relationshipList[relationship.canvasID] = relationship;
-        }
-
-        function removeRelationship(relationship) {
-            delete relationshipList[relationship.canvasID];
-        }
-
-        function getRelationshipByID(id) {
-            return relationshipList[id];
-        }
-
-        // returns an array with the node class instances
-        function getRelationshipList() {
-            return Object.values(relationshipList);
-        }
-
-        return {
-          add: addRelationship,
-          remove: removeRelationship,
-          getByID: getRelationshipByID,
-          getAll: getRelationshipList,
-        };
-    })();
-
-    function newResourceRelationship(type) {
-        let relationship = new Relationship(type);
-        relationship.resourceID = currentID++;
-
-        resourceRelationshipList.add(relationship);
-
-        infraRED.events.emit("relationship:add-resources", relationship);
-
-        return relationship;
-    }
-
-    function moveRelationshipToCanvas(resourceRelationship) {
-        let canvasRelationship = new Relationship(resourceRelationship.type);
-
-        canvasRelationship.resourceID = resourceRelationship.resourceID;
-        canvasRelationship.canvasID = createID();
-
-        canvasNodesList.add(canvasRelationship);
-
-        infraRED.events.emit("relationship:move-to-canvas", canvasRelationship);
-
-        return canvasRelationship;
-    }
-
-    function removeRelationshipFromCanvas(canvasRelationship) {
-        canvasRelationshipList.remove(canvasRelationship);
-    }
-
-    function createID() {
-        function generateID() {
-            return Math.floor(Math.random() * MAX_ID);
-        }
-
-        let newID = generateID();
-
-        while (canvasRelationshipList.getByID(newID) != undefined) newID = generateID();
-
-        return newID;
-    }
-    
-    return {
-        init: function() {
-            console.log("Starting the relationships functionality.");
-        },
-        new: newResourceRelationship,
-        add: moveRelationshipToCanvas,
-        remove: removeRelationshipFromCanvas,
-
-        resourceList: resourceRelationshipList,
-        canvasList: canvasRelationshipList,
     };
 })();
 infraRED.loader = (function() {
@@ -510,22 +431,8 @@ infraRED.loader = (function() {
         return importedNodes;
     }
 
-    function loadRelationshipTypes() {
-        let relationshipTypes = importTypesFromJSON("relationships.json");
-        let importedRelationships = [];
-        for (let type in relationshipTypes) {
-            let relationship = infraRED.relationships.new(type);
-
-            importedRelationships.push(relationship);
-
-            console.log("Loaded: " + type);
-        }
-        return importedRelationships;
-    }
-
     return {
         importNodes: loadNodeTypes,
-        importRelationships: loadRelationshipTypes,
     };
 })();
 // use this file to define the base layout for the editor
@@ -555,7 +462,6 @@ infraRED.editor = (function() {
             infraRED.editor.statusBar.init();
 
             infraRED.editor.nodes.init();
-            infraRED.editor.relationships.init();
         },
     };
 })();
@@ -597,30 +503,11 @@ infraRED.editor.categoryBar = (function() {
             nodeCategory.on("click", () => {
                 if (toggleCategory(nodeCategory)) {
                     infraRED.editor.statusBar.log("Nodes!");
-                    infraRED.editor.resourceBar.toggleNodesTab();
-                    infraRED.editor.resourceBar.toggleRelationshipsTab();
                 }
             });
 
             selectedCategory = nodeCategory;
-
-            let relationshipCategory = $("<img>", {
-                id: "relationship-category",
-                class: "category",
-                alt: "Relationship Category",
-                src: "./icons/arrow-svgrepo-com.svg",
-            });
-
-            relationshipCategory.on("click", () => {
-                if (toggleCategory(relationshipCategory)) {
-                    infraRED.editor.statusBar.log("Relationships!");
-                    infraRED.editor.resourceBar.toggleRelationshipsTab();
-                    infraRED.editor.resourceBar.toggleNodesTab();
-                }
-            });
-
             content.append(nodeCategory);
-            content.append(relationshipCategory);
         },
         get: function() {
             return categoryBar;
@@ -630,8 +517,23 @@ infraRED.editor.categoryBar = (function() {
 // use this file to define the resource bar
 infraRED.editor.resourceBar = (function() {
     let resourceBar;
+    
+    let tabList = {};
+    function createTab(categoryName) {
+        let newTab = $("<div>", {
+            id: categoryName.toLowerCase() + "-tab",
+            class: "tab",
+        });
 
-    let nodeTab, relationshipTab;
+        newTab.append($("<div>", {
+            id: categoryName.toLowerCase() + "-title",
+            class: "title",
+            text: categoryName,
+        }));
+
+        tabList[categoryName] = newTab;
+        return newTab;
+    }
 
     return {
         init: function() {
@@ -648,40 +550,11 @@ infraRED.editor.resourceBar = (function() {
                 id: "resource-tabs",
             });
 
-            nodeTab = $("<div>", {
-                id: "node-tab",
-                class: "tab",
-            });
-
-            nodeTab.append($("<div>", {
-                id: "node-title",
-                class: "title",
-                text: "Nodes",
-            }));
-
+            let nodesTab = createTab("Nodes");
             infraRED.loader.importNodes().forEach(node => {
-                nodeTab.append(node.getDiv());
+                nodesTab.append(node.getDiv());
             });
-
-            tabs.append(nodeTab);
-
-            relationshipTab = $("<div>", {
-                id: "relationship-tab",
-                class: "tab",
-            });
-
-            relationshipTab.append($("<div>", {
-                id: "relationship-title",
-                class: "title",
-                text: "Relationships",
-            }));
-
-            infraRED.loader.importRelationships().forEach(relationship => {
-                relationshipTab.append(relationship.getDiv());
-            });
-
-            tabs.append(relationshipTab);
-            relationshipTab.hide();
+            tabs.append(nodesTab);
 
             content.append(tabs);
             resourceBar.append(content);
@@ -689,12 +562,6 @@ infraRED.editor.resourceBar = (function() {
         get: function() {
             return resourceBar;
         },
-        toggleNodesTab: function() {
-            nodeTab.toggle();
-        },
-        toggleRelationshipsTab: function() {
-            relationshipTab.toggle();
-        }
     };
 })();
 // use this file to define the canvas bar
@@ -780,15 +647,10 @@ infraRED.editor.canvas = (function() {
 
                     droppedElement.removeClass("resource");
 
-                    if (ui.draggable.data("type") === "node") {
-                        let resourceNode = infraRED.nodes.resourceList.getByID(ui.draggable.data("id"));
-                        //let any editor element know the node in question changed sides
-                        infraRED.events.emit("nodes:canvas-drop", resourceNode, droppedElement);
-                    } else if (ui.draggable.data("type") === "relationship") {
-                        let resourceRelationship = infraRED.relationships.resourceList.getByID(ui.draggable.data("id"));
-                        //let any editor element know the relationship in question changed sides
-                        infraRED.events.emit("relationship:canvas-drop", resourceRelationship, droppedElement);
-                    }
+                    let resourceNode = infraRED.nodes.resourceList.getByID(ui.draggable.data("id"));
+                    //let any editor element know the node in question changed sides
+                    
+                    infraRED.events.emit("nodes:canvas-drop", resourceNode, droppedElement);
             
                     $(this).append(droppedElement);
                 },
@@ -803,7 +665,7 @@ infraRED.editor.canvas = (function() {
 
             //TODO - redesign this whole process, I need to have named connections between these
             //must make use of the relationships.js file
-            infraRED.events.on("canvas:draw-connection", (req, cap) => {
+            infraRED.events.on("canvas:draw-connection", (req, cap, reqNode, capNode) => {
                 //TODO - rethink my svg use,
                 //right now i have a svg and divs in play together
                 //maybe i should draw everything as a svg composition so i can more easily move elements 
@@ -812,8 +674,6 @@ infraRED.editor.canvas = (function() {
                 //TODO - this is the whole node position
                 let requirementPosition = req.parent().parent().position();
                 let capabilityPosition = cap.parent().parent().position();
-
-                console.log(req.position(), cap.position());
 
                 //TODO - x1,y1 may not be the requirement per say (and vice-versa)
                 //but the values are interchangeable since it's a line from one to the other
@@ -935,24 +795,56 @@ infraRED.editor.nodes = (function () {
             });
 
             var connecting = false;
+            var reqNode = null;
+            var capNode = null;
             var req = null;
             var cap = null;
             
             infraRED.events.on("nodes:canvas-drop", (droppedNode, droppedNodeElement) => {
-                droppedNodeElement.removeClass("resource-node");
+                droppedNodeElement.removeClass("resource-node ui-draggable-dragging");
                 droppedNodeElement.addClass("canvas-node");
             
+                let canvasNode = infraRED.nodes.add(droppedNode);
+
+                //TODO - maybe fix this to be more intelligent
+                let canvasDragStart = { "top": 0, "left": 0 };
+
+                let canvasDraggedLast = { "top": -1, "left": -1 };
+                let canvasDragged = { "top": 0, "left": 0 };
+
+                let count = 0;
+                
                 droppedNodeElement.draggable({
                     containment: "parent",
+
+                    //TODO - possibly change this element into a generic one that affects all categories
                     stack: ".canvas-node",
                     scroll: false,
                     grid: [gridSizeGap, gridSizeGap],
 
+                    start: function(event, ui) {
+                        //TODO - this is very bad pls change
+                        canvasDraggedLast = { "top": -1, "left": -1 };
+
+                        canvasDragStart.left = ui.position.left;
+                        canvasDragStart.top = ui.position.top;
+                    },
                     drag: function(event, ui) {
+                        //TODO - this is very bad pls change
+                        canvasDragged.left = canvasDragStart.left - ui.position.left;
+                        canvasDragged.top = canvasDragStart.top - ui.position.top;
+  
+                        if (canvasDragged.left != canvasDraggedLast.left || canvasDragged.top != canvasDraggedLast.top) {
+                            canvasDragStart.left = ui.position.left;
+                            canvasDragStart.top = ui.position.top;
+
+                            canvasDraggedLast.left = canvasDragged.left;
+                            canvasDraggedLast.top = canvasDragged.top;
+                        }
+                    },
+                    stop: function(event, ui) {
                     },
                 });
-
-                let canvasNode = infraRED.nodes.add(droppedNode);
 
                 droppedNodeElement.on("dblclick", () => {
                     droppedNodeElement.remove();
@@ -964,14 +856,16 @@ infraRED.editor.nodes = (function () {
 
                     if (connecting && cap != null) {
                         req = $(e.currentTarget);
+                        reqNode = canvasNode;
                         console.log(`Connected ${cap.text()} to ${req.text()}`);
 
-                        infraRED.events.emit("canvas:create-connection", req, cap);
-                        infraRED.events.emit("canvas:draw-connection", req, cap);
+                        infraRED.events.emit("canvas:create-connection", reqNode, capNode);
+                        infraRED.events.emit("canvas:draw-connection", req, cap, reqNode, capNode);
 
-                        connecting = false; req = null; cap = null;
+                        connecting = false; req = null; cap = null; reqNode = null; capNode = null;
                     } else if (req == null) {
                         req = $(e.currentTarget);
+                        reqNode = canvasNode;
                         connecting = true;
                     } else {
                         console.log("Already chose requirement.");
@@ -983,72 +877,20 @@ infraRED.editor.nodes = (function () {
 
                     if (connecting && req != null) {
                         cap = $(e.currentTarget);
+                        capNode = canvasNode;
                         console.log(`Connected ${cap.text()} to ${req.text()}`);
 
-                        infraRED.events.emit("canvas:create-connection", req, cap);
-                        infraRED.events.emit("canvas:draw-connection", req, cap);
+                        infraRED.events.emit("canvas:create-connection", reqNode, capNode);
+                        infraRED.events.emit("canvas:draw-connection", req, cap, reqNode, capNode);
 
                         connecting = false; req = null; cap = null;
                     } else if (cap == null) {
                         cap = $(e.currentTarget);
+                        capNode = canvasNode;
                         connecting = true;
                     } else {
                         console.log("Already chose capability.");
                     }
-                });
-            });
-        }
-    };
-})();
-// use this file to define node behaviour
-infraRED.editor.relationships = (function () {
-    return {
-        init: function() {
-            $(".resource-relationship").draggable({
-                appendTo: "#infraRED-ui-root",
-                helper: "clone",
-                containment: "#infraRED-ui-root",
-                scroll: false,
-                revert: "invalid",
-                revertDuration: 300,
-                create: function(event, ui) {
-                    //HTML page loads with 90% width so it's responsive to the layout
-                    //this then creates the draggable with static width so the width doesnt change at the moment of drag
-                    
-                    //TODO - this does not work now since i hide the window
-                    $(this).css("width", $(this).width());
-                },
-                start: function(event, ui) {
-                    $(this).data({
-                        id: event.currentTarget.id,
-                        type: "relationship",
-                    });
-                },
-                drag: function(event, ui) {
-                },
-                stop: function(event, ui) {
-                },
-            });
-
-            infraRED.events.on("relationship:canvas-drop", (droppedRelationship, droppedElement) => {
-                droppedElement.removeClass("resource-relationship");
-                droppedElement.addClass("canvas-relationship");
-            
-                droppedElement.draggable({
-                    containment: "parent",
-                    stack: ".canvas-relationship",
-                    scroll: false,
-                    grid: [gridSizeGap, gridSizeGap],
-    
-                    drag: function(event, ui) {
-                    },
-                });
-    
-                let canvasRelationship = infraRED.relationships.add(droppedRelationship);
-    
-                droppedElement.on("dblclick", () => {
-                    droppedElement.remove();
-                    infraRED.relationships.remove(canvasRelationship);
                 });
             });
         }

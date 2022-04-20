@@ -1,6 +1,6 @@
 infraRED.canvas = (function() {
     //TODO - this infraRED element should be in charge of managing nodes and relationships together
-    function createConnection(req, cap) {
+    function createConnection(capability, requirement) {
         //TODO - do stuff with relationships
     }
 

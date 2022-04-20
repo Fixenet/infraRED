@@ -1,14 +1,46 @@
 infraRED.nodes = (function() {
-    const MAX_ID = 10000;
-    const EMPTY_NAME_NODE = "EMPTY_NAME_NODE";
+    /**
+     * Represents a capability of a Node, a possible functionality that can be served to another Node.
+     */
+    class Capability {
+        constructor() {
+            this.id = null;
 
-    let currentID = 0;
+            this.type = null;
+        }
+    }
+    /**
+     * Represents a requirement of a Node, a necessary functionality for a Node to work correctly.
+     */
+    class Requirement {
+        constructor() {
+            this.id = null;
+
+            this.type = null;
+        }
+    }
+    /**
+     * Represents a connection between 2 Nodes via a Capability from one 
+     * and a Requirement from another. 
+     */
+    class Relationship {
+        constructor() {
+            this.id = null;
+
+            this.name = infraRED.settings.relationships.EMPTY_NAME;
+
+            this.type = null;
+        }
+    }
+    /**
+     * Represents any piece of physical/virtual infrastructure.
+     */
     class Node {
         constructor(type) {
-            this.resourceID = -1;
-            this.canvasID = -1;
+            this.resourceID = null;
+            this.canvasID = null;
 
-            this.name = EMPTY_NAME_NODE;
+            this.name = infraRED.settings.nodes.EMPTY_NAME;
             
             this.type = type;
             this.properties = {};
@@ -17,7 +49,7 @@ infraRED.nodes = (function() {
             this.requirements = {};
         }
 
-        changeName(name) {
+        setName(name) {
             if (infraRED.validator.validateNodeType(name)) {
                 this.name = name;
             } else {
@@ -82,7 +114,12 @@ infraRED.nodes = (function() {
         }
 
         print() {
-            return `${this.type}: ${this.resourceID}|${this.canvasID} = ${this.name}`;
+            // this node is only present in the resource bar
+            let printResult = `Resource Node:\n${this.resourceIdentifier}-\n${this.type}\n`;
+            if (this.canvasIdentifier != null) { // this node also exists in the canvas
+                printResult += `Canvas Node:\n${this.resourceIdentifier}:${this.canvasIdentifier}\n${this.name}\n`;
+            }
+            return printResult;
         }
     }
 
@@ -94,7 +131,7 @@ infraRED.nodes = (function() {
             nodeList[node.resourceID] = node;
         }
 
-        function getNodeByID(id) {
+        function getNodeByIdentifier(id) {
             return nodeList[id];
         }
 
@@ -105,7 +142,7 @@ infraRED.nodes = (function() {
 
         return {
           add: addNode,
-          getByID: getNodeByID,
+          getByID: getNodeByIdentifier,
           getAll: getNodeList,
         };
     })();
@@ -118,7 +155,7 @@ infraRED.nodes = (function() {
         let nodeList = {};
 
         function addNode(node) {
-            node.canvasID = createID();
+            node.canvasID = createCanvasID();
             nodeList[node.canvasID] = node;
         }
 
@@ -126,7 +163,7 @@ infraRED.nodes = (function() {
             delete nodeList[node.canvasID];
         }
 
-        function getNodeByID(id) {
+        function getNodeByIdentifier(id) {
             return nodeList[id];
         }
 
@@ -138,7 +175,7 @@ infraRED.nodes = (function() {
         return {
           add: addNode,
           remove: removeNode,
-          getByID: getNodeByID,
+          getByID: getNodeByIdentifier,
           getAll: getNodeList,
         };
     })();
@@ -174,6 +211,7 @@ infraRED.nodes = (function() {
         infraRED.events.on("nodes:log-canvas", logCanvasList);
     }
 
+    let currentID = 0;
     function newResourceNode(type) {
         let node = new Node(type);
         node.resourceID = currentID++;
@@ -189,7 +227,9 @@ infraRED.nodes = (function() {
         let canvasNode = new Node(resourceNode.type);
 
         canvasNode.resourceID = resourceNode.resourceID;
-        canvasNode.canvasID = createID();
+        canvasNode.canvasID = createCanvasID();
+
+        //TODO - this is an object atribution so i'm passing a reference
         canvasNode.capabilities = resourceNode.capabilities;
         canvasNode.requirements = resourceNode.requirements;
 
@@ -204,9 +244,9 @@ infraRED.nodes = (function() {
         canvasNodesList.remove(canvasNode);
     }
 
-    function createID() {
+    function createCanvasID() {
         function generateID() {
-            return Math.floor(Math.random() * MAX_ID);
+            return Math.floor(Math.random() * infraRED.settings.nodes.MAX_ID);
         }
 
         let newID = generateID();

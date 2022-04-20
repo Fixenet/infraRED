@@ -1,8 +1,23 @@
 // use this file to define the resource bar
 infraRED.editor.resourceBar = (function() {
     let resourceBar;
+    
+    let tabList = {};
+    function createTab(categoryName) {
+        let newTab = $("<div>", {
+            id: categoryName.toLowerCase() + "-tab",
+            class: "tab",
+        });
 
-    let nodeTab, relationshipTab;
+        newTab.append($("<div>", {
+            id: categoryName.toLowerCase() + "-title",
+            class: "title",
+            text: categoryName,
+        }));
+
+        tabList[categoryName] = newTab;
+        return newTab;
+    }
 
     return {
         init: function() {
@@ -19,40 +34,11 @@ infraRED.editor.resourceBar = (function() {
                 id: "resource-tabs",
             });
 
-            nodeTab = $("<div>", {
-                id: "node-tab",
-                class: "tab",
-            });
-
-            nodeTab.append($("<div>", {
-                id: "node-title",
-                class: "title",
-                text: "Nodes",
-            }));
-
+            let nodesTab = createTab("Nodes");
             infraRED.loader.importNodes().forEach(node => {
-                nodeTab.append(node.getDiv());
+                nodesTab.append(node.getDiv());
             });
-
-            tabs.append(nodeTab);
-
-            relationshipTab = $("<div>", {
-                id: "relationship-tab",
-                class: "tab",
-            });
-
-            relationshipTab.append($("<div>", {
-                id: "relationship-title",
-                class: "title",
-                text: "Relationships",
-            }));
-
-            infraRED.loader.importRelationships().forEach(relationship => {
-                relationshipTab.append(relationship.getDiv());
-            });
-
-            tabs.append(relationshipTab);
-            relationshipTab.hide();
+            tabs.append(nodesTab);
 
             content.append(tabs);
             resourceBar.append(content);
@@ -60,11 +46,5 @@ infraRED.editor.resourceBar = (function() {
         get: function() {
             return resourceBar;
         },
-        toggleNodesTab: function() {
-            nodeTab.toggle();
-        },
-        toggleRelationshipsTab: function() {
-            relationshipTab.toggle();
-        }
     };
 })();
