@@ -1,10 +1,10 @@
 //setup the editor layout
 #infraRED-ui-root {
-    background-color: rgb(255, 255, 255);
+    background-color: $layout-background;
 }
 
 $border-width: 3px;
-$layout-border: $border-width solid rgb(0, 0, 0);
+$layout-border: $border-width solid #000000;
 
 $menu-height: 50px;
 $status-height: 50px;

@@ -1,15 +1,29 @@
 $layout-background: #ffffff;
 
 // Canvas
-$canvas-background-color: #ffffff;
-$canvas-background-color-hover: #eeeeee;
+$canvas-background-color: #e9e9e9;
+$canvas-background-color-hover: #cfcfcf;
 $canvas-grid-line-color: #000000;
+$canvas-connection-line-color: #42d521;
+
+// Node
+$node-border-color: #616161;
+$node-background-color: #cbcbcb;
+
+$node-border-color-hover: #15a7f0;
+
+$node-requirement-color: #aa1f15;
+$node-requirement-border-color: #e71b0c;
+
+$node-capability-color: #109b29;
+$node-capability-border-color: #0cdf33;
 
 // Category #fd9694
 $category-background-color: #fd9694;
 
 // Resource #c2ff9f
 $resource-background-color: #c2ff9f;
+$resource-category-title-background-color: #97d077;
 
 // Menu #a6c9ff
 $menu-background-color: #a6c9ff;

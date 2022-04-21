@@ -2,6 +2,10 @@
     border-right: $layout-border;
     border-bottom: $layout-border;
 
+    .title {
+        background-color: $resource-category-title-background-color;
+    }
+
     .resource {
         width: 160px;
         word-wrap: break-word;

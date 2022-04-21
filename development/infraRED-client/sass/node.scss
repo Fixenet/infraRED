@@ -4,8 +4,8 @@
     height: auto;
 
     //border-radius: 10px;
-    border: 0.25em solid rgb(61, 61, 61);
-    background-color: rgb(177, 177, 177);
+    border: 0.25em solid $node-border-color;
+    background-color: $node-background-color;
 
     font-family: Arial, sans-serif;
     font-size: 10px;
@@ -14,7 +14,7 @@
 
 .node:hover {
     cursor: grab;
-    border-color: rgb(98, 179, 255);
+    border-color: $node-border-color-hover;
 }
 
 .ui-draggable-dragging,
@@ -27,21 +27,21 @@
         box-sizing: border-box;
         width: 100%;
 
-        background-color: rgb(98, 179, 255);
+        background-color: $node-border-color-hover;
         font-weight: bold;
         border-radius: 10px;
         padding: 5px 5px;
     }
     .requirement {
         margin: 5px auto;
-        border: 0.15em solid red;
-        background-color: rgb(223, 84, 84);
+        border: 0.15em solid $node-requirement-color;
+        background-color: $node-requirement-border-color;
         width: 95%;
     }
     .capability {
         margin: 5px auto;
-        border: 0.15em solid green;
-        background-color: rgb(47, 160, 47);
+        border: 0.15em solid $node-capability-color;
+        background-color: $node-capability-border-color;
         width: 95%;
     }
 }
