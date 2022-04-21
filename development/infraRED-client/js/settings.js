@@ -1,18 +1,20 @@
 infraRED.settings = (function() {
     nodes = (function() {
         return {
-            MAX_ID: 10000,
+            MAX_ID: 100,
             EMPTY_NAME: "No Name Node",
         };
     })();
 
     capabilities = (function() {
         return {
+            EMPTY_NAME: "No Name Capability",
         };
     })();
 
     requirements = (function() {
         return {
+            EMPTY_NAME: "No Name Requirement",
         };
     })();
 

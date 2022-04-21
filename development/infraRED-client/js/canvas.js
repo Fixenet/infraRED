@@ -4,8 +4,13 @@ infraRED.canvas = (function() {
         //TODO - do stuff with relationships
     }
 
+    function maxNodesReachedInCanvas() {
+        infraRED.editor.statusBar.log("Can no longer add more Nodes to the Canvas\nPlease remove some before continuing...");
+    }
+
     function setUpEvents() {
         infraRED.events.on("canvas:create-connection", createConnection);
+        infraRED.events.on("nodes:max-nodes-in-canvas", maxNodesReachedInCanvas);
     }
 
     return {

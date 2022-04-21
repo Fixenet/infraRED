@@ -76,18 +76,20 @@ infraRED.validator = (function() {
 infraRED.settings = (function() {
     nodes = (function() {
         return {
-            MAX_ID: 10000,
+            MAX_ID: 100,
             EMPTY_NAME: "No Name Node",
         };
     })();
 
     capabilities = (function() {
         return {
+            EMPTY_NAME: "No Name Capability",
         };
     })();
 
     requirements = (function() {
         return {
+            EMPTY_NAME: "No Name Requirement",
         };
     })();
 
@@ -110,8 +112,13 @@ infraRED.canvas = (function() {
         //TODO - do stuff with relationships
     }
 
+    function maxNodesReachedInCanvas() {
+        infraRED.editor.statusBar.log("Can no longer add more Nodes to the Canvas\nPlease remove some before continuing...");
+    }
+
     function setUpEvents() {
         infraRED.events.on("canvas:create-connection", createConnection);
+        infraRED.events.on("nodes:max-nodes-in-canvas", maxNodesReachedInCanvas);
     }
 
     return {
@@ -124,22 +131,42 @@ infraRED.canvas = (function() {
 infraRED.nodes = (function() {
     /**
      * Represents a capability of a Node, a possible functionality that can be served to another Node.
+     * These have no id since the type is a unique identifier in each Node.
      */
     class Capability {
-        constructor() {
-            this.id = null;
+        constructor(type) {
+            this.name = null;
 
-            this.type = null;
+            this.type = type;
+        }
+
+        getDiv() {
+            let capability = $("<div>", {
+                class: "capability",
+                text: this.type,
+            });
+
+            return capability;
         }
     }
     /**
      * Represents a requirement of a Node, a necessary functionality for a Node to work correctly.
+     * These have no id since the type is a unique identifier in each Node.
      */
     class Requirement {
-        constructor() {
-            this.id = null;
+        constructor(type) {
+            this.name = null;
 
-            this.type = null;
+            this.type = type;
+        }
+
+        getDiv() {
+            let requirement = $("<div>", {
+                class: "requirement",
+                text: this.type,
+            });
+
+            return requirement;
         }
     }
     /**
@@ -181,11 +208,13 @@ infraRED.nodes = (function() {
         }
 
         addCapability(capability) {
-            this.capabilities[capability] = {};
+            // index by type since only one of each type exists in each Node
+            this.capabilities[capability.type] = capability;
         }
 
         addRequirement(requirement) {
-            this.requirements[requirement] = {};
+            // index by type since only one of each type exists in each Node
+            this.requirements[requirement.type] = requirement;
         }
 
         getDiv() {
@@ -204,13 +233,11 @@ infraRED.nodes = (function() {
                     class: "requirements",
                 });
 
-                Object.keys(this.requirements).forEach(requirement => {
-                    requirements.append($("<p>", {
-                        class: "requirement",
-                        text: requirement,
-                    }));
+                Object.values(this.requirements).forEach(requirement => {
+                    requirements.append(requirement.getDiv());
                 });
 
+                // add a border line to separate capabilities from requirements if both exist
                 if (!$.isEmptyObject(this.requirements) && !$.isEmptyObject(this.capabilities)) {
                     requirements.css("border-bottom", "0.30em dashed black");
                 }
@@ -223,11 +250,8 @@ infraRED.nodes = (function() {
                     class: "capabilities",
                 });
 
-                Object.keys(this.capabilities).forEach(capability => {
-                    capabilities.append($("<p>", {
-                        class: "capability",
-                        text: capability,
-                    }));
+                Object.values(this.capabilities).forEach(capability => {
+                    capabilities.append(capability.getDiv());
                 });
 
                 div.append(capabilities);
@@ -238,9 +262,9 @@ infraRED.nodes = (function() {
 
         print() {
             // this node is only present in the resource bar
-            let printResult = `Resource Node:\n${this.resourceIdentifier}-\n${this.type}\n`;
-            if (this.canvasIdentifier != null) { // this node also exists in the canvas
-                printResult += `Canvas Node:\n${this.resourceIdentifier}:${this.canvasIdentifier}\n${this.name}\n`;
+            let printResult = `ResourceID ${this.resourceID}: ${this.type}`;
+            if (this.canvasID != null) { // this node also exists in the canvas
+                printResult += `\nCanvasID ${this.canvasID}: ${this.name}`;
             }
             return printResult;
         }
@@ -311,7 +335,7 @@ infraRED.nodes = (function() {
             logString.push(node.print());
         });
 
-        logString = logString.join(" || ");
+        logString = logString.join("\n");
         infraRED.editor.statusBar.log(logString);
         console.log(logString);
     }
@@ -324,7 +348,7 @@ infraRED.nodes = (function() {
             logString.push(node.print());
         });
 
-        logString = logString.join(" || ");
+        logString = logString.join("\n");
         infraRED.editor.statusBar.log(logString);
         console.log(logString);
     }
@@ -347,12 +371,19 @@ infraRED.nodes = (function() {
     }
 
     function moveNodeToCanvas(resourceNode) {
+        // stop the node from entering the canvas if we are at max value
+        if (canvasNodesList.getAll().length == infraRED.settings.nodes.MAX_ID) {
+            infraRED.events.emit("nodes:max-nodes-in-canvas");
+            //TODO - disallow any further action, this may not be correctly propagated
+            return null;
+        }
+
         let canvasNode = new Node(resourceNode.type);
 
         canvasNode.resourceID = resourceNode.resourceID;
         canvasNode.canvasID = createCanvasID();
 
-        //TODO - this is an object atribution so i'm passing a reference
+        //TODO - this is an object atribution so i'm passing a reference, bad
         canvasNode.capabilities = resourceNode.capabilities;
         canvasNode.requirements = resourceNode.requirements;
 
@@ -373,7 +404,6 @@ infraRED.nodes = (function() {
         }
 
         let newID = generateID();
-
         while (canvasNodesList.getByID(newID) != undefined) newID = generateID();
 
         return newID;
@@ -384,6 +414,7 @@ infraRED.nodes = (function() {
             console.log("Starting the nodes functionality.");
             setUpEvents();
         },
+
         new: newResourceNode,
         add: moveNodeToCanvas,
         remove: removeNodeFromCanvas,
@@ -418,12 +449,12 @@ infraRED.loader = (function() {
             const capabilities = nodeTypes[type].capabilities;
             const requirements = nodeTypes[type].requirements;
         
-            if (capabilities) for(let capability in capabilities) {
+            /* if (capabilities) for (let capability in capabilities) {
                 node.addCapability(capabilities[capability]);
             }
-            if (requirements) for(let requirement in requirements) {
+            if (requirements) for (let requirement in requirements) {
                 node.addRequirement(requirements[requirement]);
-            }
+            } */
         
             importedNodes.push(node);
             console.log("Loaded: " + type);
@@ -650,9 +681,8 @@ infraRED.editor.canvas = (function() {
                     let resourceNode = infraRED.nodes.resourceList.getByID(ui.draggable.data("id"));
                     //let any editor element know the node in question changed sides
                     
-                    infraRED.events.emit("nodes:canvas-drop", resourceNode, droppedElement);
-            
                     $(this).append(droppedElement);
+                    infraRED.events.emit("nodes:canvas-drop", resourceNode, droppedElement);
                 },
             });
 
@@ -801,19 +831,24 @@ infraRED.editor.nodes = (function () {
             var cap = null;
             
             infraRED.events.on("nodes:canvas-drop", (droppedNode, droppedNodeElement) => {
+                let canvasNode = infraRED.nodes.add(droppedNode);
+                
+                // add method will return null and we know we are supposed to remove
+                //TODO - this may be prone to errors, since i may generate null through other ways
+                if (canvasNode == null) {
+                    droppedNodeElement.remove();
+                    return;
+                }
+
                 droppedNodeElement.removeClass("resource-node ui-draggable-dragging");
                 droppedNodeElement.addClass("canvas-node");
             
-                let canvasNode = infraRED.nodes.add(droppedNode);
-
                 //TODO - maybe fix this to be more intelligent
                 let canvasDragStart = { "top": 0, "left": 0 };
 
                 let canvasDraggedLast = { "top": -1, "left": -1 };
                 let canvasDragged = { "top": 0, "left": 0 };
 
-                let count = 0;
-                
                 droppedNodeElement.draggable({
                     containment: "parent",
 

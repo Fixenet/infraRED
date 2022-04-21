@@ -84,9 +84,8 @@ infraRED.editor.canvas = (function() {
                     let resourceNode = infraRED.nodes.resourceList.getByID(ui.draggable.data("id"));
                     //let any editor element know the node in question changed sides
                     
-                    infraRED.events.emit("nodes:canvas-drop", resourceNode, droppedElement);
-            
                     $(this).append(droppedElement);
+                    infraRED.events.emit("nodes:canvas-drop", resourceNode, droppedElement);
                 },
             });
 

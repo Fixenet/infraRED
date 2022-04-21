@@ -1,22 +1,42 @@
 infraRED.nodes = (function() {
     /**
      * Represents a capability of a Node, a possible functionality that can be served to another Node.
+     * These have no id since the type is a unique identifier in each Node.
      */
     class Capability {
-        constructor() {
-            this.id = null;
+        constructor(type) {
+            this.name = null;
 
-            this.type = null;
+            this.type = type;
+        }
+
+        getDiv() {
+            let capability = $("<div>", {
+                class: "capability",
+                text: this.type,
+            });
+
+            return capability;
         }
     }
     /**
      * Represents a requirement of a Node, a necessary functionality for a Node to work correctly.
+     * These have no id since the type is a unique identifier in each Node.
      */
     class Requirement {
-        constructor() {
-            this.id = null;
+        constructor(type) {
+            this.name = null;
 
-            this.type = null;
+            this.type = type;
+        }
+
+        getDiv() {
+            let requirement = $("<div>", {
+                class: "requirement",
+                text: this.type,
+            });
+
+            return requirement;
         }
     }
     /**
@@ -58,11 +78,13 @@ infraRED.nodes = (function() {
         }
 
         addCapability(capability) {
-            this.capabilities[capability] = {};
+            // index by type since only one of each type exists in each Node
+            this.capabilities[capability.type] = capability;
         }
 
         addRequirement(requirement) {
-            this.requirements[requirement] = {};
+            // index by type since only one of each type exists in each Node
+            this.requirements[requirement.type] = requirement;
         }
 
         getDiv() {
@@ -81,13 +103,11 @@ infraRED.nodes = (function() {
                     class: "requirements",
                 });
 
-                Object.keys(this.requirements).forEach(requirement => {
-                    requirements.append($("<p>", {
-                        class: "requirement",
-                        text: requirement,
-                    }));
+                Object.values(this.requirements).forEach(requirement => {
+                    requirements.append(requirement.getDiv());
                 });
 
+                // add a border line to separate capabilities from requirements if both exist
                 if (!$.isEmptyObject(this.requirements) && !$.isEmptyObject(this.capabilities)) {
                     requirements.css("border-bottom", "0.30em dashed black");
                 }
@@ -100,11 +120,8 @@ infraRED.nodes = (function() {
                     class: "capabilities",
                 });
 
-                Object.keys(this.capabilities).forEach(capability => {
-                    capabilities.append($("<p>", {
-                        class: "capability",
-                        text: capability,
-                    }));
+                Object.values(this.capabilities).forEach(capability => {
+                    capabilities.append(capability.getDiv());
                 });
 
                 div.append(capabilities);
@@ -115,9 +132,9 @@ infraRED.nodes = (function() {
 
         print() {
             // this node is only present in the resource bar
-            let printResult = `Resource Node:\n${this.resourceIdentifier}-\n${this.type}\n`;
-            if (this.canvasIdentifier != null) { // this node also exists in the canvas
-                printResult += `Canvas Node:\n${this.resourceIdentifier}:${this.canvasIdentifier}\n${this.name}\n`;
+            let printResult = `ResourceID ${this.resourceID}: ${this.type}`;
+            if (this.canvasID != null) { // this node also exists in the canvas
+                printResult += `\nCanvasID ${this.canvasID}: ${this.name}`;
             }
             return printResult;
         }
@@ -188,7 +205,7 @@ infraRED.nodes = (function() {
             logString.push(node.print());
         });
 
-        logString = logString.join(" || ");
+        logString = logString.join("\n");
         infraRED.editor.statusBar.log(logString);
         console.log(logString);
     }
@@ -201,7 +218,7 @@ infraRED.nodes = (function() {
             logString.push(node.print());
         });
 
-        logString = logString.join(" || ");
+        logString = logString.join("\n");
         infraRED.editor.statusBar.log(logString);
         console.log(logString);
     }
@@ -224,12 +241,19 @@ infraRED.nodes = (function() {
     }
 
     function moveNodeToCanvas(resourceNode) {
+        // stop the node from entering the canvas if we are at max value
+        if (canvasNodesList.getAll().length == infraRED.settings.nodes.MAX_ID) {
+            infraRED.events.emit("nodes:max-nodes-in-canvas");
+            //TODO - disallow any further action, this may not be correctly propagated
+            return null;
+        }
+
         let canvasNode = new Node(resourceNode.type);
 
         canvasNode.resourceID = resourceNode.resourceID;
         canvasNode.canvasID = createCanvasID();
 
-        //TODO - this is an object atribution so i'm passing a reference
+        //TODO - this is an object atribution so i'm passing a reference, bad
         canvasNode.capabilities = resourceNode.capabilities;
         canvasNode.requirements = resourceNode.requirements;
 
@@ -250,7 +274,6 @@ infraRED.nodes = (function() {
         }
 
         let newID = generateID();
-
         while (canvasNodesList.getByID(newID) != undefined) newID = generateID();
 
         return newID;
@@ -261,6 +284,7 @@ infraRED.nodes = (function() {
             console.log("Starting the nodes functionality.");
             setUpEvents();
         },
+
         new: newResourceNode,
         add: moveNodeToCanvas,
         remove: removeNodeFromCanvas,

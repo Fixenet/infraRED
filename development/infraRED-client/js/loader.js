@@ -24,12 +24,12 @@ infraRED.loader = (function() {
             const capabilities = nodeTypes[type].capabilities;
             const requirements = nodeTypes[type].requirements;
         
-            if (capabilities) for(let capability in capabilities) {
+            /* if (capabilities) for (let capability in capabilities) {
                 node.addCapability(capabilities[capability]);
             }
-            if (requirements) for(let requirement in requirements) {
+            if (requirements) for (let requirement in requirements) {
                 node.addRequirement(requirements[requirement]);
-            }
+            } */
         
             importedNodes.push(node);
             console.log("Loaded: " + type);

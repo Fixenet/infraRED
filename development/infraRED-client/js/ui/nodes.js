@@ -33,19 +33,24 @@ infraRED.editor.nodes = (function () {
             var cap = null;
             
             infraRED.events.on("nodes:canvas-drop", (droppedNode, droppedNodeElement) => {
+                let canvasNode = infraRED.nodes.add(droppedNode);
+                
+                // add method will return null and we know we are supposed to remove
+                //TODO - this may be prone to errors, since i may generate null through other ways
+                if (canvasNode == null) {
+                    droppedNodeElement.remove();
+                    return;
+                }
+
                 droppedNodeElement.removeClass("resource-node ui-draggable-dragging");
                 droppedNodeElement.addClass("canvas-node");
             
-                let canvasNode = infraRED.nodes.add(droppedNode);
-
                 //TODO - maybe fix this to be more intelligent
                 let canvasDragStart = { "top": 0, "left": 0 };
 
                 let canvasDraggedLast = { "top": -1, "left": -1 };
                 let canvasDragged = { "top": 0, "left": 0 };
 
-                let count = 0;
-                
                 droppedNodeElement.draggable({
                     containment: "parent",
 
