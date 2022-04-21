@@ -207,14 +207,14 @@ infraRED.nodes = (function() {
             }
         }
 
-        addCapability(capability) {
+        addCapability(capabilityType) {
             // index by type since only one of each type exists in each Node
-            this.capabilities[capability.type] = capability;
+            this.capabilities[capabilityType] = new Capability(capabilityType);
         }
 
-        addRequirement(requirement) {
+        addRequirement(requirementType) {
             // index by type since only one of each type exists in each Node
-            this.requirements[requirement.type] = requirement;
+            this.requirements[requirementType] = new Requirement(requirementType);
         }
 
         getDiv() {
@@ -449,12 +449,12 @@ infraRED.loader = (function() {
             const capabilities = nodeTypes[type].capabilities;
             const requirements = nodeTypes[type].requirements;
         
-            /* if (capabilities) for (let capability in capabilities) {
+            if (capabilities) for (let capability in capabilities) {
                 node.addCapability(capabilities[capability]);
             }
             if (requirements) for (let requirement in requirements) {
                 node.addRequirement(requirements[requirement]);
-            } */
+            }
         
             importedNodes.push(node);
             console.log("Loaded: " + type);
