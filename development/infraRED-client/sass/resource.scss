@@ -2,17 +2,13 @@
     border-right: $layout-border;
     border-bottom: $layout-border;
 
-    .title {
-        background-color: #97d077;
-    }
-
     .resource {
         width: 160px;
         word-wrap: break-word;
     }
 
     .content {
-        background-color: #c2ff9f;
+        background-color: $resource-background-color;
     
         position: absolute;
         top: 0;

@@ -2,12 +2,8 @@
     border-right: $layout-border;
     border-bottom: $layout-border;
 
-    .title {
-        background-color: #ea6b66;
-    }
-
     .content {
-        background-color: #fd9694;
+        background-color: $category-background-color;
     
         position: absolute;
         top: 0;

@@ -1,10 +1,6 @@
 #infraRED-ui-status-bar {
-    .title {
-        background-color: #ffd966;
-    }
-
     .content {
-        background-color: #ffe493;
+        background-color: $status-background-color;
     
         position: absolute;
         top: 0;

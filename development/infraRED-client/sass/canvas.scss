@@ -1,12 +1,8 @@
 #infraRED-ui-canvas {
     border-bottom: $layout-border;
 
-    .title {
-        background-color: #ffb570;
-    }
-
     .content {
-        background-color: #ffc895;
+        background-color: $canvas-background-color;
     
         position: absolute;
         top: 0;
@@ -31,11 +27,11 @@
 }
 
 .canvas-hover-drop {
-    background-color: #ff9029 !important;
+    background-color: $canvas-background-color-hover !important;
 }
 
 @mixin canvas-grid-line {
-    stroke: #000000;
+    stroke: $canvas-grid-line-color;
     stroke-width: 1px;
 }
 

@@ -1,12 +1,8 @@
 #infraRED-ui-menu-bar {
     border-bottom: $layout-border;
 
-    .title {
-        background-color: #7ea6e0;
-    }
-
     .content {
-        background-color: #a6c9ff;
+        background-color: $menu-background-color;
     
         position: absolute;
         top: 0;

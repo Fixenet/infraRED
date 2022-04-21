@@ -1,6 +1,6 @@
 //setup the window environment
 body {
-    background-color: rgb(255, 255, 255);
+    background-color: #ffffff;
 
     margin: 0;
     padding: 0;
@@ -21,4 +21,5 @@ body {
     padding: 5;
 }
 
+@import 'colors';
 @import 'editor';
