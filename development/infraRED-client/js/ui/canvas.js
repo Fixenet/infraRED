@@ -6,7 +6,7 @@ infraRED.editor.canvas = (function() {
         return Math.round(position / gridSizeGap) * gridSizeGap;
     }
 
-    function roundToGridCenter(position) {
+    function roundToGridOffset(position) {
         return roundToGrid(position) + gridSizeGap / 4;
     }
 
@@ -38,8 +38,31 @@ infraRED.editor.canvas = (function() {
             });
             grid.append(line);
         }
-
         return grid;
+    }
+
+    function drawRelationshipLine(capabilityDiv, requirementDiv) {
+        let relationshipLine = document.createElementNS(SVGnamespace, "line");
+
+        //TODO - this is the whole node position
+        let capabilityPosition = capabilityDiv.parent().parent().position();
+        let requirementPosition = requirementDiv.parent().parent().position();
+
+        //TODO - x1,y1 may not be the requirement per say (and vice-versa)
+        //but the values are interchangeable since it's a line from one to the other
+        //bad if i required difference between the ends of the line
+
+        //learned that .position() gives me the boundary of the margin box
+        //so i must subtract that from the value the margin
+        $(relationshipLine).attr({
+            class: "canvas-relationship-line",
+            x1: requirementPosition.left + requirementDiv.position().left,
+            y1: requirementPosition.top + requirementDiv.position().top + parseFloat(requirementDiv.css("margin")) + requirementDiv.height(),
+            x2: capabilityPosition.left + capabilityDiv.position().left + capabilityDiv.width(),
+            y2: capabilityPosition.top + capabilityDiv.position().top + parseFloat(capabilityDiv.css("margin")) + capabilityDiv.height(),
+        });
+
+        return relationshipLine;
     }
 
     return {
@@ -59,33 +82,32 @@ infraRED.editor.canvas = (function() {
                 accept: ".resource",
 
                 drop: function(event, ui) {
-                    let droppedElement = $(ui.helper).clone();
+                    let droppedNodeDiv = $(ui.helper).clone();
 
                     // use this so the node drops in the canvas on the place where the mouse was lifted at
                     let draggableOffset = ui.helper.offset(),
                         droppableOffset = $(this).offset(),
                         scrollOffsetLeft = $(this).scrollLeft(),
-                        scrollOffsetTop = $(this).scrollTop(),
+                        scrollOffsetTop = $(this).scrollTop();
                         
-                        left = draggableOffset.left - droppableOffset.left + scrollOffsetLeft,
+                    let left = draggableOffset.left - droppableOffset.left + scrollOffsetLeft,
                         top = draggableOffset.top - droppableOffset.top + scrollOffsetTop;
 
-                    left = roundToGridCenter(left);
-                    top = roundToGridCenter(top);
+                    left = roundToGridOffset(left);
+                    top = roundToGridOffset(top);
 
-                    droppedElement.css({
+                    droppedNodeDiv.css({
                         "position": "absolute",
                         "left": left,
                         "top": top,
                     });
 
-                    droppedElement.removeClass("resource");
+                    droppedNodeDiv.removeClass("resource");
+                    $(this).append(droppedNodeDiv);
 
                     let resourceNode = infraRED.nodes.resourceList.getByID(ui.draggable.data("id"));
                     //let any editor element know the node in question changed sides
-                    
-                    $(this).append(droppedElement);
-                    infraRED.events.emit("nodes:canvas-drop", resourceNode, droppedElement);
+                    infraRED.events.emit("nodes:canvas-drop", resourceNode, droppedNodeDiv);
                 },
             });
 
@@ -98,34 +120,14 @@ infraRED.editor.canvas = (function() {
 
             //TODO - redesign this whole process, I need to have named connections between these
             //must make use of the relationships.js file
-            infraRED.events.on("canvas:draw-connection", (req, cap, reqNode, capNode) => {
+            infraRED.events.on("canvas:draw-connection", (capabilityDiv, requirementDiv) => {
                 //TODO - rethink my svg use,
                 //right now i have a svg and divs in play together
                 //maybe i should draw everything as a svg composition so i can more easily move elements 
-                let connectionLine = document.createElementNS(SVGnamespace, "line");
-
-                //TODO - this is the whole node position
-                let requirementPosition = req.parent().parent().position();
-                let capabilityPosition = cap.parent().parent().position();
-
-                //TODO - x1,y1 may not be the requirement per say (and vice-versa)
-                //but the values are interchangeable since it's a line from one to the other
-
-                //learned that .position() gives me the boundary of the margin box
-                //so i must subtract that from the value the margin
-                $(connectionLine).attr({
-                    class: "canvas-relationship-line",
-                    x1: requirementPosition.left + req.position().left,
-                    y1: requirementPosition.top + req.position().top + parseFloat(req.css("margin")) + req.height(),
-                    x2: capabilityPosition.left + cap.position().left + cap.width(),
-                    y2: capabilityPosition.top + cap.position().top + parseFloat(cap.css("margin")) + cap.height(),
-                });
-
-                $(canvasSVG).append(connectionLine);
+                $(canvasSVG).append(drawRelationshipLine(capabilityDiv, requirementDiv));
             });
 
             content.append(canvasSVG);
-
             canvas.append(content);
         }
     };

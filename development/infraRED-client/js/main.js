@@ -10,4 +10,3 @@ const SVGnamespace = "http://www.w3.org/2000/svg";
 infraRED.init();
 //frontend/views for client side
 infraRED.editor.init();
-

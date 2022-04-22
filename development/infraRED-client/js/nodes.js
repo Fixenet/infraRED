@@ -12,8 +12,14 @@ infraRED.nodes = (function() {
 
         getDiv() {
             let capability = $("<div>", {
+                id: this.type,
                 class: "capability",
-                text: this.type,
+                text: this.name ? this.name : this.type,
+            });
+
+            capability.attr({
+                name: this.name,
+                type: this.type,
             });
 
             return capability;
@@ -32,24 +38,17 @@ infraRED.nodes = (function() {
 
         getDiv() {
             let requirement = $("<div>", {
+                id: this.type,
                 class: "requirement",
-                text: this.type,
+                text: this.name ? this.name : this.type,
+            });
+
+            requirement.attr({
+                name: this.name,
+                type: this.type,
             });
 
             return requirement;
-        }
-    }
-    /**
-     * Represents a connection between 2 Nodes via a Capability from one 
-     * and a Requirement from another. 
-     */
-    class Relationship {
-        constructor() {
-            this.id = null;
-
-            this.name = infraRED.settings.relationships.EMPTY_NAME;
-
-            this.type = null;
         }
     }
     /**
@@ -67,6 +66,8 @@ infraRED.nodes = (function() {
 
             this.capabilities = {};
             this.requirements = {};
+
+            this.relationships = {};
         }
 
         setName(name) {
@@ -79,12 +80,18 @@ infraRED.nodes = (function() {
 
         addCapability(capabilityType) {
             // index by type since only one of each type exists in each Node
-            this.capabilities[capabilityType] = new Capability(capabilityType);
+            let capability = new Capability(capabilityType);
+            this.capabilities[capabilityType] = capability;
         }
 
         addRequirement(requirementType) {
             // index by type since only one of each type exists in each Node
-            this.requirements[requirementType] = new Requirement(requirementType);
+            let requirement = new Requirement(requirementType);
+            this.requirements[requirementType] = requirement;
+        }
+
+        addRelationship(relationship) {
+            this.relationships[relationship.canvasID] = relationship;
         }
 
         getDiv() {
@@ -109,7 +116,7 @@ infraRED.nodes = (function() {
 
                 // add a border line to separate capabilities from requirements if both exist
                 if (!$.isEmptyObject(this.requirements) && !$.isEmptyObject(this.capabilities)) {
-                    requirements.css("border-bottom", "0.30em dashed black");
+                    requirements.css("border-bottom", "0.25em dashed black");
                 }
 
                 div.append(requirements);
@@ -140,11 +147,13 @@ infraRED.nodes = (function() {
         }
     }
 
+    let currentID = 0;
     // this list holds information about the node types loaded into infraRED
     resourceNodesList = (function() {
         let nodeList = {};
 
         function addNode(node) {
+            node.resourceID = currentID++;
             nodeList[node.resourceID] = node;
         }
 
@@ -228,16 +237,11 @@ infraRED.nodes = (function() {
         infraRED.events.on("nodes:log-canvas", logCanvasList);
     }
 
-    let currentID = 0;
     function newResourceNode(type) {
-        let node = new Node(type);
-        node.resourceID = currentID++;
-
-        resourceNodesList.add(node);
-
-        infraRED.events.emit("nodes:add-resources", node);
-
-        return node;
+        let newNode = new Node(type);
+        resourceNodesList.add(newNode);
+        infraRED.events.emit("nodes:add-resources", newNode);
+        return newNode;
     }
 
     function moveNodeToCanvas(resourceNode) {
@@ -249,9 +253,7 @@ infraRED.nodes = (function() {
         }
 
         let canvasNode = new Node(resourceNode.type);
-
         canvasNode.resourceID = resourceNode.resourceID;
-        canvasNode.canvasID = createCanvasID();
 
         //TODO - this is an object atribution so i'm passing a reference, bad
         canvasNode.capabilities = resourceNode.capabilities;

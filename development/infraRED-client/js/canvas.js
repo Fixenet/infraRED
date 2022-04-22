@@ -1,7 +1,10 @@
 infraRED.canvas = (function() {
     //TODO - this infraRED element should be in charge of managing nodes and relationships together
-    function createConnection(capability, requirement) {
+    function createConnection(capability, capabilityNode, requirement, requirementNode) {
         //TODO - do stuff with relationships
+        let relationship = infraRED.relationships.create(capability, requirement);
+        capabilityNode.addRelationship(relationship);
+        requirementNode.addRelationship(relationship);
     }
 
     function maxNodesReachedInCanvas() {

@@ -25,6 +25,7 @@ module.exports = function(grunt) {
                     'development/infraRED-client/js/settings.js',
                     'development/infraRED-client/js/canvas.js',
                     'development/infraRED-client/js/nodes.js',
+                    'development/infraRED-client/js/relationships.js',
                     'development/infraRED-client/js/loader.js',
 
                     // Respect ui's hierarchy

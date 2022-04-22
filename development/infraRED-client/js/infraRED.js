@@ -7,6 +7,7 @@ var infraRED = (function() {
             infraRED.validator.init();
     
             infraRED.nodes.init();
+            infraRED.relationships.init();
             infraRED.canvas.init();
     
             console.log("infraRED finished booting.");

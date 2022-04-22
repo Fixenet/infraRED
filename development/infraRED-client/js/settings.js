@@ -20,6 +20,7 @@ infraRED.settings = (function() {
 
     relationships = (function() {
         return {
+            MAX_ID: 100,
             EMPTY_NAME: "No Name Relationship",
         };
     })();
