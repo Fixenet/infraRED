@@ -812,6 +812,53 @@ infraRED.editor.canvas = (function() {
                 //right now i have a svg and divs in play together
                 //maybe i should draw everything as a svg composition so i can more easily move elements 
                 $(canvasSVG).append(drawRelationshipLine(capabilityDiv, requirementDiv));
+                removePreviewLine();
+            });
+
+            function removePreviewLine() {
+                $(previewRelationshipLine).remove();
+                previewRelationshipLine = null;
+                startingPosition = null;
+                infraRED.events.emit("nodes:stop-draw-preview-line");
+            }
+
+            let lineEnd = { x: null, y: null };
+            let previewRelationshipLine,
+                startingPosition;
+
+            $(canvasSVG).on("mousemove", (event) => {
+                event.stopPropagation();
+                // save the position of the cursor in relation to the canvas grid
+                lineEnd.x = event.offsetX;
+                lineEnd.y = event.offsetY;
+
+                if (previewRelationshipLine) {
+                    $(previewRelationshipLine).attr({
+                        class: "canvas-preview-relationship-line",
+                        x1: startingPosition.left,
+                        y1: startingPosition.top,
+                        x2: lineEnd.x,
+                        y2: lineEnd.y,
+                    });
+                }
+            });
+
+            $(canvasSVG).on("mousedown", (event) => {
+                removePreviewLine();
+            });
+            
+            infraRED.events.on("canvas:start-draw-preview-line", (startingDiv) => {
+                startingPosition = startingDiv.parent().parent().position();
+
+                previewRelationshipLine = document.createElementNS(SVGnamespace, "line");
+                $(previewRelationshipLine).attr({
+                    class: "canvas-preview-relationship-line",
+                    x1: startingPosition.left,
+                    y1: startingPosition.top,
+                    x2: lineEnd.x,
+                    y2: lineEnd.y,
+                });
+                $(canvasSVG).append(previewRelationshipLine);
             });
 
             content.append(canvasSVG);
@@ -822,6 +869,45 @@ infraRED.editor.canvas = (function() {
 // use this file to define the menu bar
 infraRED.editor.menuBar = (function() {
     let menuBar;
+
+    function createLogResourcesButton() {
+        let button = $("<button>", {
+            id: "log-resources-button",
+            class: "menu-bar-button",
+            text: "Log Resources Nodes",
+        });
+
+        $(button).on("click", () => {
+            infraRED.events.emit("nodes:log-resources");
+        });
+        return button;
+    }
+
+    function createLogCanvasButton() {
+        let button = $("<button>", {
+            id: "log-canvas-button",
+            class: "menu-bar-button",
+            text: "Log Canvas Nodes",
+        });
+
+        $(button).on("click", () => {
+            infraRED.events.emit("nodes:log-canvas");
+        });
+        return button;
+    }
+
+    function createLogCurrentConnectionButton() {
+        let button = $("<button>", {
+            id: "log-current-connection-button",
+            class: "menu-bar-button",
+            text: "Log Current Connection",
+        });
+
+        $(button).on("click", () => {
+            infraRED.events.emit("nodes:log-current-connection");
+        });
+        return button;
+    }
 
     return {
         init: function() {
@@ -835,28 +921,9 @@ infraRED.editor.menuBar = (function() {
             });
             menuBar.append(content);
 
-            let logResourcesButton = $("<button>", {
-                id: "log-resources-button",
-                class: "menu-bar-button",
-                html: "Log Resources Nodes",
-            });
-
-            $(logResourcesButton).on("click", () => {
-                infraRED.events.emit("nodes:log-resources");
-            });
-
-            let logCanvasButton = $("<button>", {
-                id: "log-canvas-button",
-                class: "menu-bar-button",
-                html: "Log Canvas Nodes",
-            });
-
-            $(logCanvasButton).on("click", () => {
-                infraRED.events.emit("nodes:log-canvas");
-            });
-
-            content.append(logResourcesButton);
-            content.append(logCanvasButton);
+            //content.append(createLogResourcesButton());
+            //content.append(createLogCanvasButton());
+            content.append(createLogCurrentConnectionButton());
         },
         get: function() {
             return menuBar;
@@ -923,9 +990,31 @@ infraRED.editor.nodes = (function () {
 
     let capabilityDiv = null;
     let requirementDiv = null;
+
+    // this div holds the start of the Relationship line
+    let startingDiv = null;
+
+    function resetConnection() {
+        // reset all the elements related to drawing the connection
+        connectingRelationship = false;
+
+        capabilityNode = null;
+        capabilityDiv = null;
+        capability = null;
+
+        requirementNode = null;
+        requirementDiv = null;
+        requirement = null;
+
+        if (startingDiv) startingDiv.toggleClass("selected-connector");
+        startingDiv = null; // might be unnecessary
+    }
+
+    infraRED.events.on("nodes:stop-draw-preview-line", () => {
+        resetConnection();
+    });
     
     function connectRelationship(node, event) {
-        
         if (connectingRelationship) { // we already made the first selection and now are trying to make a connection
             if (capabilityNode == node || requirementNode == node) {
                 console.log("Cannot connect capabilities/requirements of the same node...");
@@ -948,15 +1037,7 @@ infraRED.editor.nodes = (function () {
             infraRED.events.emit("canvas:create-connection", capability, capabilityNode, requirement, requirementNode);
             infraRED.events.emit("canvas:draw-connection", capabilityDiv, requirementDiv);
 
-            connectingRelationship = false;
-
-            capabilityNode = null;
-            capabilityDiv = null;
-            capability = null;
-
-            requirementNode = null;
-            requirementDiv = null;
-            requirement = null;
+            resetConnection();
         } else { // we haven't chosen the first selection to start connecting
             if (capabilityNode == null && requirementNode == null) {
                 if (event.currentTarget.className === "capability") {
@@ -969,6 +1050,12 @@ infraRED.editor.nodes = (function () {
                     requirement = requirementNode.requirements[requirementDiv.attr("type")];
                 }
                 connectingRelationship = true;
+
+                startingDiv = capabilityDiv ? capabilityDiv : requirementDiv;
+                startingDiv.toggleClass("selected-connector");
+
+                // an element was selected as first, let's draw a line from that element
+                infraRED.events.emit("canvas:start-draw-preview-line", startingDiv);
             }
         }
     }
@@ -989,6 +1076,12 @@ infraRED.editor.nodes = (function () {
                         type: "node",
                     });
                 },
+            });
+
+            infraRED.events.on("nodes:log-current-connection", () => {
+                console.log("Nodes", capabilityNode, requirementNode);
+                console.log("Connections", capability, requirement);
+                console.log("Start", startingDiv);
             });
 
             infraRED.events.on("nodes:canvas-drop", (droppedNode, droppedNodeDiv) => {

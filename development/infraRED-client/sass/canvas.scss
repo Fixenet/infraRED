@@ -30,14 +30,19 @@
     background-color: $canvas-background-color-hover !important;
 }
 
-@mixin canvas-grid-line {
-    stroke: $canvas-grid-line-color;
-    stroke-width: 1px;
-}
-
 #infraRED-ui-canvas .canvas-relationship-line {
     stroke: $canvas-connection-line-color;
     stroke-width: 5px;
+}
+
+#infraRED-ui-canvas .canvas-preview-relationship-line {
+    stroke: $canvas-connection-line-color;
+    stroke-width: 10px;
+}
+
+@mixin canvas-grid-line {
+    stroke: $canvas-grid-line-color;
+    stroke-width: 1px;
 }
 
 #infraRED-ui-canvas .canvas-grid-horizontal-line {

@@ -125,6 +125,53 @@ infraRED.editor.canvas = (function() {
                 //right now i have a svg and divs in play together
                 //maybe i should draw everything as a svg composition so i can more easily move elements 
                 $(canvasSVG).append(drawRelationshipLine(capabilityDiv, requirementDiv));
+                removePreviewLine();
+            });
+
+            function removePreviewLine() {
+                $(previewRelationshipLine).remove();
+                previewRelationshipLine = null;
+                startingPosition = null;
+                infraRED.events.emit("nodes:stop-draw-preview-line");
+            }
+
+            let lineEnd = { x: null, y: null };
+            let previewRelationshipLine,
+                startingPosition;
+
+            $(canvasSVG).on("mousemove", (event) => {
+                event.stopPropagation();
+                // save the position of the cursor in relation to the canvas grid
+                lineEnd.x = event.offsetX;
+                lineEnd.y = event.offsetY;
+
+                if (previewRelationshipLine) {
+                    $(previewRelationshipLine).attr({
+                        class: "canvas-preview-relationship-line",
+                        x1: startingPosition.left,
+                        y1: startingPosition.top,
+                        x2: lineEnd.x,
+                        y2: lineEnd.y,
+                    });
+                }
+            });
+
+            $(canvasSVG).on("mousedown", (event) => {
+                removePreviewLine();
+            });
+            
+            infraRED.events.on("canvas:start-draw-preview-line", (startingDiv) => {
+                startingPosition = startingDiv.parent().parent().position();
+
+                previewRelationshipLine = document.createElementNS(SVGnamespace, "line");
+                $(previewRelationshipLine).attr({
+                    class: "canvas-preview-relationship-line",
+                    x1: startingPosition.left,
+                    y1: startingPosition.top,
+                    x2: lineEnd.x,
+                    y2: lineEnd.y,
+                });
+                $(canvasSVG).append(previewRelationshipLine);
             });
 
             content.append(canvasSVG);

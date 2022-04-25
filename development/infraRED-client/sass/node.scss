@@ -44,6 +44,9 @@
         background-color: $node-capability-border-color;
         width: 95%;
     }
+    .selected-connector {
+        background-color: blue !important;
+    }
 }
 
 .canvas-node {
