@@ -8,6 +8,10 @@ body {
     width: 100vw;
 }
 
+div {
+    box-sizing: border-box;
+}
+
 #infraRED-ui-root {
     position: absolute;
     top: 0;

@@ -1,6 +1,4 @@
 .node {
-    box-sizing: border-box;
-
     height: auto;
 
     border-radius: 10px;
@@ -10,6 +8,42 @@
     font-family: Arial, sans-serif;
     font-size: 10px;
     text-align: center;
+
+    padding: 5px;
+
+    .type {
+        width: 100%;
+        padding: 5px 20px;
+        margin-bottom: 5px;
+
+        border-radius: 10px;
+        background-color: $node-border-color-hover;
+        
+        font-weight: bold;
+    }
+    .connectable {
+        border: 0.45em solid;
+        width: 100%;
+    }
+    .connectable + .connectable {
+        margin-top: 0.45em;
+    }
+    .selected-connectable {
+        border-style: dashed;
+    }
+    .requirement {
+        border-color: $node-requirement-border-color;
+        background-color: $node-requirement-color;
+    }
+    .connectable-separator {
+        padding-bottom: 0.45em;
+        margin-bottom: 0.45em;
+        border-bottom: 0.25em dashed $node-border-color;
+    }
+    .capability {
+        border-color: $node-capability-border-color;
+        background-color: $node-capability-color;
+    }
 }
 
 .node:hover {
@@ -22,33 +56,6 @@
     width: auto !important;
 }
 
-.node {
-    .type {
-        box-sizing: border-box;
-        width: 100%;
-
-        background-color: $node-border-color-hover;
-        font-weight: bold;
-        border-radius: 10px;
-        padding: 5px 5px;
-    }
-    .requirement {
-        margin: 5px auto;
-        border: 0.15em solid $node-requirement-color;
-        background-color: $node-requirement-border-color;
-        width: 95%;
-    }
-    .capability {
-        margin: 5px auto;
-        border: 0.15em solid $node-capability-color;
-        background-color: $node-capability-border-color;
-        width: 95%;
-    }
-    .selected-connector {
-        background-color: blue !important;
-    }
-}
-
 .canvas-node {
     .requirement {
         cursor: pointer;
@@ -56,43 +63,4 @@
     .capability {
         cursor: pointer;
     }
-}
-
-//vvvvvvvvvv not implemented yet vvvvvvvvvv
-
-.node-flow-in, .node-flow-out, .node-content {
-    height: 100%;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-around;
-}
-
-.node-flow-in {
-    transform: translateX(-60%);
-}
-
-.node-flow-out {
-    transform: translateX(+60%);
-}
-
-button.flow-in, button.flow-out {
-    border-radius: 40%;
-    border: 0.2em solid rgb(61, 61, 61);
-    background-color: rgb(177, 177, 177);
-
-    color: white;
-    font-size: 10px;
-    font-weight: bold;
-    text-align: center;
-
-    width: 2vh;
-    height: 2vh;
-}
-
-button.flow-in:hover, button.flow-out:hover {
-    border-radius: 40%;
-    border: 0.2em solid rgb(221, 221, 221);
-    background-color: rgb(105, 105, 105);
 }

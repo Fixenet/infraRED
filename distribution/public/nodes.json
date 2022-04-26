@@ -9,7 +9,8 @@
     "tosca.nodes.WebServer.Nodejs": {
         "requirements": ["host"]
     },
-    "tosca.nodes.Database": {
-        "capabilities": ["database"]
+    "tosca.nodes.Windows": {
+        "requirements": ["baremetal", "host"],
+        "capabilities": ["application", "storage"]
     }
 }

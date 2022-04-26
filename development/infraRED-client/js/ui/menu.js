@@ -53,8 +53,8 @@ infraRED.editor.menuBar = (function() {
             });
             menuBar.append(content);
 
-            //content.append(createLogResourcesButton());
-            //content.append(createLogCanvasButton());
+            content.append(createLogResourcesButton());
+            content.append(createLogCanvasButton());
             content.append(createLogCurrentConnectionButton());
         },
         get: function() {

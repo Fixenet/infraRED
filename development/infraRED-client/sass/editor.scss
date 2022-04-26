@@ -30,7 +30,7 @@ $resource-width: 200px;
 #infraRED-ui-resource-bar {
     position: absolute;
     top: 0;
-    left: $category-width + $border-width;
+    left: $category-width;
     bottom: $status-height;
     
     width: $resource-width;
@@ -39,8 +39,8 @@ $resource-width: 200px;
 
 #infraRED-ui-canvas {
     position: absolute;
-    top: $menu-height + $border-width;
-    left: $category-width + $resource-width + $border-width * 2;
+    top: $menu-height;
+    left: $category-width + $resource-width;
     bottom: $status-height;
     right: 0;
 }
@@ -49,7 +49,7 @@ $resource-width: 200px;
 #infraRED-ui-menu-bar {
     position: absolute;
     top: 0;
-    left: $category-width + $resource-width + $border-width * 2;
+    left: $category-width + $resource-width;
     right: 0;
 
     height: $menu-height;

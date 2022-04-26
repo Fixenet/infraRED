@@ -13,7 +13,7 @@ infraRED.nodes = (function() {
         getDiv() {
             let capability = $("<div>", {
                 id: this.type,
-                class: "capability",
+                class: "connectable capability",
                 text: this.name ? this.name : this.type,
             });
 
@@ -39,7 +39,7 @@ infraRED.nodes = (function() {
         getDiv() {
             let requirement = $("<div>", {
                 id: this.type,
-                class: "requirement",
+                class: "connectable requirement",
                 text: this.name ? this.name : this.type,
             });
 
@@ -100,7 +100,7 @@ infraRED.nodes = (function() {
                 class: "resource node resource-node",
             });
 
-            div.append($("<p>", { 
+            div.append($("<div>", { 
                 class: "type", 
                 text: this.type,
             }));
@@ -116,7 +116,7 @@ infraRED.nodes = (function() {
 
                 // add a border line to separate capabilities from requirements if both exist
                 if (!$.isEmptyObject(this.requirements) && !$.isEmptyObject(this.capabilities)) {
-                    requirements.css("border-bottom", "0.25em dashed black");
+                    requirements.addClass("connectable-separator");
                 }
 
                 div.append(requirements);

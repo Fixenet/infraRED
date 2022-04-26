@@ -148,7 +148,7 @@ infraRED.nodes = (function() {
         getDiv() {
             let capability = $("<div>", {
                 id: this.type,
-                class: "capability",
+                class: "connectable capability",
                 text: this.name ? this.name : this.type,
             });
 
@@ -174,7 +174,7 @@ infraRED.nodes = (function() {
         getDiv() {
             let requirement = $("<div>", {
                 id: this.type,
-                class: "requirement",
+                class: "connectable requirement",
                 text: this.name ? this.name : this.type,
             });
 
@@ -235,7 +235,7 @@ infraRED.nodes = (function() {
                 class: "resource node resource-node",
             });
 
-            div.append($("<p>", { 
+            div.append($("<div>", { 
                 class: "type", 
                 text: this.type,
             }));
@@ -251,7 +251,7 @@ infraRED.nodes = (function() {
 
                 // add a border line to separate capabilities from requirements if both exist
                 if (!$.isEmptyObject(this.requirements) && !$.isEmptyObject(this.capabilities)) {
-                    requirements.css("border-bottom", "0.25em dashed black");
+                    requirements.addClass("connectable-separator");
                 }
 
                 div.append(requirements);
@@ -921,8 +921,8 @@ infraRED.editor.menuBar = (function() {
             });
             menuBar.append(content);
 
-            //content.append(createLogResourcesButton());
-            //content.append(createLogCanvasButton());
+            content.append(createLogResourcesButton());
+            content.append(createLogCanvasButton());
             content.append(createLogCurrentConnectionButton());
         },
         get: function() {
@@ -957,7 +957,7 @@ infraRED.editor.statusBar = (function() {
 })();
 // use this file to define node behaviour
 infraRED.editor.nodes = (function () {
-    function createCanvasNode(droppedNodeDiv) {
+    function createCanvasNode(canvasNode, droppedNodeDiv) {
         droppedNodeDiv.removeClass("resource-node ui-draggable-dragging");
         droppedNodeDiv.addClass("canvas-node");
 
@@ -966,11 +966,6 @@ infraRED.editor.nodes = (function () {
             stack: ".canvas-node",
             scroll: false,
             grid: [gridSizeGap, gridSizeGap],
-
-            start: function(event, ui) {
-            },
-            drag: function(event, ui) {
-            },
         });
 
         droppedNodeDiv.on("dblclick", () => {
@@ -991,7 +986,7 @@ infraRED.editor.nodes = (function () {
     let capabilityDiv = null;
     let requirementDiv = null;
 
-    // this div holds the start of the Relationship line
+    // this div holds the start of the Relationship preview line
     let startingDiv = null;
 
     function resetConnection() {
@@ -1006,7 +1001,7 @@ infraRED.editor.nodes = (function () {
         requirementDiv = null;
         requirement = null;
 
-        if (startingDiv) startingDiv.toggleClass("selected-connector");
+        if (startingDiv) startingDiv.toggleClass("selected-connectable");
         startingDiv = null; // might be unnecessary
     }
 
@@ -1021,11 +1016,11 @@ infraRED.editor.nodes = (function () {
                 return;
             }
 
-            if (event.currentTarget.className === "capability" && requirementNode != null) {
+            if ($(event.currentTarget).hasClass("capability") && requirementNode != null) {
                 capabilityNode = node;
                 capabilityDiv = $(event.currentTarget);
                 capability = capabilityNode.capabilities[capabilityDiv.attr("type")];
-            } else if (event.currentTarget.className === "requirement" && capabilityNode != null) {
+            } else if ($(event.currentTarget).hasClass("requirement") && capabilityNode != null) {
                 requirementNode = node;
                 requirementDiv = $(event.currentTarget);
                 requirement = requirementNode.requirements[requirementDiv.attr("type")];
@@ -1040,11 +1035,11 @@ infraRED.editor.nodes = (function () {
             resetConnection();
         } else { // we haven't chosen the first selection to start connecting
             if (capabilityNode == null && requirementNode == null) {
-                if (event.currentTarget.className === "capability") {
+                if ($(event.currentTarget).hasClass("capability")) {
                     capabilityNode = node;
                     capabilityDiv = $(event.currentTarget);
                     capability = capabilityNode.capabilities[capabilityDiv.attr("type")];
-                } else if (event.currentTarget.className === "requirement") {
+                } else if ($(event.currentTarget).hasClass("requirement")) {
                     requirementNode = node;
                     requirementDiv = $(event.currentTarget);
                     requirement = requirementNode.requirements[requirementDiv.attr("type")];
@@ -1052,7 +1047,7 @@ infraRED.editor.nodes = (function () {
                 connectingRelationship = true;
 
                 startingDiv = capabilityDiv ? capabilityDiv : requirementDiv;
-                startingDiv.toggleClass("selected-connector");
+                startingDiv.toggleClass("selected-connectable");
 
                 // an element was selected as first, let's draw a line from that element
                 infraRED.events.emit("canvas:start-draw-preview-line", startingDiv);
@@ -1093,7 +1088,7 @@ infraRED.editor.nodes = (function () {
                     droppedNodeDiv.remove(); return;
                 }
 
-                createCanvasNode(droppedNodeDiv);
+                createCanvasNode(canvasNode, droppedNodeDiv);
 
                 let capabilityDivs = $(droppedNodeDiv).children("div.capabilities").children();
                 let requirementDivs = $(droppedNodeDiv).children("div.requirements").children();
