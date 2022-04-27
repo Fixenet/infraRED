@@ -55,7 +55,12 @@
 
 .ui-draggable-dragging,
 .canvas-node {
-    width: auto !important;
+    width: max-content;
+
+    .type {
+        width: auto;
+        margin-inline: 7px;
+    }
 }
 
 .canvas-node {
