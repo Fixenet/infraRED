@@ -4,7 +4,6 @@ $layout-background: #ffffff;
 $canvas-background-color: #e9e9e9;
 $canvas-background-color-hover: #cfcfcf;
 $canvas-grid-line-color: #000000;
-$canvas-connection-line-color: #138db2;
 
 // Node
 $node-border-color: #616161;
@@ -17,6 +16,13 @@ $node-requirement-border-color: #ff9933;
 
 $node-capability-color: #16f23f;
 $node-capability-border-color: #24b940;
+
+$node-selected-connectable-color: #c14040;
+$node-selected-connectable-border-color: #e51a1a;
+
+// Relationship
+$relationship-preview-line-color: #1062c7;
+$relationship-line-color: #1121d2;
 
 // Category #fd9694
 $category-background-color: #fd9694;

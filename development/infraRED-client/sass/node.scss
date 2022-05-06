@@ -75,7 +75,9 @@ svg g.canvas-node {
         }
     }
     rect.selected-connectable {
-        stroke-width: 0.6vh !important;
+        stroke: $node-selected-connectable-border-color !important;
+        stroke-dasharray: 6 2;
+        fill: $node-selected-connectable-color !important;
     }
     .capability {
         rect {

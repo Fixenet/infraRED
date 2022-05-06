@@ -32,13 +32,13 @@
 
 #infraRED-ui-canvas .canvas-relationship-line {
     stroke-linecap: round;
-    stroke: $canvas-connection-line-color;
+    stroke: $relationship-line-color;
     stroke-width: 5px;
 }
 
 #infraRED-ui-canvas .canvas-preview-relationship-line {
     stroke-linecap: round;
-    stroke: $canvas-connection-line-color;
+    stroke: $relationship-preview-line-color;
     stroke-width: 4px;
 }
 
