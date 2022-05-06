@@ -31,13 +31,15 @@
 }
 
 #infraRED-ui-canvas .canvas-relationship-line {
+    stroke-linecap: round;
     stroke: $canvas-connection-line-color;
     stroke-width: 5px;
 }
 
 #infraRED-ui-canvas .canvas-preview-relationship-line {
+    stroke-linecap: round;
     stroke: $canvas-connection-line-color;
-    stroke-width: 5px;
+    stroke-width: 4px;
 }
 
 @mixin canvas-grid-line {

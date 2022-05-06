@@ -1,5 +1,5 @@
 {
-    "tosca.node.Compute": {
+    "tosca.node.Computeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee": {
         "requirements": ["local_storage"],
         "capabilities": ["host", "os"]
     },
@@ -9,8 +9,8 @@
     "tosca.nodes.WebServer.Nodejs": {
         "requirements": ["host"]
     },
-    "tosca.nodes.Windows": {
-        "requirements": ["baremetal", "host"],
-        "capabilities": ["application", "storage"]
+    "tosca.nodes.Stupid": {
+        "requirements": ["baremetal", "host", "11", "12", "13", "14", "15", "16", "17"],
+        "capabilities": ["application", "storage", "011", "012", "013", "104", "015", "106", "107"]
     }
 }

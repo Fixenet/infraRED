@@ -1,16 +1,18 @@
 .node {
+    width: 160px;
     height: auto;
 
     border-radius: 10px;
-    border: 0.25em solid $node-border-color;
+    border: 0.4vh solid $node-border-color;
     background-color: $node-background-color;
 
     font-family: Arial, sans-serif;
     font-size: 10px;
     text-align: center;
+    word-wrap: break-word;
 
     padding-top: 5px;
-    padding-bottom: 5px;
+    padding-bottom: 8px;
 
     .type {
         width: 90%;
@@ -24,27 +26,24 @@
         font-weight: bold;
     }
     .connectable {
-        border: 0.45em solid;
+        border: 0.4vh solid;
         width: 100%;
     }
     .connectable + .connectable {
-        margin-top: 0.45em;
+        margin-top: 0.4vh;
     }
-    .selected-connectable {
-        border-style: dashed;
+    .capability {
+        border-color: $node-capability-border-color;
+        background-color: $node-capability-color;
     }
     .requirement {
         border-color: $node-requirement-border-color;
         background-color: $node-requirement-color;
     }
     .connectable-separator {
-        padding-bottom: 0.45em;
-        margin-bottom: 0.45em;
-        border-bottom: 0.25em dashed $node-border-color;
-    }
-    .capability {
-        border-color: $node-capability-border-color;
-        background-color: $node-capability-color;
+        padding-bottom: 0.4vh;
+        margin-bottom: 0.4vh;
+        border-bottom: 0.4vh dashed $node-border-color;
     }
 }
 
@@ -53,21 +52,57 @@
     border-color: $node-border-color-hover;
 }
 
-.ui-draggable-dragging,
-.canvas-node {
-    width: max-content;
-
+svg g.canvas-node {
+    .background {
+        stroke: $node-border-color;
+        stroke-width: 0.3vh;
+        fill: $node-background-color;
+    }
     .type {
-        width: auto;
-        margin-inline: 7px;
+        rect {
+            fill: $node-border-color-hover;
+        }
+        text {
+            
+        }
+    }
+    .connectable {
+        rect {
+            stroke-width: 0.3vh;
+        }
+        text {
+            user-select: none;
+        }
+    }
+    rect.selected-connectable {
+        stroke-width: 0.6vh !important;
+    }
+    .capability {
+        rect {
+            stroke: $node-capability-border-color;
+            fill: $node-capability-color;
+        }
+        text {
+        }
+    }
+    .requirement {
+        rect {
+            stroke: $node-requirement-border-color;
+            fill: $node-requirement-color;
+        }
+        text {
+        }
+    }
+    .connectable-separator {
+        stroke: $node-border-color;
+        stroke-width: 0.3vh;
+        stroke-dasharray: 8 2;
     }
 }
 
-.canvas-node {
-    .requirement {
-        cursor: pointer;
-    }
-    .capability {
-        cursor: pointer;
+svg g.canvas-node:hover {
+    cursor: grab;
+    .background {
+        stroke: $node-border-color-hover;
     }
 }

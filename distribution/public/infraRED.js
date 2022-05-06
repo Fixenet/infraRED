@@ -65,19 +65,23 @@ infraRED.validator = (function() {
             console.log("Starting the validator functionality.");
         },
 
-        //Better validation will be done to ensure proper regex rules
+        // validate node type
+        validateNodeMode: function(nodeMode) {
+            return typeof(nodeMode) === "string" && (nodeMode === "capability" || nodeMode === "requirement");
+        },
+        // better validation will be done to ensure proper regex rules
         validateNodeType: function(nodeType) {
-            return typeof(nodeType) === 'string';
+            return typeof(nodeType) === "string";
         },
         validateRelationshipType: function(relationshipType) {
-            return typeof(relationshipType) === 'string';
+            return typeof(relationshipType) === "string";
         },
     };
 })();
 infraRED.settings = (function() {
     nodes = (function() {
         return {
-            MAX_ID: 100,
+            MAX_ID: 3,
             EMPTY_NAME: "No Name Node",
         };
     })();
@@ -109,12 +113,66 @@ infraRED.settings = (function() {
     };
 })();
 infraRED.canvas = (function() {
+    function resetConnectionVariables() {
+        return {
+            capability: null,
+            capabilitySVG: null,
+
+            requirement: null,
+            requirementSVG: null,
+
+            isConnecting: false,
+        };
+    }
+
+    let connectionVariables = resetConnectionVariables();
+
     //TODO - this infraRED element should be in charge of managing nodes and relationships together
-    function createConnection(capability, capabilityNode, requirement, requirementNode) {
-        //TODO - do stuff with relationships
-        let relationship = infraRED.relationships.create(capability, requirement);
-        capabilityNode.addRelationship(relationship);
-        requirementNode.addRelationship(relationship);
+    function createConnection(connectable, connectableSVG) {
+        if (connectionVariables.isConnecting) { // we already made the first selection and now are trying to make a connection
+            if (connectionVariables.capability == connectable.node || connectionVariables.requirement == connectable.node) {
+                console.log("Cannot connect capabilities/requirements of the same node...");
+                return;
+            }
+
+            if (connectable.mode === "capability" && connectionVariables.capability == null) {
+                connectionVariables.capability = connectable;
+                connectionVariables.capabilitySVG = connectableSVG;
+            } else if (connectable.mode === "requirement" && connectionVariables.requirement == null) {
+                connectionVariables.requirement = connectable;
+                connectionVariables.requirementSVG = connectableSVG;
+            } else {
+                console.log("Please connect a capability and a requirement together.");
+            }
+            
+            let relationship = infraRED.relationships.create(connectionVariables.capability, connectionVariables.requirement);
+            connectionVariables.capability.node.addRelationship(relationship);
+            connectionVariables.requirement.node.addRelationship(relationship);
+
+            infraRED.events.emit("canvas:draw-connection", connectionVariables.capabilitySVG, connectionVariables.requirementSVG);
+
+            connectionVariables = resetConnectionVariables();
+        } else { // we haven't chosen the first selection to start connecting
+            if (connectionVariables.capability == null && connectionVariables.requirement == null) { // make sure
+                if (connectable.mode === "capability") {
+                    connectionVariables.capability = connectable;
+                    connectionVariables.capabilitySVG = connectableSVG;
+                } else if (connectable.mode === "requirement") {
+                    connectionVariables.requirement = connectable;
+                    connectionVariables.requirementSVG = connectableSVG;
+                }
+                connectionVariables.isConnecting = true;
+                connectableSVG.addClass("selected-connectable");
+                infraRED.events.emit("canvas:start-draw-preview-line", connectableSVG);
+            }
+        }
+    }
+
+    function resetConnection() {
+        if(connectionVariables.capability) connectionVariables.capabilitySVG.removeClass("selected-connectable");
+        if(connectionVariables.requirement) connectionVariables.requirementSVG.removeClass("selected-connectable");
+
+        connectionVariables = resetConnectionVariables();
     }
 
     function maxNodesReachedInCanvas() {
@@ -123,6 +181,7 @@ infraRED.canvas = (function() {
 
     function setUpEvents() {
         infraRED.events.on("canvas:create-connection", createConnection);
+        infraRED.events.on("canvas:reset-connection", resetConnection);
         infraRED.events.on("nodes:max-nodes-in-canvas", maxNodesReachedInCanvas);
     }
 
@@ -135,57 +194,66 @@ infraRED.canvas = (function() {
 })();
 infraRED.nodes = (function() {
     /**
-     * Represents a capability of a Node, a possible functionality that can be served to another Node.
+     * Represents a capability or requirement of a Node, 
+     * a possible functionality that can be served/received to/from another Node.
      * These have no id since the type is a unique identifier in each Node.
      */
-    class Capability {
-        constructor(type) {
+    class Connectable {
+        constructor(mode, type, node) {
             this.name = null;
 
+            // select between requirement and capability connectable
+            if (infraRED.validator.validateNodeMode(mode)) this.mode = mode;
+
+            // type of the connectable
             this.type = type;
+
+            this.node = node;
         }
 
         getDiv() {
-            let capability = $("<div>", {
+            let connectable = $("<div>", {
                 id: this.type,
-                class: "connectable capability",
+                class: "connectable " + this.mode,
                 text: this.name ? this.name : this.type,
             });
 
-            capability.attr({
+            connectable.attr({
                 name: this.name,
                 type: this.type,
             });
 
-            return capability;
-        }
-    }
-    /**
-     * Represents a requirement of a Node, a necessary functionality for a Node to work correctly.
-     * These have no id since the type is a unique identifier in each Node.
-     */
-    class Requirement {
-        constructor(type) {
-            this.name = null;
-
-            this.type = type;
+            return connectable;
         }
 
-        getDiv() {
-            let requirement = $("<div>", {
-                id: this.type,
-                class: "connectable requirement",
-                text: this.name ? this.name : this.type,
-            });
+        getSVG() {
+            let connectable = new SVG.G().addClass("connectable " + this.mode);
 
-            requirement.attr({
+            connectable.height = 20;
+            connectable.spacing = connectable.height + 5;
+
+            connectable.marginInline = 2;
+            connectable.width = 200 - connectable.marginInline * 2;
+
+            connectable.attr({
                 name: this.name,
                 type: this.type,
             });
 
-            return requirement;
+            let background = connectable.rect(connectable.width, connectable.height).move(0,0);
+
+            connectable.plain(this.type).move(0,0).cx(connectable.width/2);
+
+            connectable.on("click", (event) => {
+                event.stopPropagation();
+                // handles logic and svg drawing
+                infraRED.events.emit("canvas:create-connection", this, background);
+            });
+
+            return connectable;
         }
     }
+    
     /**
      * Represents any piece of physical/virtual infrastructure.
      */
@@ -215,13 +283,13 @@ infraRED.nodes = (function() {
 
         addCapability(capabilityType) {
             // index by type since only one of each type exists in each Node
-            let capability = new Capability(capabilityType);
+            let capability = new Connectable("capability", capabilityType, this);
             this.capabilities[capabilityType] = capability;
         }
 
         addRequirement(requirementType) {
             // index by type since only one of each type exists in each Node
-            let requirement = new Requirement(requirementType);
+            let requirement = new Connectable("requirement", requirementType, this);
             this.requirements[requirementType] = requirement;
         }
 
@@ -250,7 +318,7 @@ infraRED.nodes = (function() {
                 });
 
                 // add a border line to separate capabilities from requirements if both exist
-                if (!$.isEmptyObject(this.requirements) && !$.isEmptyObject(this.capabilities)) {
+                if (!$.isEmptyObject(this.capabilities)) {
                     requirements.addClass("connectable-separator");
                 }
 
@@ -270,6 +338,57 @@ infraRED.nodes = (function() {
             }
             
             return div;
+        }
+
+        getSVG() {
+            let node = new SVG.G().addClass("canvas-node");
+            node.width = 200;
+
+            let background = node.rect().radius(10).addClass("background");
+
+            let type = node.group().addClass("type");
+            type.height = 20;
+            // adds the type background
+            let typeBackground = type.rect().radius(10).move(10, 7);
+            // adds the type text
+            let typeText = type.text(this.type);
+
+            typeBackground.size(node.width-20, type.height);
+
+            let cutAt = 18;
+            if (this.type.length > cutAt) {
+                typeText.plain(this.type.substring(0, cutAt) + "...");
+            }
+            typeText.move(10, 7).cx(node.width/2);
+
+            let drawingY = 8;
+            if (!$.isEmptyObject(this.requirements)) {
+                let requirements = node.group().addClass("requirements");
+
+                Object.values(this.requirements).forEach((requirement) => {
+                    let requirementSVG = requirement.getSVG();
+                    requirements.add(requirement.getSVG().move(requirementSVG.marginInline, drawingY += requirementSVG.spacing));
+                });
+
+                // add a border line to separate capabilities from requirements if both exist
+                if (!$.isEmptyObject(this.capabilities)) {
+                    node.line(0, drawingY + 25, node.width, drawingY + 25).addClass("connectable-separator");
+                    drawingY += 5;
+                }
+            }
+            
+            if (!$.isEmptyObject(this.capabilities)) {
+                let capabilities = node.group().addClass("capabilities");
+
+                Object.values(this.capabilities).forEach((capability) => {
+                    let capabilitySVG = capability.getSVG();
+                    capabilities.add(capabilitySVG.move(capabilitySVG.marginInline, drawingY += capabilitySVG.spacing));
+                });
+            }
+
+            background.size(node.width, drawingY + 30);
+
+            return node;
         }
 
         print() {
@@ -687,7 +806,7 @@ infraRED.editor.resourceBar = (function() {
 })();
 // use this file to define the canvas bar
 infraRED.editor.canvas = (function() {
-    let canvas;
+    let canvasDraw; // variable used to draw on the canvas
 
     function roundToGrid(position) {
         return Math.round(position / gridSizeGap) * gridSizeGap;
@@ -697,59 +816,59 @@ infraRED.editor.canvas = (function() {
         return roundToGrid(position) + gridSizeGap / 4;
     }
 
-    function updateGrid() {
-        let grid = document.createElementNS(SVGnamespace, "g");
-        grid.id = "canvas-grid";
+    function createGrid() {
+        let grid = canvasDraw.group().attr({ id: "canvas-grid" });
 
-        let line;
         for (let row = gridSizeGap; row < canvasSizeH; row += gridSizeGap) {
-            line = document.createElementNS(SVGnamespace, "line");
-            $(line).attr({
-                class: "canvas-grid-horizontal-line",
-                x1: 0,
-                x2: canvasSizeW,
-                y1: row,
-                y2: row,
-            });
-            grid.append(line);
+            grid.line(0, row, canvasSizeW, row).addClass("canvas-grid-horizontal-line");
         }
 
         for (let column = gridSizeGap; column < canvasSizeW; column += gridSizeGap) {
-            line = document.createElementNS(SVGnamespace, "line");
-            $(line).attr({
-                class: "canvas-grid-vertical-line",
-                y1: 0,
-                y2: canvasSizeW,
-                x1: column,
-                x2: column,
-            });
-            grid.append(line);
+            grid.line(column, 0, column, canvasSizeW).addClass("canvas-grid-vertical-line");
         }
-        return grid;
     }
 
-    function drawRelationshipLine(capabilityDiv, requirementDiv) {
-        let relationshipLine = document.createElementNS(SVGnamespace, "line");
+    function createCanvasEnvironment(canvasSVG) {
+        canvasDraw = SVG(canvasSVG).size(canvasSizeW, canvasSizeH);
+        createGrid();
+    }
 
-        //TODO - this is the whole node position
-        let capabilityPosition = capabilityDiv.parent().parent().position();
-        let requirementPosition = requirementDiv.parent().parent().position();
+    let lineEndPosition  = { x: null, y: null };
+    let relationshipPreviewLine = null,
+        startingPosition = { rightSide: true, left: null, right: null, top: null };
 
-        //TODO - x1,y1 may not be the requirement per say (and vice-versa)
-        //but the values are interchangeable since it's a line from one to the other
-        //bad if i required difference between the ends of the line
+    function removeRelationshipPreviewLine() {
+        relationshipPreviewLine.remove();
+        relationshipPreviewLine = null;
+        infraRED.events.emit("canvas:reset-connection");
+    }
 
-        //learned that .position() gives me the boundary of the margin box
-        //so i must subtract that from the value the margin
-        $(relationshipLine).attr({
-            class: "canvas-relationship-line",
-            x1: requirementPosition.left + requirementDiv.position().left,
-            y1: requirementPosition.top + requirementDiv.position().top + parseFloat(requirementDiv.css("margin")) + requirementDiv.height(),
-            x2: capabilityPosition.left + capabilityDiv.position().left + capabilityDiv.width(),
-            y2: capabilityPosition.top + capabilityDiv.position().top + parseFloat(capabilityDiv.css("margin")) + capabilityDiv.height(),
-        });
+    function drawRelationshipPreviewLine() {
+        lineCoordinates = [startingPosition.rightSide ? startingPosition.right : startingPosition.left,
+            startingPosition.top,
+            lineEndPosition.x,
+            lineEndPosition.y];
 
-        return relationshipLine;
+        if (relationshipPreviewLine != null) {
+            relationshipPreviewLine = relationshipPreviewLine.plot(lineCoordinates);
+        } else {
+            relationshipPreviewLine = canvasDraw.line(lineCoordinates);
+            relationshipPreviewLine.addClass("canvas-preview-relationship-line");
+        }
+    }
+
+    function drawRelationshipLine(capability, requirement) {
+        let start = { x: capability.x(), y: capability.cy()};
+        let end = { x: requirement.x(), y: requirement.cy()};
+
+        if (start.x < end.x) { // we are to the right
+            start.x += capability.width();
+        } else {
+            end.x += requirement.width();
+        }
+
+        let relationshipLine = canvasDraw.line(start.x, start.y, end.x, end.y);
+        relationshipLine.addClass("canvas-relationship-line");
     }
 
     return {
@@ -769,8 +888,6 @@ infraRED.editor.canvas = (function() {
                 accept: ".resource",
 
                 drop: function(event, ui) {
-                    let droppedNodeDiv = $(ui.helper).clone();
-
                     // use this so the node drops in the canvas on the place where the mouse was lifted at
                     let draggableOffset = ui.helper.offset(),
                         droppableOffset = $(this).offset(),
@@ -783,82 +900,65 @@ infraRED.editor.canvas = (function() {
                     left = roundToGridOffset(left);
                     top = roundToGridOffset(top);
 
-                    droppedNodeDiv.css({
-                        "position": "absolute",
-                        "left": left,
-                        "top": top,
-                    });
-
-                    droppedNodeDiv.removeClass("resource");
-                    $(this).append(droppedNodeDiv);
-
                     let resourceNode = infraRED.nodes.resourceList.getByID(ui.draggable.data("id"));
+
+                    let canvasNode = resourceNode.getSVG();
+                    canvasNode.move(left, top);
+                    canvasDraw.add(canvasNode);
+
                     //let any editor element know the node in question changed sides
-                    infraRED.events.emit("nodes:canvas-drop", resourceNode, droppedNodeDiv);
+                    infraRED.events.emit("nodes:canvas-drop", resourceNode, canvasNode);
                 },
             });
 
             let canvasSVG = document.createElementNS(SVGnamespace, "svg");
-            canvasSVG.setAttribute("width", canvasSizeW);
-            canvasSVG.setAttribute("height", canvasSizeH);
-
             $(canvasSVG).addClass("canvas-svg");
-            $(canvasSVG).append(updateGrid());
 
-            //TODO - redesign this whole process, I need to have named connections between these
-            //must make use of the relationships.js file
-            infraRED.events.on("canvas:draw-connection", (capabilityDiv, requirementDiv) => {
-                //TODO - rethink my svg use,
-                //right now i have a svg and divs in play together
-                //maybe i should draw everything as a svg composition so i can more easily move elements 
-                $(canvasSVG).append(drawRelationshipLine(capabilityDiv, requirementDiv));
-                removePreviewLine();
+            createCanvasEnvironment(canvasSVG);
+
+            infraRED.events.on("canvas:draw-connection", (capabilitySVG, requirementSVG) => {
+                capabilitySVG.removeClass("selected-connectable");
+                requirementSVG.removeClass("selected-connectable");
+                drawRelationshipLine(capabilitySVG, requirementSVG);
+                if (relationshipPreviewLine != null) removeRelationshipPreviewLine();
             });
 
-            function removePreviewLine() {
-                $(previewRelationshipLine).remove();
-                previewRelationshipLine = null;
-                startingPosition = null;
-                infraRED.events.emit("nodes:stop-draw-preview-line");
-            }
-
-            let lineEnd = { x: null, y: null };
-            let previewRelationshipLine,
-                startingPosition;
-
-            $(canvasSVG).on("mousemove", (event) => {
-                event.stopPropagation();
-                // save the position of the cursor in relation to the canvas grid
-                lineEnd.x = event.offsetX;
-                lineEnd.y = event.offsetY;
-
-                if (previewRelationshipLine) {
-                    $(previewRelationshipLine).attr({
-                        class: "canvas-preview-relationship-line",
-                        x1: startingPosition.left,
-                        y1: startingPosition.top,
-                        x2: lineEnd.x,
-                        y2: lineEnd.y,
-                    });
+            canvasDraw.on("mousemove", (event) => {
+                if (relationshipPreviewLine != null) {
+                    // save the position of the cursor in relation to the canvas grid
+                    lineEndPosition.x = event.offsetX-10;
+                    lineEndPosition.y = event.offsetY-10;
+                    // check if we are to the right of the connectable
+                    startingPosition.rightSide = lineEndPosition.x > startingPosition.right;
+                    drawRelationshipPreviewLine();
                 }
             });
 
-            $(canvasSVG).on("mousedown", (event) => {
-                removePreviewLine();
+            canvasDraw.on("click", (event) => {
+                if (relationshipPreviewLine != null) removeRelationshipPreviewLine();
             });
             
-            infraRED.events.on("canvas:start-draw-preview-line", (startingDiv) => {
-                startingPosition = startingDiv.parent().parent().position();
+            infraRED.events.on("canvas:start-draw-preview-line", (connectable) => {
+                startingPosition = {
+                    // left side
+                    left: connectable.x(),
+                    // right side
+                    right: connectable.x() + connectable.width(),
+                    // middle height
+                    top: connectable.cy(),
+                };
 
-                previewRelationshipLine = document.createElementNS(SVGnamespace, "line");
-                $(previewRelationshipLine).attr({
-                    class: "canvas-preview-relationship-line",
-                    x1: startingPosition.left,
-                    y1: startingPosition.top,
-                    x2: lineEnd.x,
-                    y2: lineEnd.y,
-                });
-                $(canvasSVG).append(previewRelationshipLine);
+                lineEndPosition = { 
+                    x: startingPosition.left, 
+                    y: startingPosition.top 
+                };
+
+                drawRelationshipPreviewLine();
+            });
+
+            infraRED.events.on("canvas:draw-relationship-line", (capability, requirement) => {
+                drawRelationshipLine(capability, requirement);
+                removeRelationshipPreviewLine();
             });
 
             content.append(canvasSVG);
@@ -957,110 +1057,12 @@ infraRED.editor.statusBar = (function() {
 })();
 // use this file to define node behaviour
 infraRED.editor.nodes = (function () {
-    function createCanvasNode(canvasNode, droppedNodeDiv) {
-        droppedNodeDiv.removeClass("resource-node ui-draggable-dragging");
-        droppedNodeDiv.addClass("canvas-node");
-
-        droppedNodeDiv.draggable({
-            containment: "parent",
-            stack: ".canvas-node",
-            scroll: false,
-            grid: [gridSizeGap, gridSizeGap],
-        });
-
-        droppedNodeDiv.on("dblclick", () => {
-            droppedNodeDiv.remove();
-            infraRED.nodes.remove(canvasNode);
-            infraRED.events.emit("nodes:removed-node", canvasNode);
-        });
-    }
-
-    let connectingRelationship = false;
-    
-    let capabilityNode = null;      
-    let requirementNode = null;
-
-    let capability = null;
-    let requirement = null;
-
-    let capabilityDiv = null;
-    let requirementDiv = null;
-
-    // this div holds the start of the Relationship preview line
-    let startingDiv = null;
-
-    function resetConnection() {
-        // reset all the elements related to drawing the connection
-        connectingRelationship = false;
-
-        capabilityNode = null;
-        capabilityDiv = null;
-        capability = null;
-
-        requirementNode = null;
-        requirementDiv = null;
-        requirement = null;
-
-        if (startingDiv) startingDiv.toggleClass("selected-connectable");
-        startingDiv = null; // might be unnecessary
-    }
-
-    infraRED.events.on("nodes:stop-draw-preview-line", () => {
-        resetConnection();
-    });
-    
-    function connectRelationship(node, event) {
-        if (connectingRelationship) { // we already made the first selection and now are trying to make a connection
-            if (capabilityNode == node || requirementNode == node) {
-                console.log("Cannot connect capabilities/requirements of the same node...");
-                return;
-            }
-
-            if ($(event.currentTarget).hasClass("capability") && requirementNode != null) {
-                capabilityNode = node;
-                capabilityDiv = $(event.currentTarget);
-                capability = capabilityNode.capabilities[capabilityDiv.attr("type")];
-            } else if ($(event.currentTarget).hasClass("requirement") && capabilityNode != null) {
-                requirementNode = node;
-                requirementDiv = $(event.currentTarget);
-                requirement = requirementNode.requirements[requirementDiv.attr("type")];
-            } else {
-                console.log("Please connect a capability to a requirement...");
-                return;
-            }
-
-            infraRED.events.emit("canvas:create-connection", capability, capabilityNode, requirement, requirementNode);
-            infraRED.events.emit("canvas:draw-connection", capabilityDiv, requirementDiv);
-
-            resetConnection();
-        } else { // we haven't chosen the first selection to start connecting
-            if (capabilityNode == null && requirementNode == null) {
-                if ($(event.currentTarget).hasClass("capability")) {
-                    capabilityNode = node;
-                    capabilityDiv = $(event.currentTarget);
-                    capability = capabilityNode.capabilities[capabilityDiv.attr("type")];
-                } else if ($(event.currentTarget).hasClass("requirement")) {
-                    requirementNode = node;
-                    requirementDiv = $(event.currentTarget);
-                    requirement = requirementNode.requirements[requirementDiv.attr("type")];
-                }
-                connectingRelationship = true;
-
-                startingDiv = capabilityDiv ? capabilityDiv : requirementDiv;
-                startingDiv.toggleClass("selected-connectable");
-
-                // an element was selected as first, let's draw a line from that element
-                infraRED.events.emit("canvas:start-draw-preview-line", startingDiv);
-            }
-        }
-    }
-
     return {
         init: function() {
             $(".resource-node").draggable({
                 appendTo: "#infraRED-ui-root",
-                helper: "clone",
                 containment: "#infraRED-ui-root",
+                helper: "clone",
                 scroll: false,
                 revert: "invalid",
                 revertDuration: 300,
@@ -1073,35 +1075,14 @@ infraRED.editor.nodes = (function () {
                 },
             });
 
-            infraRED.events.on("nodes:log-current-connection", () => {
-                console.log("Nodes", capabilityNode, requirementNode);
-                console.log("Connections", capability, requirement);
-                console.log("Start", startingDiv);
-            });
-
-            infraRED.events.on("nodes:canvas-drop", (droppedNode, droppedNodeDiv) => {
+            infraRED.events.on("nodes:canvas-drop", (droppedNode, droppedNodeSVG) => {
                 let canvasNode = infraRED.nodes.add(droppedNode);
                 
                 // "add" method will return null and we know we are supposed to remove
                 //TODO - this may be prone to errors, since i may generate null through other ways
                 if (canvasNode == null) {
-                    droppedNodeDiv.remove(); return;
+                    droppedNodeSVG.remove();
                 }
-
-                createCanvasNode(canvasNode, droppedNodeDiv);
-
-                let capabilityDivs = $(droppedNodeDiv).children("div.capabilities").children();
-                let requirementDivs = $(droppedNodeDiv).children("div.requirements").children();
-
-                capabilityDivs.on("click", (event) => {
-                    event.stopPropagation();
-                    connectRelationship(canvasNode, event);
-                });
-
-                requirementDivs.on("click", (event) => {
-                    event.stopPropagation();
-                    connectRelationship(canvasNode, event);
-                });
             });
         }
     };

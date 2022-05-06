@@ -1,7 +1,7 @@
 infraRED.settings = (function() {
     nodes = (function() {
         return {
-            MAX_ID: 100,
+            MAX_ID: 3,
             EMPTY_NAME: "No Name Node",
         };
     })();

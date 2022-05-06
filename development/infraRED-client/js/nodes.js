@@ -1,56 +1,65 @@
 infraRED.nodes = (function() {
     /**
-     * Represents a capability of a Node, a possible functionality that can be served to another Node.
+     * Represents a capability or requirement of a Node, 
+     * a possible functionality that can be served/received to/from another Node.
      * These have no id since the type is a unique identifier in each Node.
      */
-    class Capability {
-        constructor(type) {
+    class Connectable {
+        constructor(mode, type, node) {
             this.name = null;
 
+            // select between requirement and capability connectable
+            if (infraRED.validator.validateNodeMode(mode)) this.mode = mode;
+
+            // type of the connectable
             this.type = type;
+
+            this.node = node;
         }
 
         getDiv() {
-            let capability = $("<div>", {
+            let connectable = $("<div>", {
                 id: this.type,
-                class: "connectable capability",
+                class: "connectable " + this.mode,
                 text: this.name ? this.name : this.type,
             });
 
-            capability.attr({
+            connectable.attr({
                 name: this.name,
                 type: this.type,
             });
 
-            return capability;
-        }
-    }
-    /**
-     * Represents a requirement of a Node, a necessary functionality for a Node to work correctly.
-     * These have no id since the type is a unique identifier in each Node.
-     */
-    class Requirement {
-        constructor(type) {
-            this.name = null;
-
-            this.type = type;
+            return connectable;
         }
 
-        getDiv() {
-            let requirement = $("<div>", {
-                id: this.type,
-                class: "connectable requirement",
-                text: this.name ? this.name : this.type,
-            });
+        getSVG() {
+            let connectable = new SVG.G().addClass("connectable " + this.mode);
 
-            requirement.attr({
+            connectable.height = 20;
+            connectable.spacing = connectable.height + 5;
+
+            connectable.marginInline = 2;
+            connectable.width = 200 - connectable.marginInline * 2;
+
+            connectable.attr({
                 name: this.name,
                 type: this.type,
             });
 
-            return requirement;
+            let background = connectable.rect(connectable.width, connectable.height).move(0,0);
+
+            connectable.plain(this.type).move(0,0).cx(connectable.width/2);
+
+            connectable.on("click", (event) => {
+                event.stopPropagation();
+                // handles logic and svg drawing
+                infraRED.events.emit("canvas:create-connection", this, background);
+            });
+
+            return connectable;
         }
     }
+    
     /**
      * Represents any piece of physical/virtual infrastructure.
      */
@@ -80,13 +89,13 @@ infraRED.nodes = (function() {
 
         addCapability(capabilityType) {
             // index by type since only one of each type exists in each Node
-            let capability = new Capability(capabilityType);
+            let capability = new Connectable("capability", capabilityType, this);
             this.capabilities[capabilityType] = capability;
         }
 
         addRequirement(requirementType) {
             // index by type since only one of each type exists in each Node
-            let requirement = new Requirement(requirementType);
+            let requirement = new Connectable("requirement", requirementType, this);
             this.requirements[requirementType] = requirement;
         }
 
@@ -115,7 +124,7 @@ infraRED.nodes = (function() {
                 });
 
                 // add a border line to separate capabilities from requirements if both exist
-                if (!$.isEmptyObject(this.requirements) && !$.isEmptyObject(this.capabilities)) {
+                if (!$.isEmptyObject(this.capabilities)) {
                     requirements.addClass("connectable-separator");
                 }
 
@@ -135,6 +144,57 @@ infraRED.nodes = (function() {
             }
             
             return div;
+        }
+
+        getSVG() {
+            let node = new SVG.G().addClass("canvas-node");
+            node.width = 200;
+
+            let background = node.rect().radius(10).addClass("background");
+
+            let type = node.group().addClass("type");
+            type.height = 20;
+            // adds the type background
+            let typeBackground = type.rect().radius(10).move(10, 7);
+            // adds the type text
+            let typeText = type.text(this.type);
+
+            typeBackground.size(node.width-20, type.height);
+
+            let cutAt = 18;
+            if (this.type.length > cutAt) {
+                typeText.plain(this.type.substring(0, cutAt) + "...");
+            }
+            typeText.move(10, 7).cx(node.width/2);
+
+            let drawingY = 8;
+            if (!$.isEmptyObject(this.requirements)) {
+                let requirements = node.group().addClass("requirements");
+
+                Object.values(this.requirements).forEach((requirement) => {
+                    let requirementSVG = requirement.getSVG();
+                    requirements.add(requirement.getSVG().move(requirementSVG.marginInline, drawingY += requirementSVG.spacing));
+                });
+
+                // add a border line to separate capabilities from requirements if both exist
+                if (!$.isEmptyObject(this.capabilities)) {
+                    node.line(0, drawingY + 25, node.width, drawingY + 25).addClass("connectable-separator");
+                    drawingY += 5;
+                }
+            }
+            
+            if (!$.isEmptyObject(this.capabilities)) {
+                let capabilities = node.group().addClass("capabilities");
+
+                Object.values(this.capabilities).forEach((capability) => {
+                    let capabilitySVG = capability.getSVG();
+                    capabilities.add(capabilitySVG.move(capabilitySVG.marginInline, drawingY += capabilitySVG.spacing));
+                });
+            }
+
+            background.size(node.width, drawingY + 30);
+
+            return node;
         }
 
         print() {

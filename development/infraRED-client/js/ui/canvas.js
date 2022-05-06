@@ -1,6 +1,6 @@
 // use this file to define the canvas bar
 infraRED.editor.canvas = (function() {
-    let canvas;
+    let canvasDraw; // variable used to draw on the canvas
 
     function roundToGrid(position) {
         return Math.round(position / gridSizeGap) * gridSizeGap;
@@ -10,59 +10,59 @@ infraRED.editor.canvas = (function() {
         return roundToGrid(position) + gridSizeGap / 4;
     }
 
-    function updateGrid() {
-        let grid = document.createElementNS(SVGnamespace, "g");
-        grid.id = "canvas-grid";
+    function createGrid() {
+        let grid = canvasDraw.group().attr({ id: "canvas-grid" });
 
-        let line;
         for (let row = gridSizeGap; row < canvasSizeH; row += gridSizeGap) {
-            line = document.createElementNS(SVGnamespace, "line");
-            $(line).attr({
-                class: "canvas-grid-horizontal-line",
-                x1: 0,
-                x2: canvasSizeW,
-                y1: row,
-                y2: row,
-            });
-            grid.append(line);
+            grid.line(0, row, canvasSizeW, row).addClass("canvas-grid-horizontal-line");
         }
 
         for (let column = gridSizeGap; column < canvasSizeW; column += gridSizeGap) {
-            line = document.createElementNS(SVGnamespace, "line");
-            $(line).attr({
-                class: "canvas-grid-vertical-line",
-                y1: 0,
-                y2: canvasSizeW,
-                x1: column,
-                x2: column,
-            });
-            grid.append(line);
+            grid.line(column, 0, column, canvasSizeW).addClass("canvas-grid-vertical-line");
         }
-        return grid;
     }
 
-    function drawRelationshipLine(capabilityDiv, requirementDiv) {
-        let relationshipLine = document.createElementNS(SVGnamespace, "line");
+    function createCanvasEnvironment(canvasSVG) {
+        canvasDraw = SVG(canvasSVG).size(canvasSizeW, canvasSizeH);
+        createGrid();
+    }
 
-        //TODO - this is the whole node position
-        let capabilityPosition = capabilityDiv.parent().parent().position();
-        let requirementPosition = requirementDiv.parent().parent().position();
+    let lineEndPosition  = { x: null, y: null };
+    let relationshipPreviewLine = null,
+        startingPosition = { rightSide: true, left: null, right: null, top: null };
 
-        //TODO - x1,y1 may not be the requirement per say (and vice-versa)
-        //but the values are interchangeable since it's a line from one to the other
-        //bad if i required difference between the ends of the line
+    function removeRelationshipPreviewLine() {
+        relationshipPreviewLine.remove();
+        relationshipPreviewLine = null;
+        infraRED.events.emit("canvas:reset-connection");
+    }
 
-        //learned that .position() gives me the boundary of the margin box
-        //so i must subtract that from the value the margin
-        $(relationshipLine).attr({
-            class: "canvas-relationship-line",
-            x1: requirementPosition.left + requirementDiv.position().left,
-            y1: requirementPosition.top + requirementDiv.position().top + parseFloat(requirementDiv.css("margin")) + requirementDiv.height(),
-            x2: capabilityPosition.left + capabilityDiv.position().left + capabilityDiv.width(),
-            y2: capabilityPosition.top + capabilityDiv.position().top + parseFloat(capabilityDiv.css("margin")) + capabilityDiv.height(),
-        });
+    function drawRelationshipPreviewLine() {
+        lineCoordinates = [startingPosition.rightSide ? startingPosition.right : startingPosition.left,
+            startingPosition.top,
+            lineEndPosition.x,
+            lineEndPosition.y];
 
-        return relationshipLine;
+        if (relationshipPreviewLine != null) {
+            relationshipPreviewLine = relationshipPreviewLine.plot(lineCoordinates);
+        } else {
+            relationshipPreviewLine = canvasDraw.line(lineCoordinates);
+            relationshipPreviewLine.addClass("canvas-preview-relationship-line");
+        }
+    }
+
+    function drawRelationshipLine(capability, requirement) {
+        let start = { x: capability.x(), y: capability.cy()};
+        let end = { x: requirement.x(), y: requirement.cy()};
+
+        if (start.x < end.x) { // we are to the right
+            start.x += capability.width();
+        } else {
+            end.x += requirement.width();
+        }
+
+        let relationshipLine = canvasDraw.line(start.x, start.y, end.x, end.y);
+        relationshipLine.addClass("canvas-relationship-line");
     }
 
     return {
@@ -82,8 +82,6 @@ infraRED.editor.canvas = (function() {
                 accept: ".resource",
 
                 drop: function(event, ui) {
-                    let droppedNodeDiv = $(ui.helper).clone();
-
                     // use this so the node drops in the canvas on the place where the mouse was lifted at
                     let draggableOffset = ui.helper.offset(),
                         droppableOffset = $(this).offset(),
@@ -96,82 +94,65 @@ infraRED.editor.canvas = (function() {
                     left = roundToGridOffset(left);
                     top = roundToGridOffset(top);
 
-                    droppedNodeDiv.css({
-                        "position": "absolute",
-                        "left": left,
-                        "top": top,
-                    });
-
-                    droppedNodeDiv.removeClass("resource");
-                    $(this).append(droppedNodeDiv);
-
                     let resourceNode = infraRED.nodes.resourceList.getByID(ui.draggable.data("id"));
+
+                    let canvasNode = resourceNode.getSVG();
+                    canvasNode.move(left, top);
+                    canvasDraw.add(canvasNode);
+
                     //let any editor element know the node in question changed sides
-                    infraRED.events.emit("nodes:canvas-drop", resourceNode, droppedNodeDiv);
+                    infraRED.events.emit("nodes:canvas-drop", resourceNode, canvasNode);
                 },
             });
 
             let canvasSVG = document.createElementNS(SVGnamespace, "svg");
-            canvasSVG.setAttribute("width", canvasSizeW);
-            canvasSVG.setAttribute("height", canvasSizeH);
-
             $(canvasSVG).addClass("canvas-svg");
-            $(canvasSVG).append(updateGrid());
 
-            //TODO - redesign this whole process, I need to have named connections between these
-            //must make use of the relationships.js file
-            infraRED.events.on("canvas:draw-connection", (capabilityDiv, requirementDiv) => {
-                //TODO - rethink my svg use,
-                //right now i have a svg and divs in play together
-                //maybe i should draw everything as a svg composition so i can more easily move elements 
-                $(canvasSVG).append(drawRelationshipLine(capabilityDiv, requirementDiv));
-                removePreviewLine();
+            createCanvasEnvironment(canvasSVG);
+
+            infraRED.events.on("canvas:draw-connection", (capabilitySVG, requirementSVG) => {
+                capabilitySVG.removeClass("selected-connectable");
+                requirementSVG.removeClass("selected-connectable");
+                drawRelationshipLine(capabilitySVG, requirementSVG);
+                if (relationshipPreviewLine != null) removeRelationshipPreviewLine();
             });
 
-            function removePreviewLine() {
-                $(previewRelationshipLine).remove();
-                previewRelationshipLine = null;
-                startingPosition = null;
-                infraRED.events.emit("nodes:stop-draw-preview-line");
-            }
-
-            let lineEnd = { x: null, y: null };
-            let previewRelationshipLine,
-                startingPosition;
-
-            $(canvasSVG).on("mousemove", (event) => {
-                event.stopPropagation();
-                // save the position of the cursor in relation to the canvas grid
-                lineEnd.x = event.offsetX;
-                lineEnd.y = event.offsetY;
-
-                if (previewRelationshipLine) {
-                    $(previewRelationshipLine).attr({
-                        class: "canvas-preview-relationship-line",
-                        x1: startingPosition.left,
-                        y1: startingPosition.top,
-                        x2: lineEnd.x,
-                        y2: lineEnd.y,
-                    });
+            canvasDraw.on("mousemove", (event) => {
+                if (relationshipPreviewLine != null) {
+                    // save the position of the cursor in relation to the canvas grid
+                    lineEndPosition.x = event.offsetX-10;
+                    lineEndPosition.y = event.offsetY-10;
+                    // check if we are to the right of the connectable
+                    startingPosition.rightSide = lineEndPosition.x > startingPosition.right;
+                    drawRelationshipPreviewLine();
                 }
             });
 
-            $(canvasSVG).on("mousedown", (event) => {
-                removePreviewLine();
+            canvasDraw.on("click", (event) => {
+                if (relationshipPreviewLine != null) removeRelationshipPreviewLine();
             });
             
-            infraRED.events.on("canvas:start-draw-preview-line", (startingDiv) => {
-                startingPosition = startingDiv.parent().parent().position();
+            infraRED.events.on("canvas:start-draw-preview-line", (connectable) => {
+                startingPosition = {
+                    // left side
+                    left: connectable.x(),
+                    // right side
+                    right: connectable.x() + connectable.width(),
+                    // middle height
+                    top: connectable.cy(),
+                };
 
-                previewRelationshipLine = document.createElementNS(SVGnamespace, "line");
-                $(previewRelationshipLine).attr({
-                    class: "canvas-preview-relationship-line",
-                    x1: startingPosition.left,
-                    y1: startingPosition.top,
-                    x2: lineEnd.x,
-                    y2: lineEnd.y,
-                });
-                $(canvasSVG).append(previewRelationshipLine);
+                lineEndPosition = { 
+                    x: startingPosition.left, 
+                    y: startingPosition.top 
+                };
+
+                drawRelationshipPreviewLine();
+            });
+
+            infraRED.events.on("canvas:draw-relationship-line", (capability, requirement) => {
+                drawRelationshipLine(capability, requirement);
+                removeRelationshipPreviewLine();
             });
 
             content.append(canvasSVG);
