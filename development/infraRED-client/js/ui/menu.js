@@ -36,7 +36,7 @@ infraRED.editor.menuBar = (function() {
         });
 
         $(button).on("click", () => {
-            infraRED.events.emit("nodes:log-current-connection");
+            infraRED.events.emit("canvas:log-connection-variables");
         });
         return button;
     }

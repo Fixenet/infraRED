@@ -11,9 +11,17 @@ infraRED.canvas = (function() {
         };
     }
 
-    let connectionVariables = resetConnectionVariables();
+    function createRelationship() {
+        let relationship = infraRED.relationships.create(connectionVariables.capability, connectionVariables.requirement);
+        connectionVariables.capability.node.addRelationship(relationship);
+        connectionVariables.requirement.node.addRelationship(relationship);
 
-    //TODO - this infraRED element should be in charge of managing nodes and relationships together
+        infraRED.events.emit("canvas:draw-connection", connectionVariables.capabilitySVG, connectionVariables.requirementSVG);
+
+        connectionVariables = resetConnectionVariables();
+    }
+
+    let connectionVariables = resetConnectionVariables();
     function createConnection(connectable, connectableSVG) {
         if (connectionVariables.isConnecting) { // we already made the first selection and now are trying to make a connection
             if (connectionVariables.capability == connectable.node || connectionVariables.requirement == connectable.node) {
@@ -29,15 +37,10 @@ infraRED.canvas = (function() {
                 connectionVariables.requirementSVG = connectableSVG;
             } else {
                 console.log("Please connect a capability and a requirement together.");
+                return;
             }
             
-            let relationship = infraRED.relationships.create(connectionVariables.capability, connectionVariables.requirement);
-            connectionVariables.capability.node.addRelationship(relationship);
-            connectionVariables.requirement.node.addRelationship(relationship);
-
-            infraRED.events.emit("canvas:draw-connection", connectionVariables.capabilitySVG, connectionVariables.requirementSVG);
-
-            connectionVariables = resetConnectionVariables();
+            createRelationship();
         } else { // we haven't chosen the first selection to start connecting
             if (connectionVariables.capability == null && connectionVariables.requirement == null) { // make sure
                 if (connectable.mode === "capability") {
@@ -65,7 +68,12 @@ infraRED.canvas = (function() {
         infraRED.editor.statusBar.log("Can no longer add more Nodes to the Canvas\nPlease remove some before continuing...");
     }
 
+    function logConnectionVariables() {
+        console.log(connectionVariables);
+    }
+
     function setUpEvents() {
+        infraRED.events.on("canvas:log-connection-variables", logConnectionVariables);
         infraRED.events.on("canvas:create-connection", createConnection);
         infraRED.events.on("canvas:reset-connection", resetConnection);
         infraRED.events.on("nodes:max-nodes-in-canvas", maxNodesReachedInCanvas);
