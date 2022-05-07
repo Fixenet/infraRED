@@ -56,8 +56,22 @@ infraRED.relationships = (function() {
         canvasRelationshipsList.remove(relationship);
     }
 
-    function setUpEvents() {
+    function logRelationshipList() {
+        console.log("Logging canvas relationship list...");
+        let logString = [];
 
+        canvasRelationshipsList.getAll().forEach(relationship => {
+            console.log(relationship);
+            logString.push(relationship.capability.print(), relationship.requirement.print());
+        });
+
+        logString = logString.join("\n");
+        infraRED.editor.statusBar.log(logString);
+        console.log(logString);
+    }
+
+    function setUpEvents() {
+        infraRED.events.on("nodes:log-relationships", logRelationshipList);
     }
 
     function createRelationshipID() {

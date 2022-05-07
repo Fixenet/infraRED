@@ -1,4 +1,13 @@
 infraRED.settings = (function() {
+    canvas = (function() {
+        return {
+            canvasSizeW: 2000,
+            canvasSizeH: 2000,
+            gridSizeGap: 20,
+            SVGnamespace: "http://www.w3.org/2000/svg",
+        };
+    })();
+
     nodes = (function() {
         return {
             MAX_ID: 3,
@@ -26,6 +35,7 @@ infraRED.settings = (function() {
     })();
 
     return {
+        canvas: canvas,
         capabilities: capabilities,
         requirements: requirements,
         nodes: nodes,

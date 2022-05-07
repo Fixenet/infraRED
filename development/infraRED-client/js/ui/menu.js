@@ -28,6 +28,19 @@ infraRED.editor.menuBar = (function() {
         return button;
     }
 
+    function createLogRelationshipsButton() {
+        let button = $("<button>", {
+            id: "log-relationships-button",
+            class: "menu-bar-button",
+            text: "Log Relationships",
+        });
+
+        $(button).on("click", () => {
+            infraRED.events.emit("nodes:log-relationships");
+        });
+        return button;
+    }
+
     function createLogCurrentConnectionButton() {
         let button = $("<button>", {
             id: "log-current-connection-button",
@@ -37,6 +50,19 @@ infraRED.editor.menuBar = (function() {
 
         $(button).on("click", () => {
             infraRED.events.emit("canvas:log-connection-variables");
+        });
+        return button;
+    }
+
+    function createDeployButton() {
+        let button = $("<button>", {
+            id: "deploy-button",
+            class: "menu-bar-button",
+            text: "Deploy",
+        });
+
+        $(button).on("click", () => {
+            infraRED.events.emit("relationships:deploy");
         });
         return button;
     }
@@ -55,7 +81,9 @@ infraRED.editor.menuBar = (function() {
 
             content.append(createLogResourcesButton());
             content.append(createLogCanvasButton());
+            content.append(createLogRelationshipsButton());
             content.append(createLogCurrentConnectionButton());
+            content.append(createDeployButton());
         },
         get: function() {
             return menuBar;

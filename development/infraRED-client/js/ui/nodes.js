@@ -1,5 +1,15 @@
 // use this file to define node behaviour
 infraRED.editor.nodes = (function () {
+    function onCanvasDrop(droppedNode, droppedNodeSVG) {
+        let canvasNode = infraRED.nodes.add(droppedNode);
+                
+        // "add" method will return null and we know we are supposed to remove
+        //TODO - this may be prone to errors, since i may generate null through other ways
+        if (canvasNode == null) {
+            droppedNodeSVG.remove();
+        }
+    }
+
     return {
         init: function() {
             $(".resource-node").draggable({
@@ -18,15 +28,7 @@ infraRED.editor.nodes = (function () {
                 },
             });
 
-            infraRED.events.on("nodes:canvas-drop", (droppedNode, droppedNodeSVG) => {
-                let canvasNode = infraRED.nodes.add(droppedNode);
-                
-                // "add" method will return null and we know we are supposed to remove
-                //TODO - this may be prone to errors, since i may generate null through other ways
-                if (canvasNode == null) {
-                    droppedNodeSVG.remove();
-                }
-            });
+            infraRED.events.on("nodes:canvas-drop", onCanvasDrop);
         }
     };
 })();

@@ -27,6 +27,7 @@ module.exports = function(grunt) {
                     'development/infraRED-client/js/nodes.js',
                     'development/infraRED-client/js/relationships.js',
                     'development/infraRED-client/js/loader.js',
+                    'development/infraRED-client/js/deployer.js',
 
                     // Respect ui's hierarchy
                     'development/infraRED-client/js/ui/editor.js',

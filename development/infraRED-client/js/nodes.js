@@ -58,6 +58,11 @@ infraRED.nodes = (function() {
 
             return connectable;
         }
+
+        print() {
+            let printResult = `${this.mode} - ${this.type}`;
+            return printResult;
+        }
     }
     
     /**
@@ -292,11 +297,6 @@ infraRED.nodes = (function() {
         console.log(logString);
     }
 
-    function setUpEvents() {
-        infraRED.events.on("nodes:log-resources", logResourceList);
-        infraRED.events.on("nodes:log-canvas", logCanvasList);
-    }
-
     function newResourceNode(type) {
         let newNode = new Node(type);
         resourceNodesList.add(newNode);
@@ -315,7 +315,7 @@ infraRED.nodes = (function() {
         let canvasNode = new Node(resourceNode.type);
         canvasNode.resourceID = resourceNode.resourceID;
 
-        //TODO - this is an object atribution so i'm passing a reference, bad
+        //TODO - this is an object atribution so i'm passing a reference, AM I ?, bad
         canvasNode.capabilities = resourceNode.capabilities;
         canvasNode.requirements = resourceNode.requirements;
 
@@ -344,7 +344,9 @@ infraRED.nodes = (function() {
     return {
         init: function() {
             console.log("Starting the nodes functionality.");
-            setUpEvents();
+
+            infraRED.events.on("nodes:log-resources", logResourceList);
+            infraRED.events.on("nodes:log-canvas", logCanvasList);
         },
 
         new: newResourceNode,

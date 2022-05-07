@@ -8,6 +8,7 @@ infraRED.canvas = (function() {
             requirementSVG: null,
 
             isConnecting: false,
+            typeConnecting: null,
         };
     }
 
@@ -16,7 +17,7 @@ infraRED.canvas = (function() {
         connectionVariables.capability.node.addRelationship(relationship);
         connectionVariables.requirement.node.addRelationship(relationship);
 
-        infraRED.events.emit("canvas:draw-connection", connectionVariables.capabilitySVG, connectionVariables.requirementSVG);
+        infraRED.events.emit("canvas:create-relationship-connection", connectionVariables.capabilitySVG, connectionVariables.requirementSVG);
 
         connectionVariables = resetConnectionVariables();
     }
@@ -24,6 +25,10 @@ infraRED.canvas = (function() {
     let connectionVariables = resetConnectionVariables();
     function createConnection(connectable, connectableSVG) {
         if (connectionVariables.isConnecting) { // we already made the first selection and now are trying to make a connection
+            if (connectionVariables.typeConnecting != connectable.type) {
+                console.log("Cannot connect capabilities/requirements of different types...");
+                return;
+            }
             if (connectionVariables.capability == connectable.node || connectionVariables.requirement == connectable.node) {
                 console.log("Cannot connect capabilities/requirements of the same node...");
                 return;
@@ -36,10 +41,10 @@ infraRED.canvas = (function() {
                 connectionVariables.requirement = connectable;
                 connectionVariables.requirementSVG = connectableSVG;
             } else {
-                console.log("Please connect a capability and a requirement together.");
+                console.log("Please connect a capability and a requirement together...");
                 return;
             }
-            
+
             createRelationship();
         } else { // we haven't chosen the first selection to start connecting
             if (connectionVariables.capability == null && connectionVariables.requirement == null) { // make sure
@@ -51,8 +56,9 @@ infraRED.canvas = (function() {
                     connectionVariables.requirementSVG = connectableSVG;
                 }
                 connectionVariables.isConnecting = true;
+                connectionVariables.typeConnecting = connectable.type;
                 connectableSVG.addClass("selected-connectable");
-                infraRED.events.emit("canvas:start-draw-preview-line", connectableSVG);
+                infraRED.events.emit("canvas:create-relationship-preview-line", connectableSVG);
             }
         }
     }
@@ -72,17 +78,14 @@ infraRED.canvas = (function() {
         console.log(connectionVariables);
     }
 
-    function setUpEvents() {
-        infraRED.events.on("canvas:log-connection-variables", logConnectionVariables);
-        infraRED.events.on("canvas:create-connection", createConnection);
-        infraRED.events.on("canvas:reset-connection", resetConnection);
-        infraRED.events.on("nodes:max-nodes-in-canvas", maxNodesReachedInCanvas);
-    }
-
     return {
         init: function() {
             console.log("%cStarting the canvas functionality.", "color: #ffc895;");
-            setUpEvents();
+
+            infraRED.events.on("canvas:log-connection-variables", logConnectionVariables);
+            infraRED.events.on("canvas:create-connection", createConnection);
+            infraRED.events.on("canvas:reset-connection", resetConnection);
+            infraRED.events.on("nodes:max-nodes-in-canvas", maxNodesReachedInCanvas);
         },
     };
 })();
