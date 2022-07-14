@@ -35,9 +35,8 @@ infraRED.editor.resourceBar = (function() {
             });
 
             let nodesTab = createTab("Nodes");
-            infraRED.loader.importNodes().forEach(node => {
-                nodesTab.append(node.getDiv());
-            });
+            //TODO - needs to use a different method from the loader
+            
             tabs.append(nodesTab);
 
             content.append(tabs);

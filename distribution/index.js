@@ -14,13 +14,19 @@ app.get('/', (req, res) => {
     res.status(200).sendFile(path.join(__dirname, './index.html'));
 });
 
-app.get('/nodes', (req, res) => {
+app.get('/listNodes', (req, res) => {
     console.log("Requesting nodes from the loader, hopefully :D");
     
     let files = fs.readdirSync(path.join(__dirname, '/nodes'));
 
     res.status(200).send(files);
     res.end();
+});
+
+//get the nodes
+app.get("/nodes/:nodeName", (req, res) => {
+    console.log(`Requesting node ${req.params.nodeName}`);
+    res.status(200).sendFile(path.join(__dirname, '/nodes/tester.js'));
 });
 
 app.get('/deploy', (req, res) => {
