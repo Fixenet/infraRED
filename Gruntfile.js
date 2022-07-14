@@ -9,6 +9,7 @@ module.exports = function(grunt) {
                 esversion: 6
             },
             all: ['Gruntfile.js', 'development/infraRED-client/js/**/*.js', 'development/infraRED-api/js/**/*.js'],
+            nodes: ['development/infraRED-nodes/**/*.js', 'development/infraRED-nodes /*.js'],
             client: ['development/infraRED-client/js/**/*.js'],
             api: ['development/infraRED-api/js/**/*.js'],
         },
@@ -40,7 +41,7 @@ module.exports = function(grunt) {
 
                     'development/infraRED-client/js/main.js',
                 ],
-                dest: 'distribution/public/infraRED.js',
+                dest: 'distribution/assets/infraRED.js',
             },
             api: {
                 // using this as a copy, because i can just import the files
@@ -48,6 +49,15 @@ module.exports = function(grunt) {
                     'development/infraRED-api/js/index.js',
                 ],
                 dest: 'distribution/index.js',
+            }
+        },
+        copy: {
+            nodes: { 
+                expand: true, 
+                cwd: 'development/infraRED-nodes/',
+                src: '**', 
+                dest: 'distribution/nodes/',
+                filter: 'isFile'
             },
         },
         sass: {
@@ -58,11 +68,15 @@ module.exports = function(grunt) {
                 },
                 files: [{
                     src: 'development/infraRED-client/sass/style.scss',
-                    dest: 'distribution/public/style.min.css',
+                    dest: 'distribution/assets/style.min.css',
                 }]
             }
         },
         watch: {
+            nodesJS: {
+                files: 'development/infraRED-nodes/**/*.js',
+                tasks: ['build-nodes'],
+            },
             clientJS: {
                 files: 'development/infraRED-client/js/**/*.js',
                 tasks: ['build-client'],
@@ -79,14 +93,16 @@ module.exports = function(grunt) {
     });
 
     // Load the plugins
+    grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-sass');
 
     // Default task(s).
+    grunt.registerTask('build-nodes', ['jshint:nodes', 'copy:nodes']);
     grunt.registerTask('build-client', ['jshint:client', 'concat:client']);
     grunt.registerTask('build-api', ['jshint:api', 'concat:api']);
-    grunt.registerTask('build', ['build-client', 'build-api', 'sass']);
+    grunt.registerTask('build', ['build-nodes', 'build-client', 'build-api', 'sass']);
     grunt.registerTask('default', ['build', 'watch']);
 };

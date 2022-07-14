@@ -12,6 +12,7 @@ infraRED.editor.menuBar = (function() {
         $(button).on("click", () => {
             infraRED.events.emit("nodes:log-resources");
         });
+
         return button;
     }
 
@@ -25,6 +26,7 @@ infraRED.editor.menuBar = (function() {
         $(button).on("click", () => {
             infraRED.events.emit("nodes:log-canvas");
         });
+
         return button;
     }
 
@@ -38,6 +40,7 @@ infraRED.editor.menuBar = (function() {
         $(button).on("click", () => {
             infraRED.events.emit("nodes:log-relationships");
         });
+
         return button;
     }
 
@@ -51,7 +54,20 @@ infraRED.editor.menuBar = (function() {
         $(button).on("click", () => {
             infraRED.events.emit("canvas:log-connection-variables");
         });
+
         return button;
+    }
+
+    class VeryCoolObject {
+        constructor(number) {
+            this.name = "ha!";
+            this.type = "yo.";
+            this.number = number;
+        }
+
+        addName() {
+            console.log("yo.");
+        }
     }
 
     function createDeployButton() {
@@ -63,7 +79,23 @@ infraRED.editor.menuBar = (function() {
 
         $(button).on("click", () => {
             infraRED.events.emit("relationships:deploy");
+
+            // talk to server to start deployment
+            $.ajax({
+                url: "/deploy",
+                dataType: 'text',
+                async: false,
+
+                //TODO - nodes recursively reference eachother via their capabilities
+                data: { relationships: infraRED.relationships.canvasList.getJSON() },
+    
+                // success function places value inside the return variable
+                success: function(data) {
+                    console.log(data);
+                }
+            });
         });
+
         return button;
     }
 

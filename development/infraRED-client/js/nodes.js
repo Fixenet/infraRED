@@ -316,6 +316,8 @@ infraRED.nodes = (function() {
         canvasNode.resourceID = resourceNode.resourceID;
 
         //TODO - this is an object atribution so i'm passing a reference, AM I ?, bad
+        // this incurs problems down the line because connectables will reference the node
+        // on the resource bar and not the node in the canvas
         canvasNode.capabilities = resourceNode.capabilities;
         canvasNode.requirements = resourceNode.requirements;
 

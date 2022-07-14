@@ -5,6 +5,8 @@ var infraRED = (function() {
     
             infraRED.events.DEBUG = true;
             infraRED.validator.init();
+
+            infraRED.loader.testImport();
     
             infraRED.nodes.init();
             infraRED.relationships.init();
@@ -92,7 +94,7 @@ infraRED.settings = (function() {
 
     nodes = (function() {
         return {
-            MAX_ID: 3,
+            MAX_ID: 100,
             EMPTY_NAME: "No Name Node",
         };
     })();
@@ -533,6 +535,8 @@ infraRED.nodes = (function() {
         canvasNode.resourceID = resourceNode.resourceID;
 
         //TODO - this is an object atribution so i'm passing a reference, AM I ?, bad
+        // this incurs problems down the line because connectables will reference the node
+        // on the resource bar and not the node in the canvas
         canvasNode.capabilities = resourceNode.capabilities;
         canvasNode.requirements = resourceNode.requirements;
 
@@ -585,7 +589,7 @@ infraRED.relationships = (function() {
 
             this.name = infraRED.settings.relationships.EMPTY_NAME;
 
-            this.type = null;
+            this.type = capability.type;
 
             this.capability = capability;
             this.requirement = requirement;
@@ -613,11 +617,28 @@ infraRED.relationships = (function() {
             return Object.values(relationshipList);
         }
 
+        function getRelationshipEssentialsJSON() {
+            let result = {};
+            for (let relationship of Object.values(relationshipList)) {
+                result[relationship.canvasID] = {
+                    type: relationship.type,
+                    capabilityNode: relationship.capability.node.resourceID + " " + relationship.capability.node.type,
+                    requirementNode: {
+                        id: relationship.requirement.node.canvasID,
+                        type: relationship.requirement.node.type,
+                    },
+                    
+                };
+            }
+            return result;
+        }
+
         return {
           add: addRelationship,
           remove: removeRelationship,
           getByID: getRelationshipByIdentifier,
           getAll: getRelationshipList,
+          getJSON: getRelationshipEssentialsJSON,
         };
     })();
 
@@ -669,9 +690,38 @@ infraRED.relationships = (function() {
 
         create: createRelationship,
         remove: removeRelationship,
+
+        canvasList: canvasRelationshipsList,
     };
 })();
 infraRED.loader = (function() {
+    function importNodesFromJSLibrary() {
+        console.log("Don't break charm.");
+
+        let types;
+        //TODO get node list from server
+        $.ajax({
+            url: "/nodes",
+            dataType: 'json',
+            async: false,
+
+            //success function places value inside the return variable
+            success: function(data) {
+                types = data;
+                console.log("Found nodes.");
+            }
+        });
+
+        //TODO download all the corresponding scripts
+        console.log(types);
+
+        //TODO go into the API${types[0]} and when i get this i send the files
+        $.getScript(`/nodes/compute.js`, function() {
+            let comp = new Compute();
+            console.log(comp.capabilties);
+        });
+    }
+
     function importTypesFromJSON(url) {
         let types;
         $.ajax({
@@ -712,6 +762,7 @@ infraRED.loader = (function() {
 
     return {
         importNodes: loadNodeTypes,
+        testImport: importNodesFromJSLibrary,
     };
 })();
 infraRED.deployer = (function () {
@@ -1032,6 +1083,7 @@ infraRED.editor.menuBar = (function() {
         $(button).on("click", () => {
             infraRED.events.emit("nodes:log-resources");
         });
+
         return button;
     }
 
@@ -1045,6 +1097,7 @@ infraRED.editor.menuBar = (function() {
         $(button).on("click", () => {
             infraRED.events.emit("nodes:log-canvas");
         });
+
         return button;
     }
 
@@ -1058,6 +1111,7 @@ infraRED.editor.menuBar = (function() {
         $(button).on("click", () => {
             infraRED.events.emit("nodes:log-relationships");
         });
+
         return button;
     }
 
@@ -1071,7 +1125,20 @@ infraRED.editor.menuBar = (function() {
         $(button).on("click", () => {
             infraRED.events.emit("canvas:log-connection-variables");
         });
+
         return button;
+    }
+
+    class VeryCoolObject {
+        constructor(number) {
+            this.name = "ha!";
+            this.type = "yo.";
+            this.number = number;
+        }
+
+        addName() {
+            console.log("yo.");
+        }
     }
 
     function createDeployButton() {
@@ -1083,7 +1150,23 @@ infraRED.editor.menuBar = (function() {
 
         $(button).on("click", () => {
             infraRED.events.emit("relationships:deploy");
+
+            // talk to server to start deployment
+            $.ajax({
+                url: "/deploy",
+                dataType: 'text',
+                async: false,
+
+                //TODO - nodes recursively reference eachother via their capabilities
+                data: { relationships: infraRED.relationships.canvasList.getJSON() },
+    
+                // success function places value inside the return variable
+                success: function(data) {
+                    console.log(data);
+                }
+            });
         });
+
         return button;
     }
 

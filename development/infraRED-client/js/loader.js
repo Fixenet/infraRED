@@ -1,4 +1,31 @@
 infraRED.loader = (function() {
+    function importNodesFromJSLibrary() {
+        console.log("Don't break charm.");
+
+        let types;
+        //TODO get node list from server
+        $.ajax({
+            url: "/nodes",
+            dataType: 'json',
+            async: false,
+
+            //success function places value inside the return variable
+            success: function(data) {
+                types = data;
+                console.log("Found nodes.");
+            }
+        });
+
+        //TODO download all the corresponding scripts
+        console.log(types);
+
+        //TODO go into the API${types[0]} and when i get this i send the files
+        $.getScript(`/nodes/compute.js`, function() {
+            let comp = new Compute();
+            console.log(comp.capabilties);
+        });
+    }
+
     function importTypesFromJSON(url) {
         let types;
         $.ajax({
@@ -39,5 +66,6 @@ infraRED.loader = (function() {
 
     return {
         importNodes: loadNodeTypes,
+        testImport: importNodesFromJSLibrary,
     };
 })();

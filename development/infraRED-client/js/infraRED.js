@@ -5,6 +5,8 @@ var infraRED = (function() {
     
             infraRED.events.DEBUG = true;
             infraRED.validator.init();
+
+            infraRED.loader.testImport();
     
             infraRED.nodes.init();
             infraRED.relationships.init();

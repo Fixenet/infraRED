@@ -9,7 +9,7 @@ infraRED.relationships = (function() {
 
             this.name = infraRED.settings.relationships.EMPTY_NAME;
 
-            this.type = null;
+            this.type = capability.type;
 
             this.capability = capability;
             this.requirement = requirement;
@@ -37,11 +37,28 @@ infraRED.relationships = (function() {
             return Object.values(relationshipList);
         }
 
+        function getRelationshipEssentialsJSON() {
+            let result = {};
+            for (let relationship of Object.values(relationshipList)) {
+                result[relationship.canvasID] = {
+                    type: relationship.type,
+                    capabilityNode: relationship.capability.node.resourceID + " " + relationship.capability.node.type,
+                    requirementNode: {
+                        id: relationship.requirement.node.canvasID,
+                        type: relationship.requirement.node.type,
+                    },
+                    
+                };
+            }
+            return result;
+        }
+
         return {
           add: addRelationship,
           remove: removeRelationship,
           getByID: getRelationshipByIdentifier,
           getAll: getRelationshipList,
+          getJSON: getRelationshipEssentialsJSON,
         };
     })();
 
@@ -93,5 +110,7 @@ infraRED.relationships = (function() {
 
         create: createRelationship,
         remove: removeRelationship,
+
+        canvasList: canvasRelationshipsList,
     };
 })();
