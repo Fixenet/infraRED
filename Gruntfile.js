@@ -66,6 +66,10 @@ module.exports = function(grunt) {
                 filter: 'isFile'
             }
         },
+        clean: {
+            nodes: ['distribution/nodes/'],
+            server_modules: ['distribution/modules/'],
+        },
         sass: {
             build: {
                 options: {
@@ -99,6 +103,7 @@ module.exports = function(grunt) {
     });
 
     // Load the plugins
+    grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-concat');
@@ -106,9 +111,9 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-sass');
 
     // Default task(s).
-    grunt.registerTask('build-nodes', ['jshint:nodes', 'copy:nodes']);
+    grunt.registerTask('build-nodes', ['jshint:nodes', 'clean:nodes', 'copy:nodes']);
     grunt.registerTask('build-client', ['jshint:client', 'concat:client']);
-    grunt.registerTask('build-server', ['jshint:server', 'copy:server', 'copy:server_modules']);
+    grunt.registerTask('build-server', ['jshint:server', 'copy:server', 'clean:server_modules', 'copy:server_modules']);
     grunt.registerTask('build', ['build-nodes', 'build-client', 'build-server', 'sass']);
     grunt.registerTask('default', ['build', 'watch']);
 };

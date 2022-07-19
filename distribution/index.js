@@ -17,10 +17,24 @@ app.get('/', (req, res) => {
     res.status(200).sendFile(path.join(__dirname, './assets/index.html'));
 });
 
+function traverseDirForFiles(dir) {
+    let fileList = [];
+    fs.readdirSync(dir).forEach(file => {
+        let fullPath = path.join(dir, file);
+        if (fs.lstatSync(fullPath).isDirectory()) {
+            fileList.push(...traverseDirForFiles(fullPath));
+        } else {
+            fileList.push(file);
+        }  
+    });
+    return fileList;
+}
+
+console.log(traverseDirForFiles(path.join(__dirname, '/nodes')));
 app.get('/listNodes', (req, res) => {
-    console.log("Requesting nodes from the loader, hopefully :D");
+    console.log("Requesting nodes from the loader:\n");
     
-    let files = fs.readdirSync(path.join(__dirname, '/nodes'));
+    let files = traverseDirForFiles(path.join(__dirname, '/nodes'));
 
     res.status(200).send(files);
     res.end();
@@ -29,9 +43,6 @@ app.get('/listNodes', (req, res) => {
 //get the nodes
 app.get("/nodes/:nodeName", (req, res) => {
     console.log(`Requesting node ${req.params.nodeName}`);
-
-    let thing = require(`./nodes/tester.js`);
-    thing();
     res.status(200).end();
 });
 
