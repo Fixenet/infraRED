@@ -20,10 +20,12 @@ infraRED.loader = (function() {
         console.log(types);
 
         //TODO go into the API${types[0]} and when i get this i send the files
-        $.getScript(`/nodes/tester.js`, function() {
+        /*$.getScript(`/nodes/tester.js`, function() {
+
             let test = new Tester();
+
             console.log(test.capabilties);
-        });
+        });*/
     }
 
     return {

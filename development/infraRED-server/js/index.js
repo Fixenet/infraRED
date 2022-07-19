@@ -6,12 +6,15 @@ const port = 3000;
 
 const fs = require('fs');
 
+//my requiress
+const registry = require('./modules/registry.js');
+
 //this is okay for routing different files
 app.use(express.static(path.join(__dirname, "assets")));
 
 app.get('/', (req, res) => {
     console.log("Sending index.html");
-    res.status(200).sendFile(path.join(__dirname, './index.html'));
+    res.status(200).sendFile(path.join(__dirname, './assets/index.html'));
 });
 
 app.get('/listNodes', (req, res) => {
@@ -26,7 +29,10 @@ app.get('/listNodes', (req, res) => {
 //get the nodes
 app.get("/nodes/:nodeName", (req, res) => {
     console.log(`Requesting node ${req.params.nodeName}`);
-    res.status(200).sendFile(path.join(__dirname, '/nodes/tester.js'));
+
+    let thing = require(`./nodes/tester.js`);
+    thing();
+    res.status(200).end();
 });
 
 app.get('/deploy', (req, res) => {

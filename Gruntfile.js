@@ -8,10 +8,10 @@ module.exports = function(grunt) {
             options: {
                 esversion: 6
             },
-            all: ['Gruntfile.js', 'development/infraRED-client/js/**/*.js', 'development/infraRED-api/js/**/*.js'],
-            nodes: ['development/infraRED-nodes/**/*.js', 'development/infraRED-nodes /*.js'],
+            all: ['Gruntfile.js', 'development/infraRED-client/js/**/*.js', 'development/infraRED-server/js/**/*.js'],
+            nodes: ['development/infraRED-nodes/**/*.js', 'development/infraRED-nodes/*.js'],
             client: ['development/infraRED-client/js/**/*.js'],
-            api: ['development/infraRED-api/js/**/*.js'],
+            server: ['development/infraRED-server/js/**/*.js'],
         },
         concat: {
             options: {
@@ -43,13 +43,6 @@ module.exports = function(grunt) {
                 ],
                 dest: 'distribution/assets/infraRED.js',
             },
-            api: {
-                // using this as a copy, because i can just import the files
-                src: [
-                    'development/infraRED-api/js/index.js',
-                ],
-                dest: 'distribution/index.js',
-            }
         },
         copy: {
             nodes: { 
@@ -59,6 +52,19 @@ module.exports = function(grunt) {
                 dest: 'distribution/nodes/',
                 filter: 'isFile'
             },
+            server: {
+                expand: true,
+                cwd: './development/infraRED-server/js',
+                src: 'index.js',
+                dest: 'distribution/',
+            },
+            server_modules: {
+                expand: true,
+                cwd: 'development/infraRED-server/js/modules/',
+                src: ['*.js', '**/*.js', '!js/index.js'],
+                dest: 'distribution/modules',
+                filter: 'isFile'
+            }
         },
         sass: {
             build: {
@@ -81,9 +87,9 @@ module.exports = function(grunt) {
                 files: 'development/infraRED-client/js/**/*.js',
                 tasks: ['build-client'],
             },
-            apiJS: {
-                files: 'development/infraRED-api/js/**/*.js',
-                tasks: ['build-api'],
+            serverJS: {
+                files: 'development/infraRED-server/js/**/*.js',
+                tasks: ['build-server'],
             },
             sass: {
                 files: 'development/infraRED-client/sass/**/*.scss',
@@ -102,7 +108,7 @@ module.exports = function(grunt) {
     // Default task(s).
     grunt.registerTask('build-nodes', ['jshint:nodes', 'copy:nodes']);
     grunt.registerTask('build-client', ['jshint:client', 'concat:client']);
-    grunt.registerTask('build-api', ['jshint:api', 'concat:api']);
-    grunt.registerTask('build', ['build-nodes', 'build-client', 'build-api', 'sass']);
+    grunt.registerTask('build-server', ['jshint:server', 'copy:server', 'copy:server_modules']);
+    grunt.registerTask('build', ['build-nodes', 'build-client', 'build-server', 'sass']);
     grunt.registerTask('default', ['build', 'watch']);
 };
