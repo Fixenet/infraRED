@@ -4,8 +4,6 @@ const path = require('path');
 const app = express();
 const port = 3000;
 
-const fs = require('fs');
-
 //my requiress
 const registry = require('./modules/registry.js');
 
@@ -17,26 +15,13 @@ app.get('/', (req, res) => {
     res.status(200).sendFile(path.join(__dirname, './assets/index.html'));
 });
 
-function traverseDirForFiles(dir) {
-    let fileList = [];
-    fs.readdirSync(dir).forEach(file => {
-        let fullPath = path.join(dir, file);
-        if (fs.lstatSync(fullPath).isDirectory()) {
-            fileList.push(...traverseDirForFiles(fullPath));
-        } else {
-            fileList.push(file);
-        }  
-    });
-    return fileList;
-}
-
-console.log(traverseDirForFiles(path.join(__dirname, '/nodes')));
+registry();
 app.get('/listNodes', (req, res) => {
     console.log("Requesting nodes from the loader:\n");
-    
-    let files = traverseDirForFiles(path.join(__dirname, '/nodes'));
 
-    res.status(200).send(files);
+    registry();
+
+    res.status(200).send(nodesFullPath);
     res.end();
 });
 
