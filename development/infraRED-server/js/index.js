@@ -4,22 +4,20 @@ const path = require('path');
 const app = express();
 const port = 3000;
 
-//my requiress
+//my requires
 const registry = require('./modules/registry.js');
 
 //this is okay for routing different files
 app.use(express.static(path.join(__dirname, "assets")));
 
 app.get('/', (req, res) => {
-    console.log("Sending index.html");
     res.status(200).sendFile(path.join(__dirname, './assets/index.html'));
 });
 
-registry();
+console.log(registry.getFiles());
+
 app.get('/listNodes', (req, res) => {
     console.log("Requesting nodes from the loader:\n");
-
-    registry();
 
     res.status(200).send(nodesFullPath);
     res.end();

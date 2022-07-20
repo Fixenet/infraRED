@@ -2,19 +2,25 @@ const path = require('path');
 const fs = require('fs');
 
 function traverseDirForFiles(dir) {
-    let fileList = [];
+    let fileList = {};
     fs.readdirSync(dir).forEach(file => {
         let fullPath = path.join(dir, file);
         if (fs.lstatSync(fullPath).isDirectory()) {
-            fileList.push(...traverseDirForFiles(fullPath));
+            fileList = Object.assign(traverseDirForFiles(fullPath), fileList);
         } else {
-            fileList.push(fullPath);
+            console.log(fullPath);
+            fileList[file] = fullPath;
         }  
     });
     return fileList;
 }
 
-module.exports = function () {
-    console.log("The registry module auto started because of the () at the end of the module.");
-    console.log(traverseDirForFiles(path.join(__dirname, '../nodes')));
+module.exports = {
+    init() {
+        console.log("The registry module auto started because of the () at the end of the module.");    
+    },
+    getFiles() {
+        let files = traverseDirForFiles(path.join(__dirname, '../nodes'));
+        return files;
+    },
 };
