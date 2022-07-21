@@ -8,7 +8,6 @@ function traverseDirForFiles(dir) {
         if (fs.lstatSync(fullPath).isDirectory()) {
             fileList = Object.assign(traverseDirForFiles(fullPath), fileList);
         } else {
-            console.log(fullPath);
             fileList[file] = fullPath;
         }  
     });
@@ -19,7 +18,7 @@ module.exports = {
     init() {
         console.log("The registry module auto started because of the () at the end of the module.");    
     },
-    getFiles() {
+    listAllNodes() {
         let files = traverseDirForFiles(path.join(__dirname, '../nodes'));
         return files;
     },

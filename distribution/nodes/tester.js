@@ -21,5 +21,5 @@ module.exports = function() {
     }
     
     let test = new Tester();
-    console.log(test.capabilties);
+    console.log(test.start());
 };
