@@ -19,8 +19,12 @@ module.exports = function() {
             return "Stopped the database node!";
         }
     }
-    
-    let data = new Database();
-    console.log(data.start());
-    console.log(data.capabilties);
+
+    return {
+        init: function() {
+            let data = new Database();
+            console.log(data.start());
+            console.log(data.capabilties);
+        },
+    };
 };
