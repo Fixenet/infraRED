@@ -9,12 +9,9 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.3",
-    "grunt-sass": "^3.1.0",
     "jquery": "^3.6.0",
-    "js-yaml": "^4.1.0",
     "jsdom": "^19.0.0",
-    "moment": "^2.29.1",
-    "sass": "^1.49.9"
+    "moment": "^2.29.4"
   },
   "devDependencies": {
     "grunt": "^1.5.3",
@@ -25,6 +22,8 @@
     "grunt-contrib-jshint": "^3.2.0",
     "grunt-contrib-watch": "^1.1.0",
     "grunt-nodemon": "^0.4.2",
-    "nodemon": "^2.0.15"
+    "grunt-sass": "^3.1.0",
+    "nodemon": "^2.0.15",
+    "sass": "^1.54.0"
   }
 }
