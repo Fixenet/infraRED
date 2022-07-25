@@ -2,29 +2,28 @@ module.exports = function() {
     class Database {
         constructor() {
             this.capabilties = {
-                hello: {},
-                goodbye: {},
-                testing: "Hello!",
+
             };
                 
             this.requirements = {
+
             };
         }
 
         start() {
-            return "Started the database node!";
+            console.log("Started the database node!");
         }
-        
+    
         stop() {
-            return "Stopped the database node!";
+            console.log("Stopped the database node!");
         }
     }
 
     return {
         init: function() {
-            let data = new Database();
-            console.log(data.start());
-            console.log(data.capabilties);
+            let database = new Database();
+            database.start();
+            database.stop();
         },
     };
 };

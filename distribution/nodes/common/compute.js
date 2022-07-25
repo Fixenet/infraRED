@@ -1,20 +1,29 @@
-class Compute {
-    constructor() {
-        this.capabilties = {
-            hello: {},
-            goodbye: {},
-        };
-        
-        this.requirements = {
+module.exports = function() {
+    class Compute {
+        constructor() {
+            this.capabilties = {
+
+            };
+                
+            this.requirements = {
+
+            };
+        }
+
+        start() {
+            console.log("Started the compute node!");
+        }
     
-        };
+        stop() {
+            console.log("Stopped the compute node!");
+        }
     }
 
-    start() {
-        console.log("Started.");
-    }
-
-    stop() {
-        console.log("Stopped.");
-    }
-}
+    return {
+        init: function() {
+            let compute = new Compute();
+            compute.start();
+            compute.stop();
+        },
+    };
+};
