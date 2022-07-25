@@ -21,7 +21,7 @@ function initInfraRED() {
 }
 
 initInfraRED();
-nodesRuntimeList.database().init();
+nodesRuntimeList.nodeTemplate().init();
 
 //this is okay for routing different files
 app.use(express.static(path.join(__dirname, "assets")));
