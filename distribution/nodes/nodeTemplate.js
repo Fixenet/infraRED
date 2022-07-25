@@ -1,9 +1,3 @@
-const { template } = require("grunt");
-
-function templateMethod() {
-    console.log("I am a template method.");
-}
-
 module.exports = function() {
     class Template {
         constructor() {
@@ -14,16 +8,18 @@ module.exports = function() {
             this.requirements = {
                 template: "template",
             };
-        
-            this.start = function() {
-                console.log("Started the template node!");
-            };
-        
-            this.stop = function() {
-                console.log("Stopped the template node!");
-            };
+        }
 
-            this.method = templateMethod;
+        start() {
+            console.log("Started the template node!");
+        }
+    
+        stop() {
+            console.log("Stopped the template node!");
+        }
+
+        method() {
+            console.log("I am a template method.");
         }
     }
 
