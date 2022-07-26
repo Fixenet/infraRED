@@ -14,7 +14,7 @@ module.exports = function() {
     let compute = new Compute();
     return {
         init: function() {
-            console.log("Started.");
+            console.log('Started.');
         },
         self: function() {
             return compute;

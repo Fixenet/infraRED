@@ -37,7 +37,7 @@ module.exports = function() {
             template.method();
             template.stop();
 
-            console.log("Started" + moment().format('MMMM Do YYYY, h:mm:ss a'));
+            console.log('Started' + moment().format('MMMM Do YYYY, h:mm:ss a'));
         },
         self: function() {
             return template;

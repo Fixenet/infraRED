@@ -18,9 +18,9 @@ infraRED.nodes = (function() {
         }
 
         getDiv() {
-            let connectable = $("<div>", {
+            let connectable = $('<div>', {
                 id: this.type,
-                class: "connectable " + this.mode,
+                class: 'connectable ' + this.mode,
                 text: this.name ? this.name : this.type,
             });
 
@@ -33,7 +33,7 @@ infraRED.nodes = (function() {
         }
 
         getSVG() {
-            let connectable = new SVG.G().addClass("connectable " + this.mode);
+            let connectable = new SVG.G().addClass('connectable ' + this.mode);
 
             connectable.height = 20;
             connectable.spacing = connectable.height + 5;
@@ -50,10 +50,10 @@ infraRED.nodes = (function() {
 
             connectable.plain(this.type).move(0,0).cx(connectable.width/2);
 
-            connectable.on("click", (event) => {
+            connectable.on('click', (event) => {
                 event.stopPropagation();
                 // handles logic and svg drawing
-                infraRED.events.emit("canvas:create-connection", this, background);
+                infraRED.events.emit('canvas:create-connection', this, background);
             });
 
             return connectable;
@@ -88,19 +88,19 @@ infraRED.nodes = (function() {
             if (infraRED.validator.validateNodeType(name)) {
                 this.name = name;
             } else {
-                console.log("Incorrect Node name was given.");
+                console.log('Incorrect Node name was given.');
             }
         }
 
         addCapability(capabilityType) {
             // index by type since only one of each type exists in each Node
-            let capability = new Connectable("capability", capabilityType, this);
+            let capability = new Connectable('capability', capabilityType, this);
             this.capabilities[capabilityType] = capability;
         }
 
         addRequirement(requirementType) {
             // index by type since only one of each type exists in each Node
-            let requirement = new Connectable("requirement", requirementType, this);
+            let requirement = new Connectable('requirement', requirementType, this);
             this.requirements[requirementType] = requirement;
         }
 
@@ -109,19 +109,19 @@ infraRED.nodes = (function() {
         }
 
         getDiv() {
-            let div = $("<div>", {
+            let div = $('<div>', {
                 id: this.resourceID,
-                class: "resource node resource-node",
+                class: 'resource node resource-node',
             });
 
-            div.append($("<div>", { 
-                class: "type", 
+            div.append($('<div>', { 
+                class: 'type', 
                 text: this.type,
             }));
 
             if (!$.isEmptyObject(this.requirements)) {
-                let requirements = $("<div>", {
-                    class: "requirements",
+                let requirements = $('<div>', {
+                    class: 'requirements',
                 });
 
                 Object.values(this.requirements).forEach(requirement => {
@@ -130,15 +130,15 @@ infraRED.nodes = (function() {
 
                 // add a border line to separate capabilities from requirements if both exist
                 if (!$.isEmptyObject(this.capabilities)) {
-                    requirements.addClass("connectable-separator");
+                    requirements.addClass('connectable-separator');
                 }
 
                 div.append(requirements);
             }
             
             if (!$.isEmptyObject(this.capabilities)) {
-                let capabilities = $("<div>", {
-                    class: "capabilities",
+                let capabilities = $('<div>', {
+                    class: 'capabilities',
                 });
 
                 Object.values(this.capabilities).forEach(capability => {
@@ -152,12 +152,12 @@ infraRED.nodes = (function() {
         }
 
         getSVG() {
-            let node = new SVG.G().addClass("canvas-node");
+            let node = new SVG.G().addClass('canvas-node');
             node.width = 200;
 
-            let background = node.rect().radius(10).addClass("background");
+            let background = node.rect().radius(10).addClass('background');
 
-            let type = node.group().addClass("type");
+            let type = node.group().addClass('type');
             type.height = 20;
             // adds the type background
             let typeBackground = type.rect().radius(10).move(10, 7);
@@ -168,13 +168,13 @@ infraRED.nodes = (function() {
 
             let cutAt = 18;
             if (this.type.length > cutAt) {
-                typeText.plain(this.type.substring(0, cutAt) + "...");
+                typeText.plain(this.type.substring(0, cutAt) + '...');
             }
             typeText.move(10, 7).cx(node.width/2);
 
             let drawingY = 8;
             if (!$.isEmptyObject(this.requirements)) {
-                let requirements = node.group().addClass("requirements");
+                let requirements = node.group().addClass('requirements');
 
                 Object.values(this.requirements).forEach((requirement) => {
                     let requirementSVG = requirement.getSVG();
@@ -183,13 +183,13 @@ infraRED.nodes = (function() {
 
                 // add a border line to separate capabilities from requirements if both exist
                 if (!$.isEmptyObject(this.capabilities)) {
-                    node.line(0, drawingY + 25, node.width, drawingY + 25).addClass("connectable-separator");
+                    node.line(0, drawingY + 25, node.width, drawingY + 25).addClass('connectable-separator');
                     drawingY += 5;
                 }
             }
             
             if (!$.isEmptyObject(this.capabilities)) {
-                let capabilities = node.group().addClass("capabilities");
+                let capabilities = node.group().addClass('capabilities');
 
                 Object.values(this.capabilities).forEach((capability) => {
                     let capabilitySVG = capability.getSVG();
@@ -272,27 +272,27 @@ infraRED.nodes = (function() {
     })();
 
     function logResourceList() {
-        console.log("Logging resources list...");
+        console.log('Logging resources list...');
         let logString = [];
 
         resourceNodesList.getAll().forEach(node => {
             logString.push(node.print());
         });
 
-        logString = logString.join("\n");
+        logString = logString.join('\n');
         infraRED.editor.statusBar.log(logString);
         console.log(logString);
     }
 
     function logCanvasList() {
-        console.log("Logging canvas list...");
+        console.log('Logging canvas list...');
         let logString = [];
 
         canvasNodesList.getAll().forEach(node => {
             logString.push(node.print());
         });
 
-        logString = logString.join("\n");
+        logString = logString.join('\n');
         infraRED.editor.statusBar.log(logString);
         console.log(logString);
     }
@@ -300,14 +300,14 @@ infraRED.nodes = (function() {
     function newResourceNode(type) {
         let newNode = new Node(type);
         resourceNodesList.add(newNode);
-        infraRED.events.emit("nodes:add-resources", newNode);
+        infraRED.events.emit('nodes:add-resources', newNode);
         return newNode;
     }
 
     function moveNodeToCanvas(resourceNode) {
         // stop the node from entering the canvas if we are at max value
         if (canvasNodesList.getAll().length == infraRED.settings.nodes.MAX_ID) {
-            infraRED.events.emit("nodes:max-nodes-in-canvas");
+            infraRED.events.emit('nodes:max-nodes-in-canvas');
             //TODO - disallow any further action, this may not be correctly propagated
             return null;
         }
@@ -323,7 +323,7 @@ infraRED.nodes = (function() {
 
         canvasNodesList.add(canvasNode);
 
-        infraRED.events.emit("nodes:move-to-canvas", canvasNode);
+        infraRED.events.emit('nodes:move-to-canvas', canvasNode);
 
         return canvasNode;
     }
@@ -345,10 +345,10 @@ infraRED.nodes = (function() {
 
     return {
         init: function() {
-            console.log("Starting the nodes functionality.");
+            console.log('Starting the nodes functionality.');
 
-            infraRED.events.on("nodes:log-resources", logResourceList);
-            infraRED.events.on("nodes:log-canvas", logCanvasList);
+            infraRED.events.on('nodes:log-resources', logResourceList);
+            infraRED.events.on('nodes:log-canvas', logCanvasList);
         },
 
         new: newResourceNode,

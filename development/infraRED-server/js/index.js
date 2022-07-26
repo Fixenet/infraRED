@@ -22,7 +22,7 @@ function initInfraRED() {
 
 initInfraRED();
 //this is okay for routing different files
-app.use(express.static(path.join(__dirname, "assets")));
+app.use(express.static(path.join(__dirname, 'assets')));
 
 app.get('/', (req, res) => {
     initInfraRED();
@@ -30,14 +30,14 @@ app.get('/', (req, res) => {
 });
 
 app.get('/listNodes', (req, res) => {
-    console.log("Requesting nodes from the loader:\n");
+    console.log('Requesting nodes from the loader:\n');
     nodesResourceList = registry.buildResourceList(nodesRuntimeList);
     res.status(200).send(nodesResourceList);
     res.end();
 });
 
 //get the nodes
-app.get("/nodes/:nodeName", (req, res) => {
+app.get('/nodes/:nodeName', (req, res) => {
     console.log(`Requesting node ${req.params.nodeName}`);
     console.log(nodesFullPath[req.params.nodeName]);
     res.status(200).send(nodesFullPath[req.params.nodeName]);
@@ -45,12 +45,12 @@ app.get("/nodes/:nodeName", (req, res) => {
 });
 
 app.get('/deploy', (req, res) => {
-    console.log(`Deployment request arrived at server.`);
+    console.log('Deployment request arrived at server.');
 
     console.log(req.query);
     //TODO do deployment stuff like talk to other APIs
 
-    res.status(200).send("Deployment has concluded in server.");
+    res.status(200).send('Deployment has concluded in server.');
     res.end();
 });
 

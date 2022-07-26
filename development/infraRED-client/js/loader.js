@@ -2,7 +2,7 @@ infraRED.loader = (function() {
     function importNodesFromJSLibrary() {
         let types;
         $.ajax({
-            url: "/listNodes",
+            url: '/listNodes',
             dataType: 'json',
             async: false,
 

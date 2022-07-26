@@ -36,7 +36,7 @@ function buildResourceList(nodesRuntimeList) {
 
 module.exports = {
     init() {
-        console.log("The registry module auto started because of the () at the end of the module.");    
+        console.log('The registry module auto started because of the () at the end of the module.');    
     },
     listAllNodes: listAllNodes,
     buildResourceList: buildResourceList,
