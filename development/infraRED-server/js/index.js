@@ -20,8 +20,9 @@ function initInfraRED() {
     nodesResourceList = registry.buildResourceList(nodesRuntimeList);
 }
 
+//TODO - i'm testing stuff here
 initInfraRED();
-//this is okay for routing different files
+
 app.use(express.static(path.join(__dirname, 'assets')));
 
 app.get('/', (req, res) => {

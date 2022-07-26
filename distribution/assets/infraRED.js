@@ -5,7 +5,7 @@ var infraRED = (function() {
     
             infraRED.events.DEBUG = true;
             infraRED.validator.init();
-    
+
             infraRED.nodes.init();
             infraRED.relationships.init();
             infraRED.canvas.init();
@@ -700,31 +700,26 @@ infraRED.loader = (function() {
             dataType: 'json',
             async: false,
 
-            //success function places value inside the return variable
             success: function(data) {
                 types = data;
             }
         });
-
-        console.log(types);
-
+        if (typeof(types) !== 'object') {
+            throw "Couldn't fetch node list.";
+        }
         let nodeList = [];
         for (let type in types) {
             let newNode = infraRED.nodes.new(type);
-
             for (let capability in types[type].capabilities) {
                 newNode.addCapability(capability);
             }
-
             for (let requirement in types[type].requirements) {
                 newNode.addRequirement(requirement);
             }
-
             nodeList.push(newNode);
         }
         return nodeList;
     }
-
     return {
         importNodes: importNodesFromJSLibrary,
     };
