@@ -14,12 +14,30 @@ function traverseDirForFiles(dir) {
     return fileList;
 }
 
+function listAllNodes() {
+    return traverseDirForFiles(path.join(__dirname, '../nodes'));
+}
+
+function buildResourceList(nodesRuntimeList) {
+    let resourceList = {};
+
+    for (let node in nodesRuntimeList) {
+        console.log(`\n----- ${node} -----`);
+        nodesRuntimeList[node].init();
+
+        resourceList[node] = {
+            capabilities: nodesRuntimeList[node].self().capabilities,
+            requirements: nodesRuntimeList[node].self().requirements,
+        };
+    }
+    
+    return resourceList;
+}
+
 module.exports = {
     init() {
         console.log("The registry module auto started because of the () at the end of the module.");    
     },
-    listAllNodes() {
-        let files = traverseDirForFiles(path.join(__dirname, '../nodes'));
-        return files;
-    },
+    listAllNodes: listAllNodes,
+    buildResourceList: buildResourceList,
 };

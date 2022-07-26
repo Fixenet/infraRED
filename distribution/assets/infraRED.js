@@ -5,8 +5,6 @@ var infraRED = (function() {
     
             infraRED.events.DEBUG = true;
             infraRED.validator.init();
-
-            infraRED.loader.testImport();
     
             infraRED.nodes.init();
             infraRED.relationships.init();
@@ -696,10 +694,7 @@ infraRED.relationships = (function() {
 })();
 infraRED.loader = (function() {
     function importNodesFromJSLibrary() {
-        console.log("Don't break charm.");
-
         let types;
-        //TODO get node list from server
         $.ajax({
             url: "/listNodes",
             dataType: 'json',
@@ -708,24 +703,30 @@ infraRED.loader = (function() {
             //success function places value inside the return variable
             success: function(data) {
                 types = data;
-                console.log("Found nodes.");
             }
         });
 
-        //TODO download all the corresponding scripts
         console.log(types);
 
-        //TODO go into the API${types[0]} and when i get this i send the files
-        /*$.getScript(`/nodes/tester.js`, function() {
+        let nodeList = [];
+        for (let type in types) {
+            let newNode = infraRED.nodes.new(type);
 
-            let test = new Tester();
+            for (let capability in types[type].capabilities) {
+                newNode.addCapability(capability);
+            }
 
-            console.log(test.capabilties);
-        });*/
+            for (let requirement in types[type].requirements) {
+                newNode.addRequirement(requirement);
+            }
+
+            nodeList.push(newNode);
+        }
+        return nodeList;
     }
 
     return {
-        testImport: importNodesFromJSLibrary,
+        importNodes: importNodesFromJSLibrary,
     };
 })();
 infraRED.deployer = (function () {
@@ -852,7 +853,11 @@ infraRED.editor.resourceBar = (function() {
 
             let nodesTab = createTab("Nodes");
             //TODO - needs to use a different method from the loader
-            
+            let nodesList = infraRED.loader.importNodes();
+            for (let node of nodesList) {
+                nodesTab.append(node.getDiv());
+            }
+
             tabs.append(nodesTab);
 
             content.append(tabs);

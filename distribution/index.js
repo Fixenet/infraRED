@@ -7,22 +7,20 @@ const port = 3000;
 //my requires
 const registry = require('./modules/registry.js');
 
-let nodesFullPath = {};
+let nodesFullPathList = {};
 let nodesRuntimeList = {};
+let nodesResourceList = {};
 
 function initInfraRED() {
-    nodesFullPath = registry.listAllNodes();
-    for (let nodeFile of Object.keys(nodesFullPath)) {
-        //console.log(nodeFile, nodesFullPath[nodeFile]);
-
+    nodesFullPathList = registry.listAllNodes();
+    for (let nodeFile of Object.keys(nodesFullPathList)) {
         //take out the .js of the string name, leaving the node name/identifier
-        nodesRuntimeList[nodeFile.slice(0,-3)] = require(nodesFullPath[nodeFile]);
+        nodesRuntimeList[nodeFile.slice(0,-3)] = require(nodesFullPathList[nodeFile]);
     }
+    nodesResourceList = registry.buildResourceList(nodesRuntimeList);
 }
 
 initInfraRED();
-nodesRuntimeList.nodeTemplate().init();
-
 //this is okay for routing different files
 app.use(express.static(path.join(__dirname, "assets")));
 
@@ -33,9 +31,8 @@ app.get('/', (req, res) => {
 
 app.get('/listNodes', (req, res) => {
     console.log("Requesting nodes from the loader:\n");
-    nodesFullPath = registry.listAllNodes();
-
-    res.status(200).send(nodesFullPath);
+    nodesResourceList = registry.buildResourceList(nodesRuntimeList);
+    res.status(200).send(nodesResourceList);
     res.end();
 });
 
@@ -43,7 +40,6 @@ app.get('/listNodes', (req, res) => {
 app.get("/nodes/:nodeName", (req, res) => {
     console.log(`Requesting node ${req.params.nodeName}`);
     console.log(nodesFullPath[req.params.nodeName]);
-
     res.status(200).send(nodesFullPath[req.params.nodeName]);
     res.end();
 });
