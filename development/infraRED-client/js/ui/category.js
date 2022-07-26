@@ -2,16 +2,39 @@
 infraRED.editor.categoryBar = (function() {
     let categoryBar;
 
-    let selectedCategory;
+    let selectedCategory = null;
     function toggleCategory(category) {
         if (selectedCategory == category) {
             return false;
+        } else if (selectedCategory == null) { // first time selecting a category
+            selectedCategory = category;
+            selectedCategory.toggleClass('category-selected');
+            return true;
         } else {
             selectedCategory.toggleClass('category-selected');
             selectedCategory = category;
             category.toggleClass('category-selected');
             return true;
         }
+    }
+
+    function createNewCategory(name) {
+        let newCategory = $('<img>', {
+            id: `${name}-category`,
+            class: 'category',
+            alt: `${name} Category`,
+
+            //TODO - How to generate this ?
+            src: './icons/computer-svgrepo-com.svg',
+        });
+
+        newCategory.on('click', function() {
+            if (toggleCategory(newCategory)) {
+                infraRED.editor.statusBar.log(`${name}!`);
+            }
+        });
+
+        return newCategory;
     }
 
     return {
@@ -26,21 +49,11 @@ infraRED.editor.categoryBar = (function() {
             });
             categoryBar.append(content);
 
-            let nodeCategory = $('<img>', {
-                id: 'node-category',
-                class: 'category category-selected',
-                alt: 'Node Category',
-                src: './icons/computer-svgrepo-com.svg',
-            });
-
-            nodeCategory.on('click', () => {
-                if (toggleCategory(nodeCategory)) {
-                    infraRED.editor.statusBar.log('Nodes!');
-                }
-            });
-
-            selectedCategory = nodeCategory;
+            let nodeCategory = createNewCategory("node");
             content.append(nodeCategory);
+
+            let node1Category = createNewCategory("node1");
+            content.append(node1Category);
         },
         get: function() {
             return categoryBar;
