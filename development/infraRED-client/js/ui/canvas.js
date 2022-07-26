@@ -17,19 +17,19 @@ infraRED.editor.canvas = (function() {
     }
 
     function createGrid() {
-        let grid = canvasDraw.group().attr({ id: "canvas-grid" });
+        let grid = canvasDraw.group().attr({ id: 'canvas-grid' });
 
         for (let row = gridSizeGap; row < canvasSizeH; row += gridSizeGap) {
-            grid.line(0, row, canvasSizeW, row).addClass("canvas-grid-horizontal-line");
+            grid.line(0, row, canvasSizeW, row).addClass('canvas-grid-horizontal-line');
         }
 
         for (let column = gridSizeGap; column < canvasSizeW; column += gridSizeGap) {
-            grid.line(column, 0, column, canvasSizeW).addClass("canvas-grid-vertical-line");
+            grid.line(column, 0, column, canvasSizeW).addClass('canvas-grid-vertical-line');
         }
     }
 
     function createCanvasEnvironment(canvasSVG) {
-        canvasDraw = SVG(canvasSVG).size(canvasSizeW, canvasSizeH).addClass("canvas-svg");
+        canvasDraw = SVG(canvasSVG).size(canvasSizeW, canvasSizeH).addClass('canvas-svg');
         createGrid();
     }
 
@@ -40,7 +40,7 @@ infraRED.editor.canvas = (function() {
     function removeRelationshipPreviewLine() {
         relationshipPreviewLine.remove();
         relationshipPreviewLine = null;
-        infraRED.events.emit("canvas:reset-connection");
+        infraRED.events.emit('canvas:reset-connection');
     }
 
     function drawRelationshipPreviewLine() {
@@ -53,7 +53,7 @@ infraRED.editor.canvas = (function() {
             relationshipPreviewLine = relationshipPreviewLine.plot(lineCoordinates);
         } else {
             relationshipPreviewLine = canvasDraw.line(lineCoordinates);
-            relationshipPreviewLine.addClass("canvas-preview-relationship-line");
+            relationshipPreviewLine.addClass('canvas-preview-relationship-line');
         }
     }
 
@@ -68,12 +68,12 @@ infraRED.editor.canvas = (function() {
         }
 
         let relationshipLine = canvasDraw.line(start.x, start.y, end.x, end.y);
-        relationshipLine.addClass("canvas-relationship-line");
+        relationshipLine.addClass('canvas-relationship-line');
     }
 
     function createRelationshipConnection(capabilitySVG, requirementSVG) {
-        capabilitySVG.removeClass("selected-connectable");
-        requirementSVG.removeClass("selected-connectable");
+        capabilitySVG.removeClass('selected-connectable');
+        requirementSVG.removeClass('selected-connectable');
         drawRelationshipLine(capabilitySVG, requirementSVG);
         if (relationshipPreviewLine != null) removeRelationshipPreviewLine();
     }
@@ -109,14 +109,14 @@ infraRED.editor.canvas = (function() {
         left = roundToGridOffset(left);
         top = roundToGridOffset(top);
 
-        let resourceNode = infraRED.nodes.resourceList.getByID(ui.draggable.data("id"));
+        let resourceNode = infraRED.nodes.resourceList.getByID(ui.draggable.data('id'));
 
         let canvasNodeSVG = resourceNode.getSVG();
         canvasNodeSVG.move(left, top);
         canvasDraw.add(canvasNodeSVG);
 
         //let any editor element know the node in question changed sides
-        infraRED.events.emit("nodes:canvas-drop", resourceNode, canvasNodeSVG);
+        infraRED.events.emit('nodes:canvas-drop', resourceNode, canvasNodeSVG);
     }
 
     function onMouseMove(event) {
@@ -136,30 +136,30 @@ infraRED.editor.canvas = (function() {
 
     return {
         init: function() {
-            console.log("%cCreating Canvas...", "color: #ffc895");
+            console.log('%cCreating Canvas...', 'color: #ffc895');
 
-            canvas = $("#infraRED-ui-canvas");
+            canvas = $('#infraRED-ui-canvas');
 
-            let content = $("<div>", {
-                id: "canvas-content",
-                class: "content",
+            let content = $('<div>', {
+                id: 'canvas-content',
+                class: 'content',
             });
 
             content.droppable({
-                tolerance: "fit",
-                hoverClass: "canvas-hover-drop",
-                accept: ".resource",
+                tolerance: 'fit',
+                hoverClass: 'canvas-hover-drop',
+                accept: '.resource',
                 drop: onContentDrop,
             });
 
-            let canvasSVG = document.createElementNS(SVGnamespace, "svg");
+            let canvasSVG = document.createElementNS(SVGnamespace, 'svg');
             createCanvasEnvironment(canvasSVG);
 
-            canvasDraw.on("mousemove", onMouseMove);
-            canvasDraw.on("click", onMouseClick);
+            canvasDraw.on('mousemove', onMouseMove);
+            canvasDraw.on('click', onMouseClick);
 
-            infraRED.events.on("canvas:create-relationship-connection", createRelationshipConnection);
-            infraRED.events.on("canvas:create-relationship-preview-line", createRelationshipPreviewLine);
+            infraRED.events.on('canvas:create-relationship-connection', createRelationshipConnection);
+            infraRED.events.on('canvas:create-relationship-preview-line', createRelationshipPreviewLine);
 
             content.append(canvasSVG);
             canvas.append(content);

@@ -23,14 +23,14 @@ infraRED.events = (function() {
         var eventName = arguments[0];
         var args = Array.prototype.slice.call(arguments, 1);
 
-        if (infraRED.events.DEBUG) console.log("Emitting event called: " + eventName);
+        if (infraRED.events.DEBUG) console.log('Emitting event called: ' + eventName);
         
         if (handlers[eventName]) {
             for (let i = 0; i < handlers[eventName].length; i++) {
                 try {
                     handlers[eventName][i].apply(null, args);
                 } catch(err) {
-                    console.warn("infraRED.events.emit error: ["+eventName+"] " + (err.toString()));
+                    console.warn('infraRED.events.emit error: ['+eventName+'] ' + (err.toString()));
                     console.warn(err);
                 }
             }

@@ -5,13 +5,13 @@ infraRED.editor.statusBar = (function() {
 
     return {
         init: function() {
-            console.log("%cCreating Status Bar...", "color: #ffe493");
+            console.log('%cCreating Status Bar...', 'color: #ffe493');
 
-            statusBar = $("#infraRED-ui-status-bar");
+            statusBar = $('#infraRED-ui-status-bar');
 
-            content = $("<div>", {
-                id: "status-bar-content",
-                class: "content",
+            content = $('<div>', {
+                id: 'status-bar-content',
+                class: 'content',
             });
             statusBar.append(content);
         },

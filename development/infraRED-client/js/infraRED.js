@@ -1,7 +1,7 @@
 var infraRED = (function() {
     return {
         init: function() {
-            console.log("infraRED is starting.");
+            console.log('infraRED is starting.');
     
             infraRED.events.DEBUG = true;
             infraRED.validator.init();
@@ -12,7 +12,7 @@ var infraRED = (function() {
 
             infraRED.deployer.init();
     
-            console.log("infraRED finished booting.");
+            console.log('infraRED finished booting.');
         },
     };
 })();

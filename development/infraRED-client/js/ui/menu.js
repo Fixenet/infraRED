@@ -3,56 +3,56 @@ infraRED.editor.menuBar = (function() {
     let menuBar;
 
     function createLogResourcesButton() {
-        let button = $("<button>", {
-            id: "log-resources-button",
-            class: "menu-bar-button",
-            text: "Log Resources Nodes",
+        let button = $('<button>', {
+            id: 'log-resources-button',
+            class: 'menu-bar-button',
+            text: 'Log Resources Nodes',
         });
 
-        $(button).on("click", () => {
-            infraRED.events.emit("nodes:log-resources");
+        $(button).on('click', () => {
+            infraRED.events.emit('nodes:log-resources');
         });
 
         return button;
     }
 
     function createLogCanvasButton() {
-        let button = $("<button>", {
-            id: "log-canvas-button",
-            class: "menu-bar-button",
-            text: "Log Canvas Nodes",
+        let button = $('<button>', {
+            id: 'log-canvas-button',
+            class: 'menu-bar-button',
+            text: 'Log Canvas Nodes',
         });
 
-        $(button).on("click", () => {
-            infraRED.events.emit("nodes:log-canvas");
+        $(button).on('click', () => {
+            infraRED.events.emit('nodes:log-canvas');
         });
 
         return button;
     }
 
     function createLogRelationshipsButton() {
-        let button = $("<button>", {
-            id: "log-relationships-button",
-            class: "menu-bar-button",
-            text: "Log Relationships",
+        let button = $('<button>', {
+            id: 'log-relationships-button',
+            class: 'menu-bar-button',
+            text: 'Log Relationships',
         });
 
-        $(button).on("click", () => {
-            infraRED.events.emit("nodes:log-relationships");
+        $(button).on('click', () => {
+            infraRED.events.emit('nodes:log-relationships');
         });
 
         return button;
     }
 
     function createLogCurrentConnectionButton() {
-        let button = $("<button>", {
-            id: "log-current-connection-button",
-            class: "menu-bar-button",
-            text: "Log Current Connection",
+        let button = $('<button>', {
+            id: 'log-current-connection-button',
+            class: 'menu-bar-button',
+            text: 'Log Current Connection',
         });
 
-        $(button).on("click", () => {
-            infraRED.events.emit("canvas:log-connection-variables");
+        $(button).on('click', () => {
+            infraRED.events.emit('canvas:log-connection-variables');
         });
 
         return button;
@@ -60,29 +60,29 @@ infraRED.editor.menuBar = (function() {
 
     class VeryCoolObject {
         constructor(number) {
-            this.name = "ha!";
-            this.type = "yo.";
+            this.name = 'ha!';
+            this.type = 'yo.';
             this.number = number;
         }
 
         addName() {
-            console.log("yo.");
+            console.log('yo.');
         }
     }
 
     function createDeployButton() {
-        let button = $("<button>", {
-            id: "deploy-button",
-            class: "menu-bar-button",
-            text: "Deploy",
+        let button = $('<button>', {
+            id: 'deploy-button',
+            class: 'menu-bar-button',
+            text: 'Deploy',
         });
 
-        $(button).on("click", () => {
-            infraRED.events.emit("relationships:deploy");
+        $(button).on('click', () => {
+            infraRED.events.emit('relationships:deploy');
 
             // talk to server to start deployment
             $.ajax({
-                url: "/deploy",
+                url: '/deploy',
                 dataType: 'text',
                 async: false,
 
@@ -101,13 +101,13 @@ infraRED.editor.menuBar = (function() {
 
     return {
         init: function() {
-            console.log("%cCreating Menu Bar...", "color: #a6c9ff");
+            console.log('%cCreating Menu Bar...', 'color: #a6c9ff');
 
-            menuBar = $("#infraRED-ui-menu-bar");
+            menuBar = $('#infraRED-ui-menu-bar');
 
-            let content = $("<div>", {
-                id: "menu-bar-content",
-                class: "content",
+            let content = $('<div>', {
+                id: 'menu-bar-content',
+                class: 'content',
             });
             menuBar.append(content);
 

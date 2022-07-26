@@ -3,7 +3,7 @@ infraRED.editor.nodes = (function () {
     function onCanvasDrop(droppedNode, droppedNodeSVG) {
         let canvasNode = infraRED.nodes.add(droppedNode);
                 
-        // "add" method will return null and we know we are supposed to remove
+        // 'add' method will return null and we know we are supposed to remove
         //TODO - this may be prone to errors, since i may generate null through other ways
         if (canvasNode == null) {
             droppedNodeSVG.remove();
@@ -12,23 +12,23 @@ infraRED.editor.nodes = (function () {
 
     return {
         init: function() {
-            $(".resource-node").draggable({
-                appendTo: "#infraRED-ui-root",
-                containment: "#infraRED-ui-root",
-                helper: "clone",
+            $('.resource-node').draggable({
+                appendTo: '#infraRED-ui-root',
+                containment: '#infraRED-ui-root',
+                helper: 'clone',
                 scroll: false,
-                revert: "invalid",
+                revert: 'invalid',
                 revertDuration: 300,
                 
                 start: function(event, ui) {
                     $(this).data({
                         id: event.currentTarget.id,
-                        type: "node",
+                        type: 'node',
                     });
                 },
             });
 
-            infraRED.events.on("nodes:canvas-drop", onCanvasDrop);
+            infraRED.events.on('nodes:canvas-drop', onCanvasDrop);
         }
     };
 })();

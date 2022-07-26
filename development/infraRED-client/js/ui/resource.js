@@ -4,14 +4,14 @@ infraRED.editor.resourceBar = (function() {
     
     let tabList = {};
     function createTab(categoryName) {
-        let newTab = $("<div>", {
-            id: categoryName.toLowerCase() + "-tab",
-            class: "tab",
+        let newTab = $('<div>', {
+            id: categoryName.toLowerCase() + '-tab',
+            class: 'tab',
         });
 
-        newTab.append($("<div>", {
-            id: categoryName.toLowerCase() + "-title",
-            class: "title",
+        newTab.append($('<div>', {
+            id: categoryName.toLowerCase() + '-title',
+            class: 'title',
             text: categoryName,
         }));
 
@@ -21,20 +21,20 @@ infraRED.editor.resourceBar = (function() {
 
     return {
         init: function() {
-            console.log("%cCreating Resource Bar...", "color: #c2ff9f");
+            console.log('%cCreating Resource Bar...', 'color: #c2ff9f');
 
-            resourceBar = $("#infraRED-ui-resource-bar");
+            resourceBar = $('#infraRED-ui-resource-bar');
 
-            let content = $("<div>", {
-                id: "resource-bar-content",
-                class: "content",
+            let content = $('<div>', {
+                id: 'resource-bar-content',
+                class: 'content',
             });
 
-            let tabs = $("<div>", {
-                id: "resource-tabs",
+            let tabs = $('<div>', {
+                id: 'resource-tabs',
             });
 
-            let nodesTab = createTab("Nodes");
+            let nodesTab = createTab('Nodes');
             //TODO - needs to use a different method from the loader
             let nodesList = infraRED.loader.importNodes();
             for (let node of nodesList) {

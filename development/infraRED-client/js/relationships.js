@@ -42,7 +42,7 @@ infraRED.relationships = (function() {
             for (let relationship of Object.values(relationshipList)) {
                 result[relationship.canvasID] = {
                     type: relationship.type,
-                    capabilityNode: relationship.capability.node.resourceID + " " + relationship.capability.node.type,
+                    capabilityNode: relationship.capability.node.resourceID + ' ' + relationship.capability.node.type,
                     requirementNode: {
                         id: relationship.requirement.node.canvasID,
                         type: relationship.requirement.node.type,
@@ -65,7 +65,7 @@ infraRED.relationships = (function() {
     function createRelationship(capability, requirement) {
         let newRelationship = new Relationship(capability, requirement);
         canvasRelationshipsList.add(newRelationship);
-        infraRED.events.emit("relationship:create-new", newRelationship);
+        infraRED.events.emit('relationship:create-new', newRelationship);
         return newRelationship;
     }
 
@@ -74,7 +74,7 @@ infraRED.relationships = (function() {
     }
 
     function logRelationshipList() {
-        console.log("Logging canvas relationship list...");
+        console.log('Logging canvas relationship list...');
         let logString = [];
 
         canvasRelationshipsList.getAll().forEach(relationship => {
@@ -82,13 +82,13 @@ infraRED.relationships = (function() {
             logString.push(relationship.capability.print(), relationship.requirement.print());
         });
 
-        logString = logString.join("\n");
+        logString = logString.join('\n');
         infraRED.editor.statusBar.log(logString);
         console.log(logString);
     }
 
     function setUpEvents() {
-        infraRED.events.on("nodes:log-relationships", logRelationshipList);
+        infraRED.events.on('nodes:log-relationships', logRelationshipList);
     }
 
     function createRelationshipID() {
@@ -104,7 +104,7 @@ infraRED.relationships = (function() {
 
     return {
         init: function() {
-            console.log("Starting the relationship functionality.");
+            console.log('Starting the relationship functionality.');
             setUpEvents();
         },
 
