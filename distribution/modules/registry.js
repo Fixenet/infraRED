@@ -20,12 +20,12 @@ function listAllNodes() {
 
 function buildResourceList(nodesRuntimeList) {
     let resourceList = {};
-    for (let node in nodesRuntimeList) {
-        console.log(`\n----- ${node} -----`);
-        nodesRuntimeList[node].init();
-        resourceList[node] = {
-            capabilities: nodesRuntimeList[node].self().capabilities,
-            requirements: nodesRuntimeList[node].self().requirements,
+    for (let nodeName in nodesRuntimeList) {
+        let node = nodesRuntimeList[nodeName].self();
+        resourceList[nodeName] = {
+            category: node.category,
+            capabilities: node.capabilities,
+            requirements: node.requirements,
         };
     }
     return resourceList;

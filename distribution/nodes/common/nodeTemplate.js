@@ -2,6 +2,11 @@ const moment = require("moment");
 
 class Template {
     constructor() {
+        this.category = {
+            name: "Example",
+            img: "icons\\computer-svgrepo-com.svg",
+        };
+
         this.capabilities = {
             output: {},
             output1: {},

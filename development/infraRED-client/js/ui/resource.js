@@ -2,7 +2,6 @@
 infraRED.editor.resourceBar = (function() {
     let resourceBar;
     
-    let tabList = {};
     function createTab(categoryName) {
         let newTab = $('<div>', {
             id: categoryName.toLowerCase() + '-tab',
@@ -15,8 +14,14 @@ infraRED.editor.resourceBar = (function() {
             text: categoryName,
         }));
 
-        tabList[categoryName] = newTab;
+        newTab.hide();
         return newTab;
+    }
+
+    let tabList = {};
+    function changeTabs(fromTab, toTab) {
+        if (fromTab != null) tabList[fromTab].hide();
+        tabList[toTab].show();
     }
 
     return {
@@ -34,17 +39,21 @@ infraRED.editor.resourceBar = (function() {
                 id: 'resource-tabs',
             });
 
-            let nodesTab = createTab('Nodes');
-            //TODO - needs to use a different method from the loader
-            let nodesList = infraRED.loader.importNodes();
-            for (let node of nodesList) {
-                nodesTab.append(node.getDiv());
-            }
+            let nodesList = infraRED.nodes.resourceList.getAll();
 
-            tabs.append(nodesTab);
+            for (let node of nodesList) {
+                let category = node.properties.category.name;
+                if (tabList[category] == null) {
+                    tabList[category] = createTab(category);
+                    tabs.append(tabList[category]);
+                } 
+                tabList[category].append(node.getDiv());
+            }
 
             content.append(tabs);
             resourceBar.append(content);
+
+            infraRED.events.on('category:change-category', changeTabs);
         },
         get: function() {
             return resourceBar;

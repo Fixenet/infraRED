@@ -1,5 +1,10 @@
 class Compute {
     constructor() {
+        this.category = {
+            name: "Computation",
+            img: "icons\\arrow-svgrepo-com.svg",
+        };
+
         this.capabilities = {
         };
             

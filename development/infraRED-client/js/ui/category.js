@@ -9,28 +9,30 @@ infraRED.editor.categoryBar = (function() {
         } else if (selectedCategory == null) { // first time selecting a category
             selectedCategory = category;
             selectedCategory.toggleClass('category-selected');
+            infraRED.events.emit('category:change-category', null, selectedCategory.attr("name"));
             return true;
         } else {
             selectedCategory.toggleClass('category-selected');
+            infraRED.events.emit('category:change-category', selectedCategory.attr("name"), category.attr("name"));
             selectedCategory = category;
             category.toggleClass('category-selected');
             return true;
         }
     }
 
-    function createNewCategory(name) {
+    function createNewCategory(name, img) {
         let newCategory = $('<img>', {
             id: `${name}-category`,
             class: 'category',
             alt: `${name} Category`,
-
-            //TODO - How to generate this ?
-            src: './icons/computer-svgrepo-com.svg',
+            src: img,
         });
+
+        newCategory.attr("name", name);
 
         newCategory.on('click', function() {
             if (toggleCategory(newCategory)) {
-                infraRED.editor.statusBar.log(`${name}!`);
+                infraRED.editor.statusBar.log(`${name} is now showing!`);
             }
         });
 
@@ -49,11 +51,16 @@ infraRED.editor.categoryBar = (function() {
             });
             categoryBar.append(content);
 
-            let nodeCategory = createNewCategory("node");
-            content.append(nodeCategory);
+            let nodesList = infraRED.nodes.resourceList.getAll();
 
-            let node1Category = createNewCategory("node1");
-            content.append(node1Category);
+            let categoryList = [];
+            for (let node of nodesList) {
+                if (categoryList.indexOf(node.properties.category.name) == -1) {
+                    let newCategory = createNewCategory(node.properties.category.name, node.properties.category.img);
+                    content.append(newCategory);
+                    categoryList.push(node.properties.category.name);
+                }
+            }
         },
         get: function() {
             return categoryBar;

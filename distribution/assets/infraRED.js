@@ -10,6 +10,8 @@ var infraRED = (function() {
             infraRED.relationships.init();
             infraRED.canvas.init();
 
+            infraRED.loader.loadNodes();
+
             infraRED.deployer.init();
     
             console.log('infraRED finished booting.');
@@ -425,6 +427,7 @@ infraRED.nodes = (function() {
             if (this.canvasID != null) { // this node also exists in the canvas
                 printResult += `\nCanvasID ${this.canvasID}: ${this.name}`;
             }
+            printResult += `\n${JSON.stringify(this.properties)}`;
             return printResult;
         }
     }
@@ -693,7 +696,7 @@ infraRED.relationships = (function() {
     };
 })();
 infraRED.loader = (function() {
-    function importNodesFromJSLibrary() {
+    function getNodesFromServerRegistry() {
         let types;
         $.ajax({
             url: '/listNodes',
@@ -707,7 +710,12 @@ infraRED.loader = (function() {
         if (typeof(types) !== 'object') {
             throw "Couldn't fetch node list.";
         }
-        let nodeList = [];
+        return types;
+    }
+
+    function loadNodesFromServerRegistry() {
+        let types = getNodesFromServerRegistry();
+        console.log(types);
         for (let type in types) {
             let newNode = infraRED.nodes.new(type);
             for (let capability in types[type].capabilities) {
@@ -716,12 +724,13 @@ infraRED.loader = (function() {
             for (let requirement in types[type].requirements) {
                 newNode.addRequirement(requirement);
             }
-            nodeList.push(newNode);
+            newNode.properties.category = types[type].category;
         }
-        return nodeList;
     }
+
     return {
-        importNodes: importNodesFromJSLibrary,
+        loadNodes: loadNodesFromServerRegistry,
+        getNodes: getNodesFromServerRegistry,
     };
 })();
 infraRED.deployer = (function () {
@@ -772,28 +781,30 @@ infraRED.editor.categoryBar = (function() {
         } else if (selectedCategory == null) { // first time selecting a category
             selectedCategory = category;
             selectedCategory.toggleClass('category-selected');
+            infraRED.events.emit('category:change-category', null, selectedCategory.attr("name"));
             return true;
         } else {
             selectedCategory.toggleClass('category-selected');
+            infraRED.events.emit('category:change-category', selectedCategory.attr("name"), category.attr("name"));
             selectedCategory = category;
             category.toggleClass('category-selected');
             return true;
         }
     }
 
-    function createNewCategory(name) {
+    function createNewCategory(name, img) {
         let newCategory = $('<img>', {
             id: `${name}-category`,
             class: 'category',
             alt: `${name} Category`,
-
-            //TODO - How to generate this ?
-            src: './icons/computer-svgrepo-com.svg',
+            src: img,
         });
+
+        newCategory.attr("name", name);
 
         newCategory.on('click', function() {
             if (toggleCategory(newCategory)) {
-                infraRED.editor.statusBar.log(`${name}!`);
+                infraRED.editor.statusBar.log(`${name} is now showing!`);
             }
         });
 
@@ -812,11 +823,16 @@ infraRED.editor.categoryBar = (function() {
             });
             categoryBar.append(content);
 
-            let nodeCategory = createNewCategory("node");
-            content.append(nodeCategory);
+            let nodesList = infraRED.nodes.resourceList.getAll();
 
-            let node1Category = createNewCategory("node1");
-            content.append(node1Category);
+            let categoryList = [];
+            for (let node of nodesList) {
+                if (categoryList.indexOf(node.properties.category.name) == -1) {
+                    let newCategory = createNewCategory(node.properties.category.name, node.properties.category.img);
+                    content.append(newCategory);
+                    categoryList.push(node.properties.category.name);
+                }
+            }
         },
         get: function() {
             return categoryBar;
@@ -827,7 +843,6 @@ infraRED.editor.categoryBar = (function() {
 infraRED.editor.resourceBar = (function() {
     let resourceBar;
     
-    let tabList = {};
     function createTab(categoryName) {
         let newTab = $('<div>', {
             id: categoryName.toLowerCase() + '-tab',
@@ -840,8 +855,14 @@ infraRED.editor.resourceBar = (function() {
             text: categoryName,
         }));
 
-        tabList[categoryName] = newTab;
+        newTab.hide();
         return newTab;
+    }
+
+    let tabList = {};
+    function changeTabs(fromTab, toTab) {
+        if (fromTab != null) tabList[fromTab].hide();
+        tabList[toTab].show();
     }
 
     return {
@@ -859,17 +880,21 @@ infraRED.editor.resourceBar = (function() {
                 id: 'resource-tabs',
             });
 
-            let nodesTab = createTab('Nodes');
-            //TODO - needs to use a different method from the loader
-            let nodesList = infraRED.loader.importNodes();
-            for (let node of nodesList) {
-                nodesTab.append(node.getDiv());
-            }
+            let nodesList = infraRED.nodes.resourceList.getAll();
 
-            tabs.append(nodesTab);
+            for (let node of nodesList) {
+                let category = node.properties.category.name;
+                if (tabList[category] == null) {
+                    tabList[category] = createTab(category);
+                    tabs.append(tabList[category]);
+                } 
+                tabList[category].append(node.getDiv());
+            }
 
             content.append(tabs);
             resourceBar.append(content);
+
+            infraRED.events.on('category:change-category', changeTabs);
         },
         get: function() {
             return resourceBar;

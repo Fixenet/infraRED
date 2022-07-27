@@ -15,7 +15,11 @@ function initInfraRED() {
     nodesFullPathList = registry.listAllNodes();
     for (let nodeFile of Object.keys(nodesFullPathList)) {
         //take out the .js of the string name, leaving the node name/identifier
-        nodesRuntimeList[nodeFile.slice(0,-3)] = require(nodesFullPathList[nodeFile]);
+        let nodeName = nodeFile.slice(0,-3);
+        nodesRuntimeList[nodeName] = require(nodesFullPathList[nodeFile]);
+        console.log(`\n----- ${nodeName} -----`);
+        nodesRuntimeList[nodeName].init();
+
     }
     nodesResourceList = registry.buildResourceList(nodesRuntimeList);
 }
@@ -31,7 +35,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/listNodes', (req, res) => {
-    console.log('Requesting nodes from the loader:\n');
+    console.log('Requesting nodes from the loader.');
     nodesResourceList = registry.buildResourceList(nodesRuntimeList);
     res.status(200).send(nodesResourceList);
     res.end();
@@ -39,7 +43,7 @@ app.get('/listNodes', (req, res) => {
 
 //get the nodes
 app.get('/nodes/:nodeName', (req, res) => {
-    console.log(`Requesting node ${req.params.nodeName}`);
+    console.log(`Requesting node ${req.params.nodeName}.`);
     console.log(nodesFullPath[req.params.nodeName]);
     res.status(200).send(nodesFullPath[req.params.nodeName]);
     res.end();

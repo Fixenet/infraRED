@@ -208,6 +208,7 @@ infraRED.nodes = (function() {
             if (this.canvasID != null) { // this node also exists in the canvas
                 printResult += `\nCanvasID ${this.canvasID}: ${this.name}`;
             }
+            printResult += `\n${JSON.stringify(this.properties)}`;
             return printResult;
         }
     }

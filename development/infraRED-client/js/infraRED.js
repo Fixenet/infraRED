@@ -10,6 +10,8 @@ var infraRED = (function() {
             infraRED.relationships.init();
             infraRED.canvas.init();
 
+            infraRED.loader.loadNodes();
+
             infraRED.deployer.init();
     
             console.log('infraRED finished booting.');

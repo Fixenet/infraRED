@@ -1,5 +1,5 @@
 infraRED.loader = (function() {
-    function importNodesFromJSLibrary() {
+    function getNodesFromServerRegistry() {
         let types;
         $.ajax({
             url: '/listNodes',
@@ -13,7 +13,12 @@ infraRED.loader = (function() {
         if (typeof(types) !== 'object') {
             throw "Couldn't fetch node list.";
         }
-        let nodeList = [];
+        return types;
+    }
+
+    function loadNodesFromServerRegistry() {
+        let types = getNodesFromServerRegistry();
+        console.log(types);
         for (let type in types) {
             let newNode = infraRED.nodes.new(type);
             for (let capability in types[type].capabilities) {
@@ -22,11 +27,12 @@ infraRED.loader = (function() {
             for (let requirement in types[type].requirements) {
                 newNode.addRequirement(requirement);
             }
-            nodeList.push(newNode);
+            newNode.properties.category = types[type].category;
         }
-        return nodeList;
     }
+
     return {
-        importNodes: importNodesFromJSLibrary,
+        loadNodes: loadNodesFromServerRegistry,
+        getNodes: getNodesFromServerRegistry,
     };
 })();
