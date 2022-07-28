@@ -5,7 +5,7 @@ infraRED.nodes = (function() {
      * These have no id since the type is a unique identifier in each Node.
      */
     class Connectable {
-        constructor(mode, type, node) {
+        constructor(mode, type, nodeID) {
             this.name = null;
 
             // select between requirement and capability connectable
@@ -14,7 +14,9 @@ infraRED.nodes = (function() {
             // type of the connectable
             this.type = type;
 
-            this.node = node;
+            //TODO
+            this.nodeID = nodeID;
+            console.log('Constructed a connectable for nodeID: ' + this.nodeID);
         }
 
         getDiv() {
@@ -50,9 +52,12 @@ infraRED.nodes = (function() {
 
             connectable.plain(this.type).move(0,0).cx(connectable.width/2);
 
+            console.log(this.nodeID, this.mode);
+            
             connectable.on('click', (event) => {
                 event.stopPropagation();
                 // handles logic and svg drawing
+                console.log(this.nodeID, this.mode);
                 infraRED.events.emit('canvas:create-connection', this, background);
             });
 
@@ -94,13 +99,13 @@ infraRED.nodes = (function() {
 
         addCapability(capabilityType) {
             // index by type since only one of each type exists in each Node
-            let capability = new Connectable('capability', capabilityType, this);
+            let capability = new Connectable('capability', capabilityType, this.canvasID);
             this.capabilities[capabilityType] = capability;
         }
 
         addRequirement(requirementType) {
             // index by type since only one of each type exists in each Node
-            let requirement = new Connectable('requirement', requirementType, this);
+            let requirement = new Connectable('requirement', requirementType, this.canvasID);
             this.requirements[requirementType] = requirement;
         }
 
@@ -207,8 +212,9 @@ infraRED.nodes = (function() {
             let printResult = `ResourceID ${this.resourceID}: ${this.type}`;
             if (this.canvasID != null) { // this node also exists in the canvas
                 printResult += `\nCanvasID ${this.canvasID}: ${this.name}`;
+            } else {
+                printResult += `\n${JSON.stringify(this.properties)}`;
             }
-            printResult += `\n${JSON.stringify(this.properties)}`;
             return printResult;
         }
     }
@@ -247,7 +253,6 @@ infraRED.nodes = (function() {
         let nodeList = {};
 
         function addNode(node) {
-            node.canvasID = createCanvasID();
             nodeList[node.canvasID] = node;
         }
 
@@ -290,6 +295,7 @@ infraRED.nodes = (function() {
         let logString = [];
 
         canvasNodesList.getAll().forEach(node => {
+            console.log(node);
             logString.push(node.print());
         });
 
@@ -315,15 +321,12 @@ infraRED.nodes = (function() {
 
         let canvasNode = new Node(resourceNode.type);
         canvasNode.resourceID = resourceNode.resourceID;
+        canvasNode.canvasID = createCanvasID();
 
-        //TODO - this is an object atribution so i'm passing a reference, AM I ?, bad
-        // this incurs problems down the line because connectables will reference the node
-        // on the resource bar and not the node in the canvas
-        canvasNode.capabilities = resourceNode.capabilities;
-        canvasNode.requirements = resourceNode.requirements;
+        for (let capability of Object.values(resourceNode.capabilities)) canvasNode.addCapability(capability.type);
+        for (let requirement of Object.values(resourceNode.requirements)) canvasNode.addRequirement(requirement.type);
 
         canvasNodesList.add(canvasNode);
-
         infraRED.events.emit('nodes:move-to-canvas', canvasNode);
 
         return canvasNode;

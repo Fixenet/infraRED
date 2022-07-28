@@ -111,12 +111,14 @@ infraRED.editor.canvas = (function() {
 
         let resourceNode = infraRED.nodes.resourceList.getByID(ui.draggable.data('id'));
 
-        let canvasNodeSVG = resourceNode.getSVG();
+        //let any editor element know the node in question changed sides
+        infraRED.events.emit('nodes:canvas-drop', resourceNode, {left, top});
+    }
+
+    function contentDropSuccess(canvasNode, {left, top}) {
+        let canvasNodeSVG = canvasNode.getSVG();
         canvasNodeSVG.move(left, top);
         canvasDraw.add(canvasNodeSVG);
-
-        //let any editor element know the node in question changed sides
-        infraRED.events.emit('nodes:canvas-drop', resourceNode, canvasNodeSVG);
     }
 
     function onMouseMove(event) {
@@ -151,6 +153,8 @@ infraRED.editor.canvas = (function() {
                 accept: '.resource',
                 drop: onContentDrop,
             });
+
+            infraRED.events.on('nodes:canvas-drop-success', contentDropSuccess);
 
             let canvasSVG = document.createElementNS(SVGnamespace, 'svg');
             createCanvasEnvironment(canvasSVG);

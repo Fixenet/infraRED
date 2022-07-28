@@ -58,18 +58,6 @@ infraRED.editor.menuBar = (function() {
         return button;
     }
 
-    class VeryCoolObject {
-        constructor(number) {
-            this.name = 'ha!';
-            this.type = 'yo.';
-            this.number = number;
-        }
-
-        addName() {
-            console.log('yo.');
-        }
-    }
-
     function createDeployButton() {
         let button = $('<button>', {
             id: 'deploy-button',
@@ -83,11 +71,12 @@ infraRED.editor.menuBar = (function() {
             // talk to server to start deployment
             $.ajax({
                 url: '/deploy',
-                dataType: 'text',
+                dataType: 'json',
                 async: false,
 
                 //TODO - nodes recursively reference eachother via their capabilities
-                data: { relationships: infraRED.relationships.canvasList.getJSON() },
+                data: { "nodes": infraRED.nodes.canvasList.getAll(),
+                        "relationships": infraRED.relationships.canvasList.getAll() },
     
                 // success function places value inside the return variable
                 success: function(data) {

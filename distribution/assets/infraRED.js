@@ -142,8 +142,8 @@ infraRED.canvas = (function() {
 
     function createRelationship() {
         let relationship = infraRED.relationships.create(connectionVariables.capability, connectionVariables.requirement);
-        connectionVariables.capability.node.addRelationship(relationship);
-        connectionVariables.requirement.node.addRelationship(relationship);
+        infraRED.nodes.canvasList.getByID(connectionVariables.capability.nodeID).addRelationship(relationship);
+        infraRED.nodes.canvasList.getByID(connectionVariables.requirement.nodeID).addRelationship(relationship);
 
         infraRED.events.emit('canvas:create-relationship-connection', connectionVariables.capabilitySVG, connectionVariables.requirementSVG);
 
@@ -154,14 +154,12 @@ infraRED.canvas = (function() {
     function createConnection(connectable, connectableSVG) {
         if (connectionVariables.isConnecting) { // we already made the first selection and now are trying to make a connection
             if (connectionVariables.typeConnecting != connectable.type) {
-                console.log('Cannot connect capabilities/requirements of different types...');
-                return;
+                throw 'Cannot connect capabilities/requirements of different types...';
             }
-            if (connectionVariables.capability == connectable.node || connectionVariables.requirement == connectable.node) {
-                console.log('Cannot connect capabilities/requirements of the same node...');
-                return;
-            }
-
+            //TODO
+            //if (connectionVariables.capability.nodeID == connectable.nodeID || connectionVariables.requirement.nodeID == connectable.nodeID) {
+            //    throw 'Cannot connect capabilities/requirements of the same node...';
+            //}
             if (connectable.mode === 'capability' && connectionVariables.capability == null) {
                 connectionVariables.capability = connectable;
                 connectionVariables.capabilitySVG = connectableSVG;
@@ -169,8 +167,7 @@ infraRED.canvas = (function() {
                 connectionVariables.requirement = connectable;
                 connectionVariables.requirementSVG = connectableSVG;
             } else {
-                console.log('Please connect a capability and a requirement together...');
-                return;
+                throw 'Please connect a capability and a requirement together...';
             }
 
             createRelationship();
@@ -224,7 +221,7 @@ infraRED.nodes = (function() {
      * These have no id since the type is a unique identifier in each Node.
      */
     class Connectable {
-        constructor(mode, type, node) {
+        constructor(mode, type, nodeID) {
             this.name = null;
 
             // select between requirement and capability connectable
@@ -233,7 +230,9 @@ infraRED.nodes = (function() {
             // type of the connectable
             this.type = type;
 
-            this.node = node;
+            //TODO
+            this.nodeID = nodeID;
+            console.log('Constructed a connectable for nodeID: ' + this.nodeID);
         }
 
         getDiv() {
@@ -269,9 +268,12 @@ infraRED.nodes = (function() {
 
             connectable.plain(this.type).move(0,0).cx(connectable.width/2);
 
+            console.log(this.nodeID, this.mode);
+            
             connectable.on('click', (event) => {
                 event.stopPropagation();
                 // handles logic and svg drawing
+                console.log(this.nodeID, this.mode);
                 infraRED.events.emit('canvas:create-connection', this, background);
             });
 
@@ -313,13 +315,13 @@ infraRED.nodes = (function() {
 
         addCapability(capabilityType) {
             // index by type since only one of each type exists in each Node
-            let capability = new Connectable('capability', capabilityType, this);
+            let capability = new Connectable('capability', capabilityType, this.canvasID);
             this.capabilities[capabilityType] = capability;
         }
 
         addRequirement(requirementType) {
             // index by type since only one of each type exists in each Node
-            let requirement = new Connectable('requirement', requirementType, this);
+            let requirement = new Connectable('requirement', requirementType, this.canvasID);
             this.requirements[requirementType] = requirement;
         }
 
@@ -426,8 +428,9 @@ infraRED.nodes = (function() {
             let printResult = `ResourceID ${this.resourceID}: ${this.type}`;
             if (this.canvasID != null) { // this node also exists in the canvas
                 printResult += `\nCanvasID ${this.canvasID}: ${this.name}`;
+            } else {
+                printResult += `\n${JSON.stringify(this.properties)}`;
             }
-            printResult += `\n${JSON.stringify(this.properties)}`;
             return printResult;
         }
     }
@@ -466,7 +469,6 @@ infraRED.nodes = (function() {
         let nodeList = {};
 
         function addNode(node) {
-            node.canvasID = createCanvasID();
             nodeList[node.canvasID] = node;
         }
 
@@ -509,6 +511,7 @@ infraRED.nodes = (function() {
         let logString = [];
 
         canvasNodesList.getAll().forEach(node => {
+            console.log(node);
             logString.push(node.print());
         });
 
@@ -534,15 +537,12 @@ infraRED.nodes = (function() {
 
         let canvasNode = new Node(resourceNode.type);
         canvasNode.resourceID = resourceNode.resourceID;
+        canvasNode.canvasID = createCanvasID();
 
-        //TODO - this is an object atribution so i'm passing a reference, AM I ?, bad
-        // this incurs problems down the line because connectables will reference the node
-        // on the resource bar and not the node in the canvas
-        canvasNode.capabilities = resourceNode.capabilities;
-        canvasNode.requirements = resourceNode.requirements;
+        for (let capability of Object.values(resourceNode.capabilities)) canvasNode.addCapability(capability.type);
+        for (let requirement of Object.values(resourceNode.requirements)) canvasNode.addRequirement(requirement.type);
 
         canvasNodesList.add(canvasNode);
-
         infraRED.events.emit('nodes:move-to-canvas', canvasNode);
 
         return canvasNode;
@@ -715,7 +715,6 @@ infraRED.loader = (function() {
 
     function loadNodesFromServerRegistry() {
         let types = getNodesFromServerRegistry();
-        console.log(types);
         for (let type in types) {
             let newNode = infraRED.nodes.new(type);
             for (let capability in types[type].capabilities) {
@@ -1014,12 +1013,14 @@ infraRED.editor.canvas = (function() {
 
         let resourceNode = infraRED.nodes.resourceList.getByID(ui.draggable.data('id'));
 
-        let canvasNodeSVG = resourceNode.getSVG();
+        //let any editor element know the node in question changed sides
+        infraRED.events.emit('nodes:canvas-drop', resourceNode, {left, top});
+    }
+
+    function contentDropSuccess(canvasNode, {left, top}) {
+        let canvasNodeSVG = canvasNode.getSVG();
         canvasNodeSVG.move(left, top);
         canvasDraw.add(canvasNodeSVG);
-
-        //let any editor element know the node in question changed sides
-        infraRED.events.emit('nodes:canvas-drop', resourceNode, canvasNodeSVG);
     }
 
     function onMouseMove(event) {
@@ -1054,6 +1055,8 @@ infraRED.editor.canvas = (function() {
                 accept: '.resource',
                 drop: onContentDrop,
             });
+
+            infraRED.events.on('nodes:canvas-drop-success', contentDropSuccess);
 
             let canvasSVG = document.createElementNS(SVGnamespace, 'svg');
             createCanvasEnvironment(canvasSVG);
@@ -1129,18 +1132,6 @@ infraRED.editor.menuBar = (function() {
         return button;
     }
 
-    class VeryCoolObject {
-        constructor(number) {
-            this.name = 'ha!';
-            this.type = 'yo.';
-            this.number = number;
-        }
-
-        addName() {
-            console.log('yo.');
-        }
-    }
-
     function createDeployButton() {
         let button = $('<button>', {
             id: 'deploy-button',
@@ -1154,11 +1145,12 @@ infraRED.editor.menuBar = (function() {
             // talk to server to start deployment
             $.ajax({
                 url: '/deploy',
-                dataType: 'text',
+                dataType: 'json',
                 async: false,
 
                 //TODO - nodes recursively reference eachother via their capabilities
-                data: { relationships: infraRED.relationships.canvasList.getJSON() },
+                data: { "nodes": infraRED.nodes.canvasList.getAll(),
+                        "relationships": infraRED.relationships.canvasList.getAll() },
     
                 // success function places value inside the return variable
                 success: function(data) {
@@ -1220,13 +1212,13 @@ infraRED.editor.statusBar = (function() {
 })();
 // use this file to define node behaviour
 infraRED.editor.nodes = (function () {
-    function onCanvasDrop(droppedNode, droppedNodeSVG) {
+    function onCanvasDrop(droppedNode, coordinates) {
         let canvasNode = infraRED.nodes.add(droppedNode);
                 
         // 'add' method will return null and we know we are supposed to remove
         //TODO - this may be prone to errors, since i may generate null through other ways
-        if (canvasNode == null) {
-            droppedNodeSVG.remove();
+        if (canvasNode != null) {
+            infraRED.events.emit('nodes:canvas-drop-success', canvasNode, coordinates);
         }
     }
 

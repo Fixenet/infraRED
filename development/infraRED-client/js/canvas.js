@@ -14,8 +14,8 @@ infraRED.canvas = (function() {
 
     function createRelationship() {
         let relationship = infraRED.relationships.create(connectionVariables.capability, connectionVariables.requirement);
-        connectionVariables.capability.node.addRelationship(relationship);
-        connectionVariables.requirement.node.addRelationship(relationship);
+        infraRED.nodes.canvasList.getByID(connectionVariables.capability.nodeID).addRelationship(relationship);
+        infraRED.nodes.canvasList.getByID(connectionVariables.requirement.nodeID).addRelationship(relationship);
 
         infraRED.events.emit('canvas:create-relationship-connection', connectionVariables.capabilitySVG, connectionVariables.requirementSVG);
 
@@ -26,14 +26,12 @@ infraRED.canvas = (function() {
     function createConnection(connectable, connectableSVG) {
         if (connectionVariables.isConnecting) { // we already made the first selection and now are trying to make a connection
             if (connectionVariables.typeConnecting != connectable.type) {
-                console.log('Cannot connect capabilities/requirements of different types...');
-                return;
+                throw 'Cannot connect capabilities/requirements of different types...';
             }
-            if (connectionVariables.capability == connectable.node || connectionVariables.requirement == connectable.node) {
-                console.log('Cannot connect capabilities/requirements of the same node...');
-                return;
-            }
-
+            //TODO
+            //if (connectionVariables.capability.nodeID == connectable.nodeID || connectionVariables.requirement.nodeID == connectable.nodeID) {
+            //    throw 'Cannot connect capabilities/requirements of the same node...';
+            //}
             if (connectable.mode === 'capability' && connectionVariables.capability == null) {
                 connectionVariables.capability = connectable;
                 connectionVariables.capabilitySVG = connectableSVG;
@@ -41,8 +39,7 @@ infraRED.canvas = (function() {
                 connectionVariables.requirement = connectable;
                 connectionVariables.requirementSVG = connectableSVG;
             } else {
-                console.log('Please connect a capability and a requirement together...');
-                return;
+                throw 'Please connect a capability and a requirement together...';
             }
 
             createRelationship();

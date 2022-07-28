@@ -6,6 +6,7 @@ class Compute {
         };
 
         this.capabilities = {
+            database: {},
         };
             
         this.requirements = {

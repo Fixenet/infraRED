@@ -55,7 +55,7 @@ app.get('/deploy', (req, res) => {
     console.log(req.query);
     //TODO do deployment stuff like talk to other APIs
 
-    res.status(200).send('Deployment has concluded in server.');
+    res.status(200).send(req.query);
     res.end();
 });
 

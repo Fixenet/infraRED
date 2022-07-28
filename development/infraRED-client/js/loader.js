@@ -18,7 +18,6 @@ infraRED.loader = (function() {
 
     function loadNodesFromServerRegistry() {
         let types = getNodesFromServerRegistry();
-        console.log(types);
         for (let type in types) {
             let newNode = infraRED.nodes.new(type);
             for (let capability in types[type].capabilities) {
