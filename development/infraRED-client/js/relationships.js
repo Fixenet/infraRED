@@ -13,6 +13,16 @@ infraRED.relationships = (function() {
 
             this.capability = capability;
             this.requirement = requirement;
+
+            //lines start at their capability
+            //and end at their requirement
+            this.lineSVG = null;
+            //helps guide the line while it's moving
+            this.lineOffsetPlot = null;
+        }
+
+        addLine(lineSVG) {
+            this.lineSVG = lineSVG;
         }
     }
 

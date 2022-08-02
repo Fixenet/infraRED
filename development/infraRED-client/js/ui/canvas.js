@@ -57,24 +57,34 @@ infraRED.editor.canvas = (function() {
         }
     }
 
-    function drawRelationshipLine(capability, requirement) {
-        let start = { x: capability.x(), y: capability.cy()};
-        let end = { x: requirement.x(), y: requirement.cy()};
+    function drawRelationshipLine(capabilitySVG, requirementSVG) {
+        let start = { x: capabilitySVG.x(), y: capabilitySVG.cy()};
+        let end = { x: requirementSVG.x(), y: requirementSVG.cy()};
 
         if (start.x < end.x) { // we are to the right
-            start.x += capability.width();
+            start.x += capabilitySVG.width();
         } else {
-            end.x += requirement.width();
+            end.x += requirementSVG.width();
         }
 
         let relationshipLine = canvasDraw.line(start.x, start.y, end.x, end.y);
         relationshipLine.addClass('canvas-relationship-line');
+        return relationshipLine;
     }
 
-    function createRelationshipConnection(capabilitySVG, requirementSVG) {
+    function createRelationshipConnection(connectionVariables, relationship) {
+        let capabilitySVG = connectionVariables.capabilitySVG,
+            requirementSVG = connectionVariables.requirementSVG;
+
+        //draw the final line
         capabilitySVG.removeClass('selected-connectable');
         requirementSVG.removeClass('selected-connectable');
-        drawRelationshipLine(capabilitySVG, requirementSVG);
+        let line = drawRelationshipLine(capabilitySVG, requirementSVG);
+
+        //logic so that lines can react to mousemove of their node
+        relationship.addLine(line);
+
+        //clean relationship preview line
         if (relationshipPreviewLine != null) removeRelationshipPreviewLine();
     }
 
@@ -124,8 +134,8 @@ infraRED.editor.canvas = (function() {
     function onMouseMove(event) {
         if (relationshipPreviewLine != null) {
             // save the position of the cursor in relation to the canvas grid
-            lineEndPosition.x = event.offsetX-10;
-            lineEndPosition.y = event.offsetY-10;
+            lineEndPosition.x = event.offsetX-2;
+            lineEndPosition.y = event.offsetY-2;
             // check if we are to the right of the connectable
             startingPosition.rightSide = lineEndPosition.x > startingPosition.right;
             drawRelationshipPreviewLine();

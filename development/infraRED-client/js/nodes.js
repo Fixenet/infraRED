@@ -4,6 +4,10 @@ infraRED.nodes = (function() {
      * a possible functionality that can be served/received to/from another Node.
      * These have no id since the type is a unique identifier in each Node.
      */
+
+    //TODO - global for nodes ? stuff for drawing
+    let canvasSelectedDragNode = null;
+
     class Connectable {
         constructor(mode, type, nodeID) {
             this.name = null;
@@ -14,9 +18,8 @@ infraRED.nodes = (function() {
             // type of the connectable
             this.type = type;
 
-            //TODO
+            // nodeID on the canvas of the parent node to this connectable
             this.nodeID = nodeID;
-            console.log('Constructed a connectable for nodeID: ' + this.nodeID);
         }
 
         getDiv() {
@@ -52,12 +55,9 @@ infraRED.nodes = (function() {
 
             connectable.plain(this.type).move(0,0).cx(connectable.width/2);
 
-            console.log(this.nodeID, this.mode);
-            
             connectable.on('click', (event) => {
                 event.stopPropagation();
                 // handles logic and svg drawing
-                console.log(this.nodeID, this.mode);
                 infraRED.events.emit('canvas:create-connection', this, background);
             });
 
@@ -86,7 +86,7 @@ infraRED.nodes = (function() {
             this.capabilities = {};
             this.requirements = {};
 
-            this.relationships = {};
+            this.relationships = [];
         }
 
         setName(name) {
@@ -110,7 +110,7 @@ infraRED.nodes = (function() {
         }
 
         addRelationship(relationship) {
-            this.relationships[relationship.canvasID] = relationship;
+            this.relationships.push(relationship);
         }
 
         getDiv() {
@@ -203,6 +203,69 @@ infraRED.nodes = (function() {
             }
 
             background.size(node.width, drawingY + 30);
+
+            //TODO - handle dragging, in respect to lines and such
+            node.on('mousedown', (event) => {
+                event.stopPropagation();
+
+                startDrag(event, this);
+            });
+            node.on('mousemove', (event) => {
+                drag(event, this);
+            });
+            node.on('mouseup', (event) => {
+                event.stopPropagation();
+
+                endDrag();
+            });
+
+            function startDrag(event, nodeObj) {
+                canvasSelectedDragNode = node;
+
+                nodeObj.relationships.forEach((relationship) => {
+                    if (relationship.capability.nodeID === nodeObj.canvasID) { //dragged node has a relationship line towards a capability
+                        relationship.lineOffsetPlot = [
+                            [relationship.lineSVG.plot()[0][0] - node.x(), relationship.lineSVG.plot()[0][1] - node.y()],
+                            relationship.lineSVG.plot()[1]
+                        ];
+                    } else if (relationship.requirement.nodeID === nodeObj.canvasID) { //dragged node has a relationship line towards a requirement
+                        relationship.lineOffsetPlot = [
+                            relationship.lineSVG.plot()[0],
+                            [relationship.lineSVG.plot()[1][0] - node.x(), relationship.lineSVG.plot()[1][1] - node.y()]
+                        ];
+                    }
+                });
+            }
+
+            function drag(event, nodeObj) {
+                if (canvasSelectedDragNode != null) {
+                    var dragX = event.offsetX - node.width/2;
+                    var dragY = event.offsetY - (drawingY + 30)/2;
+
+                    canvasSelectedDragNode.x(dragX);
+                    canvasSelectedDragNode.y(dragY);
+
+                    let lineOffset;
+                    //propagate this movement to all relationship lines
+                    nodeObj.relationships.forEach((relationship) => {
+                        if (relationship.capability.nodeID === nodeObj.canvasID) { //dragged node has a relationship line towards a capability
+                            //update line start
+                            lineOffset = { x: relationship.lineOffsetPlot[0][0], y: relationship.lineOffsetPlot[0][1]};
+                            //maintain the other side in the same position since it's not moving
+                            relationship.lineSVG.plot([[dragX + lineOffset.x, dragY + lineOffset.y], relationship.lineSVG.plot()[1]]);
+                        } else if (relationship.requirement.nodeID === nodeObj.canvasID) { //dragged node has a relationship line towards a requirement
+                            //update line end
+                            lineOffset = { x: relationship.lineOffsetPlot[1][0], y: relationship.lineOffsetPlot[1][1]};
+                            //maintain the other side in the same position since it's not moving
+                            relationship.lineSVG.plot([relationship.lineSVG.plot()[0], [dragX + lineOffset.x, dragY + lineOffset.y]]);
+                        }
+                    });
+                }
+            }
+
+            function endDrag() {
+                canvasSelectedDragNode = null;
+            }
 
             return node;
         }

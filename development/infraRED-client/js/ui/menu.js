@@ -69,14 +69,20 @@ infraRED.editor.menuBar = (function() {
             infraRED.events.emit('relationships:deploy');
 
             // talk to server to start deployment
+            JSON.parse('{ "yo": "yo" }'.trim());
+
             $.ajax({
+                method: 'POST',
                 url: '/deploy',
+                contentType: 'application/json',
                 dataType: 'json',
                 async: false,
 
-                //TODO - nodes recursively reference eachother via their capabilities
-                data: { "nodes": infraRED.nodes.canvasList.getAll(),
-                        "relationships": infraRED.relationships.canvasList.getAll() },
+                data: JSON.stringify({
+                    "nodes": infraRED.nodes.resourceList.getAll(),
+                    "relationships": infraRED.relationships.canvasList.getAll(),
+                    "nice": 69,
+                }),
     
                 // success function places value inside the return variable
                 success: function(data) {

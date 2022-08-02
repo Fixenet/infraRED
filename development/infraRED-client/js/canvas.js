@@ -17,7 +17,7 @@ infraRED.canvas = (function() {
         infraRED.nodes.canvasList.getByID(connectionVariables.capability.nodeID).addRelationship(relationship);
         infraRED.nodes.canvasList.getByID(connectionVariables.requirement.nodeID).addRelationship(relationship);
 
-        infraRED.events.emit('canvas:create-relationship-connection', connectionVariables.capabilitySVG, connectionVariables.requirementSVG);
+        infraRED.events.emit('canvas:create-relationship-connection', connectionVariables, relationship);
 
         connectionVariables = resetConnectionVariables();
     }
@@ -28,10 +28,6 @@ infraRED.canvas = (function() {
             if (connectionVariables.typeConnecting != connectable.type) {
                 throw 'Cannot connect capabilities/requirements of different types...';
             }
-            //TODO
-            //if (connectionVariables.capability.nodeID == connectable.nodeID || connectionVariables.requirement.nodeID == connectable.nodeID) {
-            //    throw 'Cannot connect capabilities/requirements of the same node...';
-            //}
             if (connectable.mode === 'capability' && connectionVariables.capability == null) {
                 connectionVariables.capability = connectable;
                 connectionVariables.capabilitySVG = connectableSVG;
@@ -40,6 +36,9 @@ infraRED.canvas = (function() {
                 connectionVariables.requirementSVG = connectableSVG;
             } else {
                 throw 'Please connect a capability and a requirement together...';
+            }
+            if (connectionVariables.capability.nodeID == connectionVariables.requirement.nodeID) {
+                throw 'Cannot connect capabilities/requirements of the same node...';
             }
 
             createRelationship();

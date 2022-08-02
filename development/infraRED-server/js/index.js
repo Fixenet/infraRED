@@ -49,13 +49,15 @@ app.get('/nodes/:nodeName', (req, res) => {
     res.end();
 });
 
-app.get('/deploy', (req, res) => {
+app.use(express.json()); 
+app.post('/deploy', (req, res) => {
     console.log('Deployment request arrived at server.');
 
-    console.log(req.query);
     //TODO do deployment stuff like talk to other APIs
-
-    res.status(200).send(req.query);
+    console.log(req.body);
+    
+    //TODO for reading values on chrome
+    res.status(200).send(req.body);
     res.end();
 });
 
