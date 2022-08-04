@@ -208,9 +208,7 @@ infraRED.nodes = (function() {
             //TODO - handle dragging, in respect to lines and such
             node.on('mousedown', (event) => {
                 event.stopPropagation();
-
                 canvasSelectedDragNode = { SVG: node, instance: this };
-
                 canvasSelectedDragNode.instance.relationships.forEach((relationship) => {
                     if (relationship.capability.nodeID === canvasSelectedDragNode.instance.canvasID) { //dragged node has a relationship line towards a capability
                         relationship.lineOffsetPlot = [
@@ -226,38 +224,8 @@ infraRED.nodes = (function() {
                 });
             });
 
-            node.on('mousemove', (event) => {
-                // this movement only happens if we have a selected node for moving
-                // we then only use the 'canvasSelectedDragNode' variable to do movement based on itself
-                // and not the triggerer of the 'mousemove' event
-                if (canvasSelectedDragNode != null) { 
-                    let dragX = event.offsetX - canvasSelectedDragNode.SVG.width/2;
-                    let dragY = event.offsetY - canvasSelectedDragNode.SVG.height/2;
-
-                    canvasSelectedDragNode.SVG.x(dragX);
-                    canvasSelectedDragNode.SVG.y(dragY);
-
-                    let lineOffset;
-                    //propagate this movement to all relationship lines
-                    canvasSelectedDragNode.instance.relationships.forEach((relationship) => {
-                        if (relationship.capability.nodeID === canvasSelectedDragNode.instance.canvasID) { //dragged node has a relationship line towards a capability
-                            //update line start
-                            lineOffset = { x: relationship.lineOffsetPlot[0][0], y: relationship.lineOffsetPlot[0][1]};
-                            //maintain the other side in the same position since it's not moving
-                            relationship.lineSVG.plot([[dragX + lineOffset.x, dragY + lineOffset.y], relationship.lineSVG.plot()[1]]);
-                        } else if (relationship.requirement.nodeID === canvasSelectedDragNode.instance.canvasID) { //dragged node has a relationship line towards a requirement
-                            //update line end
-                            lineOffset = { x: relationship.lineOffsetPlot[1][0], y: relationship.lineOffsetPlot[1][1]};
-                            //maintain the other side in the same position since it's not moving
-                            relationship.lineSVG.plot([relationship.lineSVG.plot()[0], [dragX + lineOffset.x, dragY + lineOffset.y]]);
-                        }
-                    });
-                }
-            });
-
             node.on('mouseup', (event) => {
                 event.stopPropagation();
-
                 canvasSelectedDragNode = null;
             });
 
@@ -418,5 +386,9 @@ infraRED.nodes = (function() {
 
         resourceList: resourceNodesList,
         canvasList: canvasNodesList,
+
+        draggingNode: function() {
+            if (canvasSelectedDragNode != null) return canvasSelectedDragNode;
+        },
     };
 })();
