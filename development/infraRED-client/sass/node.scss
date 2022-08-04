@@ -53,6 +53,7 @@
 }
 
 svg g.canvas-node {
+    user-select: none;
     .background {
         stroke: $node-border-color;
         stroke-width: 0.3vh;
