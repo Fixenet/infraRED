@@ -1,10 +1,10 @@
-class Compute {
-    constructor() {
+module.exports = function() {
+    function Compute() {
         this.category = {
             name: "Computation",
             img: "icons\\arrow-svgrepo-com.svg",
         };
-
+    
         this.capabilities = {
             database: {},
         };
@@ -13,17 +13,16 @@ class Compute {
             storage: {},
             database: {},
         };
-    }
-}
 
-module.exports = function() {
-    let compute = new Compute();
+        return this;
+    }
+
     return {
         init: function() {
             console.log('Started.');
         },
         self: function() {
-            return compute;
-        }
+            return Compute();
+        },
     };
 }();

@@ -75,13 +75,6 @@ infraRED.editor.canvas = (function() {
         }
 
         let relationshipLine = canvasDraw.line(start.x, start.y, end.x, end.y);
-        relationshipLine.marker('end', 4, 4, function(add) {
-            add.polygon([ // create a triangle
-                [1,0],
-                [1,4],
-                [4,2]
-            ]).fill('#0e83bd');
-        });
         relationshipLine.addClass('canvas-relationship-line');
         return relationshipLine;
     }

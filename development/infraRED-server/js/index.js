@@ -24,15 +24,15 @@ function initInfraRED() {
     nodesResourceList = registry.buildResourceList(nodesRuntimeList);
 }
 
-//TODO - i'm testing stuff here
-initInfraRED();
-
-app.use(express.static(path.join(__dirname, 'assets')));
+//initInfraRED();
 
 app.get('/', (req, res) => {
+    console.log('Requesting index.html and initializing nodes.');
     initInfraRED();
     res.status(200).sendFile(path.join(__dirname, './assets/index.html'));
 });
+
+app.use(express.static(path.join(__dirname, 'assets')));
 
 app.get('/listNodes', (req, res) => {
     console.log('Requesting nodes from the loader.');
@@ -53,8 +53,11 @@ app.use(express.json());
 app.post('/deploy', (req, res) => {
     console.log('Deployment request arrived at server.');
 
+    let nodesToDeploy = req.body.nodes;
+
     //TODO do deployment stuff like talk to other APIs
-    console.log(req.body);
+    console.log(nodesToDeploy[0].type);
+    nodesRuntimeList[nodesToDeploy[0].type].deploy();
     
     //TODO for reading values on chrome
     res.status(200).send(req.body);
@@ -64,3 +67,21 @@ app.post('/deploy', (req, res) => {
 app.listen(port, () => {
     console.log(`infraRED app listening on port ${port}`);
 });
+
+function Hello() {
+    this.name = "name";
+    return this;
+}
+
+console.log(Hello().name);
+
+let hello1 = Hello();
+hello1.name = "bitch";
+console.log(hello1.name);
+
+console.log(Hello().name);
+
+let hello2 = Hello();
+console.log(hello2.name);
+
+console.log(Hello().name);

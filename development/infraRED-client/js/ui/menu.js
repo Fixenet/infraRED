@@ -68,9 +68,24 @@ infraRED.editor.menuBar = (function() {
         $(button).on('click', () => {
             infraRED.events.emit('relationships:deploy');
 
-            // talk to server to start deployment
-            JSON.parse('{ "yo": "yo" }'.trim());
+            //TODO - deepcopy of my node obj list, can probably be done better
+            // i can also use this to only pass up to the server the values i want (reduce clutter)
+            let cleanNodeList = [];
+            for (let node of infraRED.nodes.canvasList.getAll()) {
+                let cleanNode = jQuery.extend(true, {}, node);
 
+                let cleanList = [];
+                for (let relationship of cleanNode.relationships) {
+                    let clean = jQuery.extend(true, {}, relationship);
+                    delete clean.lineSVG;
+                    delete clean.lineOffsetPlot;
+                    cleanList.push(clean);
+                }
+                cleanNode.relationships = cleanList;
+                cleanNodeList.push(cleanNode);
+            }
+
+            // talk to server to start deployment
             $.ajax({
                 method: 'POST',
                 url: '/deploy',
@@ -78,11 +93,7 @@ infraRED.editor.menuBar = (function() {
                 dataType: 'json',
                 async: false,
 
-                data: JSON.stringify({
-                    "nodes": infraRED.nodes.resourceList.getAll(),
-                    "relationships": infraRED.relationships.canvasList.getAll(),
-                    "nice": 69,
-                }),
+                data: JSON.stringify({"nodes": cleanNodeList}),
     
                 // success function places value inside the return variable
                 success: function(data) {

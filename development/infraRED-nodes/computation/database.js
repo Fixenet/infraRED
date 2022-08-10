@@ -1,27 +1,26 @@
-class Database {
-    constructor() {
+module.exports = function() {
+    function Database() {
         this.category = {
             name: "Computation",
             img: "icons\\arrow-svgrepo-com.svg",
         };
-
+    
         this.capabilities = {
             database: {},
         };
             
         this.requirements = {
         };
-    }
-}
 
-module.exports = function() {
-    let database = new Database();
+        return this;
+    }
+
     return {
         init: function() {
             console.log('Started.');
         },
         self: function() {
-            return database;
-        }
+            return Database();
+        },
     };
 }();
