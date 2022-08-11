@@ -17,15 +17,17 @@ module.exports = function() {
             input1: {},
             input2: {},
         };
-
-        return this;
     }
     return {
-        init: function() {
-            console.log('Started ' + moment().format('MMMM Do YYYY, h:mm:ss a'));
+        load: async function() {
+            await new Promise(r => setTimeout(r, 2000));
+            console.log('Loaded '+ moment().format('MMMM Do YYYY, h:mm:ss a'));
         },
-        self: function() {
-            return NodeTemplate();
+        create: function() {
+            return new NodeTemplate();
+        },
+        deploy: function() {
+
         },
     };
 }();

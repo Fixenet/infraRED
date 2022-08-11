@@ -1,3 +1,4 @@
+const moment = require("moment");
 module.exports = function() {
     function Database() {
         this.category = {
@@ -11,16 +12,17 @@ module.exports = function() {
             
         this.requirements = {
         };
-
-        return this;
     }
 
     return {
-        init: function() {
-            console.log('Started.');
+        load: function() {
+            console.log('Loaded '+ moment().format('MMMM Do YYYY, h:mm:ss a'));
         },
-        self: function() {
-            return Database();
+        create: function() {
+            return new Database();
+        },
+        deploy: function() {
+
         },
     };
 }();

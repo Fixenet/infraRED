@@ -1,3 +1,4 @@
+const moment = require("moment");
 module.exports = function() {
     function Compute() {
         this.category = {
@@ -13,16 +14,17 @@ module.exports = function() {
             storage: {},
             database: {},
         };
-
-        return this;
     }
 
     return {
-        init: function() {
-            console.log('Started.');
+        load: function() {
+            console.log('Loaded '+ moment().format('MMMM Do YYYY, h:mm:ss a'));
         },
-        self: function() {
-            return Compute();
+        create: function() {
+            return new Compute();
+        },
+        deploy: function() {
+
         },
     };
 }();

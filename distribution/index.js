@@ -11,24 +11,25 @@ let nodesFullPathList = {};
 let nodesRuntimeList = {};
 let nodesResourceList = {};
 
-function initInfraRED() {
+async function initInfraRED() {
     nodesFullPathList = registry.listAllNodes();
     for (let nodeFile of Object.keys(nodesFullPathList)) {
         //take out the .js of the string name, leaving the node name/identifier
         let nodeName = nodeFile.slice(0,-3);
         nodesRuntimeList[nodeName] = require(nodesFullPathList[nodeFile]);
         console.log(`\n----- ${nodeName} -----`);
-        nodesRuntimeList[nodeName].init();
+        
+        //TODO - i can't await for every single node to load individually
+        await nodesRuntimeList[nodeName].load();
 
     }
     nodesResourceList = registry.buildResourceList(nodesRuntimeList);
 }
 
-//initInfraRED();
-
-app.get('/', (req, res) => {
-    console.log('Requesting index.html and initializing nodes.');
-    initInfraRED();
+app.get('/', async (req, res) => {
+    console.log('Initializing nodes...');
+    await initInfraRED();
+    console.log('Finished initializing nodes.');
     res.status(200).sendFile(path.join(__dirname, './assets/index.html'));
 });
 
@@ -70,18 +71,13 @@ app.listen(port, () => {
 
 function Hello() {
     this.name = "name";
-    return this;
 }
 
-console.log(Hello().name);
 
-let hello1 = Hello();
+let hello1 = new Hello();
 hello1.name = "bitch";
 console.log(hello1.name);
 
-console.log(Hello().name);
 
-let hello2 = Hello();
+let hello2 = new Hello();
 console.log(hello2.name);
-
-console.log(Hello().name);

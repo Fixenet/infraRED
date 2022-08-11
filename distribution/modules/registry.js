@@ -21,7 +21,7 @@ function listAllNodes() {
 function buildResourceList(nodesRuntimeList) {
     let resourceList = {};
     for (let nodeName in nodesRuntimeList) {
-        let node = nodesRuntimeList[nodeName].self();
+        let node = nodesRuntimeList[nodeName].create();
         resourceList[nodeName] = {
             category: node.category,
             capabilities: node.capabilities,

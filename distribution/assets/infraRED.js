@@ -3,7 +3,7 @@ var infraRED = (function() {
         init: function() {
             console.log('infraRED is starting.');
     
-            infraRED.events.DEBUG = true;
+            infraRED.events.DEBUG = false;
             infraRED.validator.init();
 
             infraRED.nodes.init();
@@ -423,10 +423,14 @@ infraRED.nodes = (function() {
             node.height = drawingY + 30;
             background.size(node.width, node.height);
 
-            //TODO - handle dragging, in respect to lines and such
             node.on('mousedown', (event) => {
                 event.stopPropagation();
-                canvasSelectedDragNode = { SVG: node, instance: this };
+                canvasSelectedDragNode = {SVG: node, instance: this};
+                //styled to have a nice grabbing / not grabbing css
+                node.css('cursor', 'grabbing');
+
+                canvasSelectedDragNode.offsetX = event.offsetX - canvasSelectedDragNode.SVG.x();
+                canvasSelectedDragNode.offsetY = event.offsetY - canvasSelectedDragNode.SVG.y();
                 canvasSelectedDragNode.instance.relationships.forEach((relationship) => {
                     if (relationship.capability.nodeID === canvasSelectedDragNode.instance.canvasID) { //dragged node has a relationship line towards a capability
                         relationship.lineOffsetPlot = [
@@ -444,6 +448,8 @@ infraRED.nodes = (function() {
 
             node.on('mouseup', (event) => {
                 event.stopPropagation();
+                //styled to have a nice grabbing / not grabbing css
+                node.css('cursor', 'grab');
                 canvasSelectedDragNode = null;
             });
 
@@ -786,13 +792,13 @@ infraRED.editor = (function() {
         init: function() {
             console.log('%cCreating Editor...', 'color: red');
 
-            let categoryBar = $('<div>', { id: 'infraRED-ui-category-bar'});
-            $('#infraRED-ui-root').append(categoryBar);
-            infraRED.editor.categoryBar.init();
-
             let resourceBar = $('<div>', { id: 'infraRED-ui-resource-bar'});
             $('#infraRED-ui-root').append(resourceBar);
             infraRED.editor.resourceBar.init();
+
+            let categoryBar = $('<div>', { id: 'infraRED-ui-category-bar'});
+            $('#infraRED-ui-root').append(categoryBar);
+            infraRED.editor.categoryBar.init();
 
             let canvas = $('<div>', { id: 'infraRED-ui-canvas'});
             $('#infraRED-ui-root').append(canvas);
@@ -866,13 +872,16 @@ infraRED.editor.categoryBar = (function() {
             let nodesList = infraRED.nodes.resourceList.getAll();
 
             let categoryList = [];
+            let newCategory;
             for (let node of nodesList) {
                 if (categoryList.indexOf(node.properties.category.name) == -1) {
-                    let newCategory = createNewCategory(node.properties.category.name, node.properties.category.img);
+                    newCategory = createNewCategory(node.properties.category.name, node.properties.category.img);
                     content.append(newCategory);
                     categoryList.push(node.properties.category.name);
                 }
             }
+            //automatically open a category section (last one)
+            toggleCategory(newCategory);
         },
         get: function() {
             return categoryBar;
@@ -1084,8 +1093,8 @@ infraRED.editor.canvas = (function() {
     function onMouseMove(event) {
         if (relationshipPreviewLine != null) {
             // save the position of the cursor in relation to the canvas grid
-            lineEndPosition.x = event.offsetX-2;
-            lineEndPosition.y = event.offsetY-2;
+            lineEndPosition.x = event.offsetX;
+            lineEndPosition.y = event.offsetY;
             // check if we are to the right of the connectable
             startingPosition.rightSide = lineEndPosition.x > startingPosition.right;
             drawRelationshipPreviewLine();
@@ -1094,9 +1103,9 @@ infraRED.editor.canvas = (function() {
         // we then only use the 'canvasSelectedDragNode' variable to do movement based on itself
         // and not the triggerer of the 'mousemove' event
         let canvasSelectedDragNode = infraRED.nodes.draggingNode();
-        if (canvasSelectedDragNode != null) { 
-            let dragX = event.offsetX - canvasSelectedDragNode.SVG.width/2;
-            let dragY = event.offsetY - canvasSelectedDragNode.SVG.height/2;
+        if (canvasSelectedDragNode != null) {
+            let dragX = event.offsetX - canvasSelectedDragNode.offsetX;
+            let dragY = event.offsetY - canvasSelectedDragNode.offsetY;
 
             canvasSelectedDragNode.SVG.x(dragX);
             canvasSelectedDragNode.SVG.y(dragY);
@@ -1346,7 +1355,11 @@ infraRED.editor.nodes = (function () {
         }
     };
 })();
-//'backend' client side
+//'backend' for client side
 infraRED.init();
 //frontend/views for client side
 infraRED.editor.init();
+
+//ask the user if they really want to leave
+//in case we implement some saving functionality
+window.onbeforeunload = function() { return true; };
