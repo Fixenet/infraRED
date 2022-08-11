@@ -3,7 +3,7 @@ var infraRED = (function() {
         init: function() {
             console.log('infraRED is starting.');
     
-            infraRED.events.DEBUG = true;
+            infraRED.events.DEBUG = false;
             infraRED.validator.init();
 
             infraRED.nodes.init();
