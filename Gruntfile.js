@@ -6,7 +6,7 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON('package.json'),
         jshint: {
             options: {
-                esversion: 6
+                esversion: 8
             },
             all: ['Gruntfile.js', 'development/infraRED-client/js/**/*.js', 'development/infraRED-server/js/**/*.js'],
             nodes: ['development/infraRED-nodes/**/*.js', 'development/infraRED-nodes/*.js'],
