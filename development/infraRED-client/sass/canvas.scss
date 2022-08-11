@@ -34,12 +34,14 @@
     stroke-linecap: round;
     stroke: $relationship-line-color;
     stroke-width: 4px;
+    pointer-events: none;
 }
 
 #infraRED-ui-canvas .canvas-preview-relationship-line {
     stroke-linecap: round;
     stroke: $relationship-preview-line-color;
     stroke-width: 4px;
+    pointer-events: none;
 }
 
 @mixin canvas-grid-line {

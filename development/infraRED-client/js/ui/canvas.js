@@ -141,8 +141,8 @@ infraRED.editor.canvas = (function() {
     function onMouseMove(event) {
         if (relationshipPreviewLine != null) {
             // save the position of the cursor in relation to the canvas grid
-            lineEndPosition.x = event.offsetX-2;
-            lineEndPosition.y = event.offsetY-2;
+            lineEndPosition.x = event.offsetX;
+            lineEndPosition.y = event.offsetY;
             // check if we are to the right of the connectable
             startingPosition.rightSide = lineEndPosition.x > startingPosition.right;
             drawRelationshipPreviewLine();
@@ -151,9 +151,9 @@ infraRED.editor.canvas = (function() {
         // we then only use the 'canvasSelectedDragNode' variable to do movement based on itself
         // and not the triggerer of the 'mousemove' event
         let canvasSelectedDragNode = infraRED.nodes.draggingNode();
-        if (canvasSelectedDragNode != null) { 
-            let dragX = event.offsetX - canvasSelectedDragNode.SVG.width/2;
-            let dragY = event.offsetY - canvasSelectedDragNode.SVG.height/2;
+        if (canvasSelectedDragNode != null) {
+            let dragX = event.offsetX - canvasSelectedDragNode.offsetX;
+            let dragY = event.offsetY - canvasSelectedDragNode.offsetY;
 
             canvasSelectedDragNode.SVG.x(dragX);
             canvasSelectedDragNode.SVG.y(dragY);

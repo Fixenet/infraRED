@@ -205,10 +205,14 @@ infraRED.nodes = (function() {
             node.height = drawingY + 30;
             background.size(node.width, node.height);
 
-            //TODO - handle dragging, in respect to lines and such
             node.on('mousedown', (event) => {
                 event.stopPropagation();
-                canvasSelectedDragNode = { SVG: node, instance: this };
+                canvasSelectedDragNode = {SVG: node, instance: this};
+                //styled to have a nice grabbing / not grabbing css
+                node.css('cursor', 'grabbing');
+
+                canvasSelectedDragNode.offsetX = event.offsetX - canvasSelectedDragNode.SVG.x();
+                canvasSelectedDragNode.offsetY = event.offsetY - canvasSelectedDragNode.SVG.y();
                 canvasSelectedDragNode.instance.relationships.forEach((relationship) => {
                     if (relationship.capability.nodeID === canvasSelectedDragNode.instance.canvasID) { //dragged node has a relationship line towards a capability
                         relationship.lineOffsetPlot = [
@@ -226,6 +230,8 @@ infraRED.nodes = (function() {
 
             node.on('mouseup', (event) => {
                 event.stopPropagation();
+                //styled to have a nice grabbing / not grabbing css
+                node.css('cursor', 'grab');
                 canvasSelectedDragNode = null;
             });
 
