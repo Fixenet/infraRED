@@ -54,13 +54,16 @@ infraRED.editor.categoryBar = (function() {
             let nodesList = infraRED.nodes.resourceList.getAll();
 
             let categoryList = [];
+            let newCategory;
             for (let node of nodesList) {
                 if (categoryList.indexOf(node.properties.category.name) == -1) {
-                    let newCategory = createNewCategory(node.properties.category.name, node.properties.category.img);
+                    newCategory = createNewCategory(node.properties.category.name, node.properties.category.img);
                     content.append(newCategory);
                     categoryList.push(node.properties.category.name);
                 }
             }
+            //automatically open a category section (last one)
+            toggleCategory(newCategory);
         },
         get: function() {
             return categoryBar;

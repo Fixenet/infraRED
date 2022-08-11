@@ -4,13 +4,13 @@ infraRED.editor = (function() {
         init: function() {
             console.log('%cCreating Editor...', 'color: red');
 
-            let categoryBar = $('<div>', { id: 'infraRED-ui-category-bar'});
-            $('#infraRED-ui-root').append(categoryBar);
-            infraRED.editor.categoryBar.init();
-
             let resourceBar = $('<div>', { id: 'infraRED-ui-resource-bar'});
             $('#infraRED-ui-root').append(resourceBar);
             infraRED.editor.resourceBar.init();
+
+            let categoryBar = $('<div>', { id: 'infraRED-ui-category-bar'});
+            $('#infraRED-ui-root').append(categoryBar);
+            infraRED.editor.categoryBar.init();
 
             let canvas = $('<div>', { id: 'infraRED-ui-canvas'});
             $('#infraRED-ui-root').append(canvas);
