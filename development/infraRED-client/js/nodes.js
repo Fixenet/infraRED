@@ -1,13 +1,19 @@
 infraRED.nodes = (function() {
-    /**
-     * Represents a capability or requirement of a Node, 
-     * a possible functionality that can be served/received to/from another Node.
-     * These have no id since the type is a unique identifier in each Node.
-     */
-
     //TODO - global for nodes ? stuff for drawing
+    /**
+     * @global Holds information about the current node being dragged
+     */
     let canvasSelectedDragNode = null;
-
+    
+    /**
+     * @class Creates a connectable.
+     * @param {string} mode capability / requirement
+     * @param {string} type name of the functionality being served/received
+     * @param {number} nodeID the canvas ID of this connectable's node
+     * @classdesc Represents a capability or requirement of a Node, 
+     * a possible functionality that can be served/received to/from another Node.
+     * These have no ID since the type is a unique identifier in each respective Node object.
+     */
     class Connectable {
         constructor(mode, type, nodeID) {
             this.name = null;
@@ -69,9 +75,11 @@ infraRED.nodes = (function() {
             return printResult;
         }
     }
-    
+
     /**
-     * Represents any piece of physical/virtual infrastructure.
+     * @class Creates a node.
+     * @param {string} type type of infrastructure
+     * @classdesc Represents any piece of physical/virtual infrastructure.
      */
     class Node {
         constructor(type) {
@@ -335,6 +343,11 @@ infraRED.nodes = (function() {
         console.log(logString);
     }
 
+    /**
+     * This method dictates the full logic when adding a new resource type
+     * @param {string} type the type of the new node
+     * @returns {Node} a resource node without its connectables yet, these are added later via its own methods
+     */
     function newResourceNode(type) {
         let newNode = new Node(type);
         resourceNodesList.add(newNode);
@@ -342,12 +355,16 @@ infraRED.nodes = (function() {
         return newNode;
     }
 
+    /**
+     * This method dictates the full logic when adding a node to the canvas.
+     * @param {Node} resourceNode the node that came from the resource list
+     * @return {string|Node} a canvas node if the canvas has space for a node, 'full canvas' if not
+     */
     function moveNodeToCanvas(resourceNode) {
         // stop the node from entering the canvas if we are at max value
         if (canvasNodesList.getAll().length == infraRED.settings.nodes.MAX_ID) {
             infraRED.events.emit('nodes:max-nodes-in-canvas');
-            //TODO - disallow any further action, this may not be correctly propagated
-            return null;
+            return 'full canvas';
         }
 
         let canvasNode = new Node(resourceNode.type);
