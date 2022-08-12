@@ -21,19 +21,34 @@ async function initInfraRED() {
         
         //TODO - i can't await for every single node to load individually
         await nodesRuntimeList[nodeName].load();
-
     }
     nodesResourceList = registry.buildResourceList(nodesRuntimeList);
 }
 
-app.get('/', async (req, res) => {
-    console.log('Initializing nodes...');
-    await initInfraRED();
-    console.log('Finished initializing nodes.');
-    res.status(200).sendFile(path.join(__dirname, './assets/index.html'));
+//TODO - have this here in case i need to load this file separately 
+app.get('/infraRED.js', (req, res) => {
+    console.log('Sending infraRED.js ...');
+    res.sendFile(path.join(__dirname, './infraRED.js'), (error) => {
+        if (error) console.error(error);
+        res.end();
+    });
 });
 
-app.use(express.static(path.join(__dirname, 'assets')));
+app.get('/', async (req, res) => {
+    console.log('Initializing nodes ...');
+    await initInfraRED();
+    console.log('Finished initializing nodes.');
+
+    //set up the asset folder for the client to get frontend files, no sensitive files should go here
+    app.use(express.static(path.join(__dirname, './assets/')));
+
+    console.log('Sending index.html ...');
+    await res.status(200).sendFile(path.join(__dirname, './assets/index.html'), (error) => {
+        if (error) console.error(error);
+        res.end();
+        console.log('Finished sending index.');
+    });
+});
 
 app.get('/listNodes', (req, res) => {
     console.log('Requesting nodes from the loader.');
@@ -42,25 +57,16 @@ app.get('/listNodes', (req, res) => {
     res.end();
 });
 
-//get the nodes
-app.get('/nodes/:nodeName', (req, res) => {
-    console.log(`Requesting node ${req.params.nodeName}.`);
-    console.log(nodesFullPath[req.params.nodeName]);
-    res.status(200).send(nodesFullPath[req.params.nodeName]);
-    res.end();
-});
-
 app.use(express.json()); 
 app.post('/deploy', (req, res) => {
     console.log('Deployment request arrived at server.');
-
     let nodesToDeploy = req.body.nodes;
 
-    //TODO do deployment stuff like talk to other APIs
-    console.log(nodesToDeploy[0].type);
+    //TODO - do deployment stuff like talk to other APIs
+    console.log(nodesToDeploy[0]);
     nodesRuntimeList[nodesToDeploy[0].type].deploy();
     
-    //TODO for reading values on chrome
+    //TODO - for reading values on chrome
     res.status(200).send(req.body);
     res.end();
 });
@@ -68,16 +74,3 @@ app.post('/deploy', (req, res) => {
 app.listen(port, () => {
     console.log(`infraRED app listening on port ${port}`);
 });
-
-function Hello() {
-    this.name = "name";
-}
-
-
-let hello1 = new Hello();
-hello1.name = "bitch";
-console.log(hello1.name);
-
-
-let hello2 = new Hello();
-console.log(hello2.name);

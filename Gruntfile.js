@@ -41,7 +41,7 @@ module.exports = function(grunt) {
 
                     'development/infraRED-client/js/main.js',
                 ],
-                dest: 'distribution/assets/infraRED.js',
+                dest: 'distribution/infraRED.js',
             },
         },
         copy: {
