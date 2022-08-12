@@ -98,7 +98,7 @@ infraRED.relationships = (function() {
     }
 
     function setUpEvents() {
-        infraRED.events.on('nodes:log-relationships', logRelationshipList);
+        infraRED.events.on('relationships:log-all', logRelationshipList);
     }
 
     function createRelationshipID() {

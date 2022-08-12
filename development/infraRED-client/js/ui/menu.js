@@ -2,107 +2,22 @@
 infraRED.editor.menuBar = (function() {
     let menuBar;
 
-    function createLogResourcesButton() {
-        let button = $('<button>', {
-            id: 'log-resources-button',
+    /**
+     * Will create a button that emits an event to start a specific functionality
+     * @param {string} functionalityName name of the functionality this button will perform
+     * @param {function} emit the event emit function (because i want to keep my Obsidian script)
+     * @returns the button DOM object
+     */
+    function createButton(functionalityName, emit) {
+        let id = functionalityName.toLowerCase().replace(' ','-');
+        let newButton = $('<button>', {
+            id: `${id}-button`,
             class: 'menu-bar-button',
-            text: 'Log Resources Nodes',
+            text: functionalityName,
         });
 
-        $(button).on('click', () => {
-            infraRED.events.emit('nodes:log-resources');
-        });
-
-        return button;
-    }
-
-    function createLogCanvasButton() {
-        let button = $('<button>', {
-            id: 'log-canvas-button',
-            class: 'menu-bar-button',
-            text: 'Log Canvas Nodes',
-        });
-
-        $(button).on('click', () => {
-            infraRED.events.emit('nodes:log-canvas');
-        });
-
-        return button;
-    }
-
-    function createLogRelationshipsButton() {
-        let button = $('<button>', {
-            id: 'log-relationships-button',
-            class: 'menu-bar-button',
-            text: 'Log Relationships',
-        });
-
-        $(button).on('click', () => {
-            infraRED.events.emit('nodes:log-relationships');
-        });
-
-        return button;
-    }
-
-    function createLogCurrentConnectionButton() {
-        let button = $('<button>', {
-            id: 'log-current-connection-button',
-            class: 'menu-bar-button',
-            text: 'Log Current Connection',
-        });
-
-        $(button).on('click', () => {
-            infraRED.events.emit('canvas:log-connection-variables');
-        });
-
-        return button;
-    }
-
-    function createDeployButton() {
-        let button = $('<button>', {
-            id: 'deploy-button',
-            class: 'menu-bar-button',
-            text: 'Deploy',
-        });
-
-        $(button).on('click', () => {
-            infraRED.events.emit('relationships:deploy');
-
-            //TODO - deepcopy of my node obj list, can probably be done better
-            // i can also use this to only pass up to the server the values i want (reduce clutter)
-            let cleanNodeList = [];
-            for (let node of infraRED.nodes.canvasList.getAll()) {
-                let cleanNode = jQuery.extend(true, {}, node);
-
-                let cleanList = [];
-                for (let relationship of cleanNode.relationships) {
-                    let clean = jQuery.extend(true, {}, relationship);
-                    delete clean.lineSVG;
-                    delete clean.lineOffsetPlot;
-                    cleanList.push(clean);
-                }
-                cleanNode.relationships = cleanList;
-                cleanNodeList.push(cleanNode);
-            }
-
-            // talk to server to start deployment
-            $.ajax({
-                method: 'POST',
-                url: '/deploy',
-                contentType: 'application/json',
-                dataType: 'json',
-                async: false,
-
-                data: JSON.stringify({"nodes": cleanNodeList}),
-    
-                // success function places value inside the return variable
-                success: function(data) {
-                    console.log(data);
-                }
-            });
-        });
-
-        return button;
+        $(newButton).on('click', emit);
+        return newButton;
     }
 
     return {
@@ -110,18 +25,17 @@ infraRED.editor.menuBar = (function() {
             console.log('%cCreating Menu Bar...', 'color: #a6c9ff');
 
             menuBar = $('#infraRED-ui-menu-bar');
-
             let content = $('<div>', {
                 id: 'menu-bar-content',
                 class: 'content',
             });
             menuBar.append(content);
 
-            content.append(createLogResourcesButton());
-            content.append(createLogCanvasButton());
-            content.append(createLogRelationshipsButton());
-            content.append(createLogCurrentConnectionButton());
-            content.append(createDeployButton());
+            content.append(createButton('Log Resources', () => infraRED.events.emit('nodes:log-resources')));
+            content.append(createButton('Log Canvas', () => infraRED.events.emit('nodes:log-canvas')));
+            content.append(createButton('Log Relationships', () => infraRED.events.emit('relationships:log-all')));
+            content.append(createButton('Log Current Connection', () => infraRED.events.emit('relationships:log-current-connection')));
+            content.append(createButton('Deploy', () => infraRED.events.emit('relationships:deploy')));
         },
         get: function() {
             return menuBar;

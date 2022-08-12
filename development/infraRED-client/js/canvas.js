@@ -81,7 +81,7 @@ infraRED.canvas = (function() {
         init: function() {
             console.log('%cStarting the canvas functionality.', 'color: #ffc895;');
 
-            infraRED.events.on('canvas:log-connection-variables', logConnectionVariables);
+            infraRED.events.on('relationships:log-current-connection', logConnectionVariables);
             infraRED.events.on('canvas:create-connection', createConnection);
             infraRED.events.on('canvas:reset-connection', resetConnection);
             infraRED.events.on('nodes:max-nodes-in-canvas', maxNodesReachedInCanvas);

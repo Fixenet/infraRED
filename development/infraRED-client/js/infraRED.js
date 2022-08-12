@@ -2,8 +2,6 @@ var infraRED = (function() {
     return {
         init: function() {
             console.log('infraRED is starting.');
-    
-            infraRED.events.DEBUG = false;
             infraRED.validator.init();
 
             infraRED.nodes.init();
