@@ -2,8 +2,6 @@ var infraRED = (function() {
     return {
         init: function() {
             console.log('infraRED is starting.');
-    
-            infraRED.events.DEBUG = false;
             infraRED.validator.init();
 
             infraRED.nodes.init();
@@ -209,7 +207,7 @@ infraRED.canvas = (function() {
         init: function() {
             console.log('%cStarting the canvas functionality.', 'color: #ffc895;');
 
-            infraRED.events.on('canvas:log-connection-variables', logConnectionVariables);
+            infraRED.events.on('relationships:log-current-connection', logConnectionVariables);
             infraRED.events.on('canvas:create-connection', createConnection);
             infraRED.events.on('canvas:reset-connection', resetConnection);
             infraRED.events.on('nodes:max-nodes-in-canvas', maxNodesReachedInCanvas);
@@ -217,15 +215,21 @@ infraRED.canvas = (function() {
     };
 })();
 infraRED.nodes = (function() {
-    /**
-     * Represents a capability or requirement of a Node, 
-     * a possible functionality that can be served/received to/from another Node.
-     * These have no id since the type is a unique identifier in each Node.
-     */
-
     //TODO - global for nodes ? stuff for drawing
+    /**
+     * @global Holds information about the current node being dragged
+     */
     let canvasSelectedDragNode = null;
-
+    
+    /**
+     * @class Creates a connectable.
+     * @param {string} mode capability / requirement
+     * @param {string} type name of the functionality being served/received
+     * @param {number} nodeID the canvas ID of this connectable's node
+     * @classdesc Represents a capability or requirement of a Node, 
+     * a possible functionality that can be served/received to/from another Node.
+     * These have no ID since the type is a unique identifier in each respective Node object.
+     */
     class Connectable {
         constructor(mode, type, nodeID) {
             this.name = null;
@@ -287,9 +291,11 @@ infraRED.nodes = (function() {
             return printResult;
         }
     }
-    
+
     /**
-     * Represents any piece of physical/virtual infrastructure.
+     * @class Creates a node.
+     * @param {string} type type of infrastructure
+     * @classdesc Represents any piece of physical/virtual infrastructure.
      */
     class Node {
         constructor(type) {
@@ -553,6 +559,11 @@ infraRED.nodes = (function() {
         console.log(logString);
     }
 
+    /**
+     * This method dictates the full logic when adding a new resource type
+     * @param {string} type the type of the new node
+     * @returns {Node} a resource node without its connectables yet, these are added later via its own methods
+     */
     function newResourceNode(type) {
         let newNode = new Node(type);
         resourceNodesList.add(newNode);
@@ -560,12 +571,16 @@ infraRED.nodes = (function() {
         return newNode;
     }
 
+    /**
+     * This method dictates the full logic when adding a node to the canvas.
+     * @param {Node} resourceNode the node that came from the resource list
+     * @return {string|Node} a canvas node if the canvas has space for a node, 'full canvas' if not
+     */
     function moveNodeToCanvas(resourceNode) {
         // stop the node from entering the canvas if we are at max value
         if (canvasNodesList.getAll().length == infraRED.settings.nodes.MAX_ID) {
             infraRED.events.emit('nodes:max-nodes-in-canvas');
-            //TODO - disallow any further action, this may not be correctly propagated
-            return null;
+            return 'full canvas';
         }
 
         let canvasNode = new Node(resourceNode.type);
@@ -716,7 +731,7 @@ infraRED.relationships = (function() {
     }
 
     function setUpEvents() {
-        infraRED.events.on('nodes:log-relationships', logRelationshipList);
+        infraRED.events.on('relationships:log-all', logRelationshipList);
     }
 
     function createRelationshipID() {
@@ -780,9 +795,47 @@ infraRED.loader = (function() {
     };
 })();
 infraRED.deployer = (function () {
+    function deployNodes() {
+        //TODO - deepcopy of my node obj list, can probably be done better
+        // i can also use this to only pass up to the server the values i want (reduce clutter)
+        let cleanNodeList = [];
+        for (let node of infraRED.nodes.canvasList.getAll()) {
+            let cleanNode = jQuery.extend(true, {}, node);
+
+            let cleanList = [];
+            for (let relationship of cleanNode.relationships) {
+                let clean = jQuery.extend(true, {}, relationship);
+                delete clean.lineSVG;
+                delete clean.lineOffsetPlot;
+                cleanList.push(clean);
+            }
+
+            cleanNode.relationships = cleanList;
+            cleanNodeList.push(cleanNode);
+        }
+
+        // post the current nodes in use to server to start deployment
+        $.ajax({
+            method: 'POST', url: '/deploy',
+            contentType: 'application/json', dataType: 'json',
+            async: false,
+
+            data: JSON.stringify({
+                "nodes": cleanNodeList
+            }),
+
+            //TODO - success function places value inside the return variable
+            success: function(data) {
+                console.log(data);
+            }
+        });
+    }
+
     return {
         init: function() {
             console.log('Starting the deployment functionality.');
+
+            infraRED.events.on('relationships:deploy', deployNodes);
         }
     };
 })();
@@ -1170,107 +1223,22 @@ infraRED.editor.canvas = (function() {
 infraRED.editor.menuBar = (function() {
     let menuBar;
 
-    function createLogResourcesButton() {
-        let button = $('<button>', {
-            id: 'log-resources-button',
+    /**
+     * Will create a button that emits an event to start a specific functionality
+     * @param {string} functionalityName name of the functionality this button will perform
+     * @param {function} emit the event emit function (because i want to keep my Obsidian script)
+     * @returns the button DOM object
+     */
+    function createButton(functionalityName, emit) {
+        let id = functionalityName.toLowerCase().replace(' ','-');
+        let newButton = $('<button>', {
+            id: `${id}-button`,
             class: 'menu-bar-button',
-            text: 'Log Resources Nodes',
+            text: functionalityName,
         });
 
-        $(button).on('click', () => {
-            infraRED.events.emit('nodes:log-resources');
-        });
-
-        return button;
-    }
-
-    function createLogCanvasButton() {
-        let button = $('<button>', {
-            id: 'log-canvas-button',
-            class: 'menu-bar-button',
-            text: 'Log Canvas Nodes',
-        });
-
-        $(button).on('click', () => {
-            infraRED.events.emit('nodes:log-canvas');
-        });
-
-        return button;
-    }
-
-    function createLogRelationshipsButton() {
-        let button = $('<button>', {
-            id: 'log-relationships-button',
-            class: 'menu-bar-button',
-            text: 'Log Relationships',
-        });
-
-        $(button).on('click', () => {
-            infraRED.events.emit('nodes:log-relationships');
-        });
-
-        return button;
-    }
-
-    function createLogCurrentConnectionButton() {
-        let button = $('<button>', {
-            id: 'log-current-connection-button',
-            class: 'menu-bar-button',
-            text: 'Log Current Connection',
-        });
-
-        $(button).on('click', () => {
-            infraRED.events.emit('canvas:log-connection-variables');
-        });
-
-        return button;
-    }
-
-    function createDeployButton() {
-        let button = $('<button>', {
-            id: 'deploy-button',
-            class: 'menu-bar-button',
-            text: 'Deploy',
-        });
-
-        $(button).on('click', () => {
-            infraRED.events.emit('relationships:deploy');
-
-            //TODO - deepcopy of my node obj list, can probably be done better
-            // i can also use this to only pass up to the server the values i want (reduce clutter)
-            let cleanNodeList = [];
-            for (let node of infraRED.nodes.canvasList.getAll()) {
-                let cleanNode = jQuery.extend(true, {}, node);
-
-                let cleanList = [];
-                for (let relationship of cleanNode.relationships) {
-                    let clean = jQuery.extend(true, {}, relationship);
-                    delete clean.lineSVG;
-                    delete clean.lineOffsetPlot;
-                    cleanList.push(clean);
-                }
-                cleanNode.relationships = cleanList;
-                cleanNodeList.push(cleanNode);
-            }
-
-            // talk to server to start deployment
-            $.ajax({
-                method: 'POST',
-                url: '/deploy',
-                contentType: 'application/json',
-                dataType: 'json',
-                async: false,
-
-                data: JSON.stringify({"nodes": cleanNodeList}),
-    
-                // success function places value inside the return variable
-                success: function(data) {
-                    console.log(data);
-                }
-            });
-        });
-
-        return button;
+        $(newButton).on('click', emit);
+        return newButton;
     }
 
     return {
@@ -1278,18 +1246,17 @@ infraRED.editor.menuBar = (function() {
             console.log('%cCreating Menu Bar...', 'color: #a6c9ff');
 
             menuBar = $('#infraRED-ui-menu-bar');
-
             let content = $('<div>', {
                 id: 'menu-bar-content',
                 class: 'content',
             });
             menuBar.append(content);
 
-            content.append(createLogResourcesButton());
-            content.append(createLogCanvasButton());
-            content.append(createLogRelationshipsButton());
-            content.append(createLogCurrentConnectionButton());
-            content.append(createDeployButton());
+            content.append(createButton('Log Resources', () => infraRED.events.emit('nodes:log-resources')));
+            content.append(createButton('Log Canvas', () => infraRED.events.emit('nodes:log-canvas')));
+            content.append(createButton('Log Relationships', () => infraRED.events.emit('relationships:log-all')));
+            content.append(createButton('Log Current Connection', () => infraRED.events.emit('relationships:log-current-connection')));
+            content.append(createButton('Deploy', () => infraRED.events.emit('relationships:deploy')));
         },
         get: function() {
             return menuBar;
@@ -1328,7 +1295,7 @@ infraRED.editor.nodes = (function () {
                 
         // 'add' method will return null and we know we are supposed to remove
         //TODO - this may be prone to errors, since i may generate null through other ways
-        if (canvasNode != null) {
+        if (canvasNode != 'full canvas') {
             infraRED.events.emit('nodes:canvas-drop-success', canvasNode, coordinates);
         }
     }
@@ -1357,9 +1324,10 @@ infraRED.editor.nodes = (function () {
 })();
 //'backend' for client side
 infraRED.init();
+infraRED.events.DEBUG = true; //prints logs
 //frontend/views for client side
 infraRED.editor.init();
 
 //ask the user if they really want to leave
 //in case we implement some saving functionality
-window.onbeforeunload = function() { return true; };
+//TODO - window.onbeforeunload = function() { return true; };

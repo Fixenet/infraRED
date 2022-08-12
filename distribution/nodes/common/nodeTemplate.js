@@ -20,7 +20,8 @@ module.exports = function() {
     }
     return {
         load: async function() {
-            await new Promise(r => setTimeout(r, 2000));
+            //TEST - demonstrate a bigger load time for this node
+            //await new Promise(r => setTimeout(r, 2000));
             console.log('Loaded '+ moment().format('MMMM Do YYYY, h:mm:ss a'));
         },
         create: function() {
