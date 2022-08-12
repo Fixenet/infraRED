@@ -1,10 +1,7 @@
-// use this file to define node behaviour
+//use this file to define node behaviour
 infraRED.editor.nodes = (function () {
     function onCanvasDrop(droppedNode, coordinates) {
         let canvasNode = infraRED.nodes.add(droppedNode);
-                
-        // 'add' method will return null and we know we are supposed to remove
-        //TODO - this may be prone to errors, since i may generate null through other ways
         if (canvasNode != 'full canvas') {
             infraRED.events.emit('nodes:canvas-drop-success', canvasNode, coordinates);
         }

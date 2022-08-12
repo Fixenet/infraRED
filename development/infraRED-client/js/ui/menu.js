@@ -1,4 +1,4 @@
-// use this file to define the menu bar
+//use this file to define the menu bar
 infraRED.editor.menuBar = (function() {
     let menuBar;
 
@@ -31,6 +31,7 @@ infraRED.editor.menuBar = (function() {
             });
             menuBar.append(content);
 
+            //each button gets a function that when called, calls the emit event inside
             content.append(createButton('Log Resources', () => infraRED.events.emit('nodes:log-resources')));
             content.append(createButton('Log Canvas', () => infraRED.events.emit('nodes:log-canvas')));
             content.append(createButton('Log Relationships', () => infraRED.events.emit('relationships:log-all')));

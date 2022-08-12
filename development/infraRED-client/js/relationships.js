@@ -42,7 +42,7 @@ infraRED.relationships = (function() {
             return relationshipList[id];
         }
 
-        // returns an array with the relationship class instances
+        //returns an array with the relationship class instances
         function getRelationshipList() {
             return Object.values(relationshipList);
         }

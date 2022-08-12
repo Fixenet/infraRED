@@ -1,5 +1,4 @@
 infraRED.nodes = (function() {
-    //TODO - global for nodes ? stuff for drawing
     /**
      * @global Holds information about the current node being dragged
      */
@@ -18,13 +17,13 @@ infraRED.nodes = (function() {
         constructor(mode, type, nodeID) {
             this.name = null;
 
-            // select between requirement and capability connectable
+            //select between requirement and capability connectable
             if (infraRED.validator.validateNodeMode(mode)) this.mode = mode;
 
-            // type of the connectable
+            //type of the connectable
             this.type = type;
 
-            // nodeID on the canvas of the parent node to this connectable
+            //nodeID on the canvas of the parent node to this connectable
             this.nodeID = nodeID;
         }
 
@@ -63,7 +62,7 @@ infraRED.nodes = (function() {
 
             connectable.on('click', (event) => {
                 event.stopPropagation();
-                // handles logic and svg drawing
+                //handles logic and svg drawing
                 infraRED.events.emit('canvas:create-connection', this, background);
             });
 
@@ -106,13 +105,13 @@ infraRED.nodes = (function() {
         }
 
         addCapability(capabilityType) {
-            // index by type since only one of each type exists in each Node
+            //index by type since only one of each type exists in each Node
             let capability = new Connectable('capability', capabilityType, this.canvasID);
             this.capabilities[capabilityType] = capability;
         }
 
         addRequirement(requirementType) {
-            // index by type since only one of each type exists in each Node
+            //index by type since only one of each type exists in each Node
             let requirement = new Connectable('requirement', requirementType, this.canvasID);
             this.requirements[requirementType] = requirement;
         }
@@ -141,7 +140,7 @@ infraRED.nodes = (function() {
                     requirements.append(requirement.getDiv());
                 });
 
-                // add a border line to separate capabilities from requirements if both exist
+                //add a border line to separate capabilities from requirements if both exist
                 if (!$.isEmptyObject(this.capabilities)) {
                     requirements.addClass('connectable-separator');
                 }
@@ -172,9 +171,9 @@ infraRED.nodes = (function() {
 
             let type = node.group().addClass('type');
             type.height = 20;
-            // adds the type background
+            //adds the type background
             let typeBackground = type.rect().radius(10).move(10, 7);
-            // adds the type text
+            //adds the type text
             let typeText = type.text(this.type);
 
             typeBackground.size(node.width-20, type.height);
@@ -194,7 +193,7 @@ infraRED.nodes = (function() {
                     requirements.add(requirement.getSVG().move(requirementSVG.marginInline, drawingY += requirementSVG.spacing));
                 });
 
-                // add a border line to separate capabilities from requirements if both exist
+                //add a border line to separate capabilities from requirements if both exist
                 if (!$.isEmptyObject(this.capabilities)) {
                     node.line(0, drawingY + 25, node.width, drawingY + 25).addClass('connectable-separator');
                     drawingY += 5;
@@ -247,9 +246,9 @@ infraRED.nodes = (function() {
         }
 
         print() {
-            // this node is only present in the resource bar
+            //this node is only present in the resource bar
             let printResult = `ResourceID ${this.resourceID}: ${this.type}`;
-            if (this.canvasID != null) { // this node also exists in the canvas
+            if (this.canvasID != null) { //this node also exists in the canvas
                 printResult += `\nCanvasID ${this.canvasID}: ${this.name}`;
             } else {
                 printResult += `\n${JSON.stringify(this.properties)}`;
@@ -259,7 +258,7 @@ infraRED.nodes = (function() {
     }
 
     let currentID = 0;
-    // this list holds information about the node types loaded into infraRED
+    //this list holds information about the node types loaded into infraRED
     resourceNodesList = (function() {
         let nodeList = {};
 
@@ -272,7 +271,7 @@ infraRED.nodes = (function() {
             return nodeList[id];
         }
 
-        // returns an array with the node class instances
+        //returns an array with the node class instances
         function getNodeList() {
             return Object.values(nodeList);
         }
@@ -284,10 +283,10 @@ infraRED.nodes = (function() {
         };
     })();
 
-    // this list holds information about the nodes in play
-    // these nodes will be different from the nodes present in the resource bar
-    // for that distinction, resource nodes will have sequential IDs
-    // and canvas nodes will have the random IDs
+    //this list holds information about the nodes in play
+    //these nodes will be different from the nodes present in the resource bar
+    //for that distinction, resource nodes will have sequential IDs
+    //and canvas nodes will have the random IDs
     canvasNodesList = (function() {
         let nodeList = {};
 
@@ -303,7 +302,7 @@ infraRED.nodes = (function() {
             return nodeList[id];
         }
 
-        // returns an array with the node class instances
+        //returns an array with the node class instances
         function getNodeList() {
             return Object.values(nodeList);
         }
@@ -361,7 +360,7 @@ infraRED.nodes = (function() {
      * @return {string|Node} a canvas node if the canvas has space for a node, 'full canvas' if not
      */
     function moveNodeToCanvas(resourceNode) {
-        // stop the node from entering the canvas if we are at max value
+        //stop the node from entering the canvas if we are at max value
         if (canvasNodesList.getAll().length == infraRED.settings.nodes.MAX_ID) {
             infraRED.events.emit('nodes:max-nodes-in-canvas');
             return 'full canvas';

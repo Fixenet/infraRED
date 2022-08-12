@@ -67,11 +67,11 @@ infraRED.validator = (function() {
             console.log('Starting the validator functionality.');
         },
 
-        // validate node type
+        //validate node type
         validateNodeMode: function(nodeMode) {
             return typeof(nodeMode) === 'string' && (nodeMode === 'capability' || nodeMode === 'requirement');
         },
-        // better validation will be done to ensure proper regex rules
+        //better validation will be done to ensure proper regex rules
         validateNodeType: function(nodeType) {
             return typeof(nodeType) === 'string';
         },
@@ -150,7 +150,7 @@ infraRED.canvas = (function() {
 
     let connectionVariables = resetConnectionVariables();
     function createConnection(connectable, connectableSVG) {
-        if (connectionVariables.isConnecting) { // we already made the first selection and now are trying to make a connection
+        if (connectionVariables.isConnecting) { //we already made the first selection and now are trying to make a connection
             try {
                 if (connectionVariables.typeConnecting != connectable.type) {
                     throw new Error('Cannot connect capabilities/requirements of different types...');
@@ -171,8 +171,8 @@ infraRED.canvas = (function() {
             } catch (error) {
                 infraRED.editor.statusBar.log(error);
             }
-        } else { // we haven't chosen the first selection to start connecting
-            if (connectionVariables.capability == null && connectionVariables.requirement == null) { // make sure
+        } else { //we haven't chosen the first selection to start connecting
+            if (connectionVariables.capability == null && connectionVariables.requirement == null) { //make sure
                 if (connectable.mode === 'capability') {
                     connectionVariables.capability = connectable;
                     connectionVariables.capabilitySVG = connectableSVG;
@@ -215,7 +215,6 @@ infraRED.canvas = (function() {
     };
 })();
 infraRED.nodes = (function() {
-    //TODO - global for nodes ? stuff for drawing
     /**
      * @global Holds information about the current node being dragged
      */
@@ -234,13 +233,13 @@ infraRED.nodes = (function() {
         constructor(mode, type, nodeID) {
             this.name = null;
 
-            // select between requirement and capability connectable
+            //select between requirement and capability connectable
             if (infraRED.validator.validateNodeMode(mode)) this.mode = mode;
 
-            // type of the connectable
+            //type of the connectable
             this.type = type;
 
-            // nodeID on the canvas of the parent node to this connectable
+            //nodeID on the canvas of the parent node to this connectable
             this.nodeID = nodeID;
         }
 
@@ -279,7 +278,7 @@ infraRED.nodes = (function() {
 
             connectable.on('click', (event) => {
                 event.stopPropagation();
-                // handles logic and svg drawing
+                //handles logic and svg drawing
                 infraRED.events.emit('canvas:create-connection', this, background);
             });
 
@@ -322,13 +321,13 @@ infraRED.nodes = (function() {
         }
 
         addCapability(capabilityType) {
-            // index by type since only one of each type exists in each Node
+            //index by type since only one of each type exists in each Node
             let capability = new Connectable('capability', capabilityType, this.canvasID);
             this.capabilities[capabilityType] = capability;
         }
 
         addRequirement(requirementType) {
-            // index by type since only one of each type exists in each Node
+            //index by type since only one of each type exists in each Node
             let requirement = new Connectable('requirement', requirementType, this.canvasID);
             this.requirements[requirementType] = requirement;
         }
@@ -357,7 +356,7 @@ infraRED.nodes = (function() {
                     requirements.append(requirement.getDiv());
                 });
 
-                // add a border line to separate capabilities from requirements if both exist
+                //add a border line to separate capabilities from requirements if both exist
                 if (!$.isEmptyObject(this.capabilities)) {
                     requirements.addClass('connectable-separator');
                 }
@@ -388,9 +387,9 @@ infraRED.nodes = (function() {
 
             let type = node.group().addClass('type');
             type.height = 20;
-            // adds the type background
+            //adds the type background
             let typeBackground = type.rect().radius(10).move(10, 7);
-            // adds the type text
+            //adds the type text
             let typeText = type.text(this.type);
 
             typeBackground.size(node.width-20, type.height);
@@ -410,7 +409,7 @@ infraRED.nodes = (function() {
                     requirements.add(requirement.getSVG().move(requirementSVG.marginInline, drawingY += requirementSVG.spacing));
                 });
 
-                // add a border line to separate capabilities from requirements if both exist
+                //add a border line to separate capabilities from requirements if both exist
                 if (!$.isEmptyObject(this.capabilities)) {
                     node.line(0, drawingY + 25, node.width, drawingY + 25).addClass('connectable-separator');
                     drawingY += 5;
@@ -463,9 +462,9 @@ infraRED.nodes = (function() {
         }
 
         print() {
-            // this node is only present in the resource bar
+            //this node is only present in the resource bar
             let printResult = `ResourceID ${this.resourceID}: ${this.type}`;
-            if (this.canvasID != null) { // this node also exists in the canvas
+            if (this.canvasID != null) { //this node also exists in the canvas
                 printResult += `\nCanvasID ${this.canvasID}: ${this.name}`;
             } else {
                 printResult += `\n${JSON.stringify(this.properties)}`;
@@ -475,7 +474,7 @@ infraRED.nodes = (function() {
     }
 
     let currentID = 0;
-    // this list holds information about the node types loaded into infraRED
+    //this list holds information about the node types loaded into infraRED
     resourceNodesList = (function() {
         let nodeList = {};
 
@@ -488,7 +487,7 @@ infraRED.nodes = (function() {
             return nodeList[id];
         }
 
-        // returns an array with the node class instances
+        //returns an array with the node class instances
         function getNodeList() {
             return Object.values(nodeList);
         }
@@ -500,10 +499,10 @@ infraRED.nodes = (function() {
         };
     })();
 
-    // this list holds information about the nodes in play
-    // these nodes will be different from the nodes present in the resource bar
-    // for that distinction, resource nodes will have sequential IDs
-    // and canvas nodes will have the random IDs
+    //this list holds information about the nodes in play
+    //these nodes will be different from the nodes present in the resource bar
+    //for that distinction, resource nodes will have sequential IDs
+    //and canvas nodes will have the random IDs
     canvasNodesList = (function() {
         let nodeList = {};
 
@@ -519,7 +518,7 @@ infraRED.nodes = (function() {
             return nodeList[id];
         }
 
-        // returns an array with the node class instances
+        //returns an array with the node class instances
         function getNodeList() {
             return Object.values(nodeList);
         }
@@ -577,7 +576,7 @@ infraRED.nodes = (function() {
      * @return {string|Node} a canvas node if the canvas has space for a node, 'full canvas' if not
      */
     function moveNodeToCanvas(resourceNode) {
-        // stop the node from entering the canvas if we are at max value
+        //stop the node from entering the canvas if we are at max value
         if (canvasNodesList.getAll().length == infraRED.settings.nodes.MAX_ID) {
             infraRED.events.emit('nodes:max-nodes-in-canvas');
             return 'full canvas';
@@ -675,7 +674,7 @@ infraRED.relationships = (function() {
             return relationshipList[id];
         }
 
-        // returns an array with the relationship class instances
+        //returns an array with the relationship class instances
         function getRelationshipList() {
             return Object.values(relationshipList);
         }
@@ -797,7 +796,7 @@ infraRED.loader = (function() {
 infraRED.deployer = (function () {
     function deployNodes() {
         //TODO - deepcopy of my node obj list, can probably be done better
-        // i can also use this to only pass up to the server the values i want (reduce clutter)
+        //i can also use this to only pass up to the server the values i want (reduce clutter)
         let cleanNodeList = [];
         for (let node of infraRED.nodes.canvasList.getAll()) {
             let cleanNode = jQuery.extend(true, {}, node);
@@ -814,7 +813,7 @@ infraRED.deployer = (function () {
             cleanNodeList.push(cleanNode);
         }
 
-        // post the current nodes in use to server to start deployment
+        //post the current nodes in use to server to start deployment
         $.ajax({
             method: 'POST', url: '/deploy',
             contentType: 'application/json', dataType: 'json',
@@ -824,7 +823,7 @@ infraRED.deployer = (function () {
                 "nodes": cleanNodeList
             }),
 
-            //TODO - success function places value inside the return variable
+            //TEST - we get the data back from the server
             success: function(data) {
                 console.log(data);
             }
@@ -839,7 +838,7 @@ infraRED.deployer = (function () {
         }
     };
 })();
-// use this file to define the base layout for the editor
+//use this file to define the base layout for the editor
 infraRED.editor = (function() {
     return {
         init: function() {
@@ -869,7 +868,7 @@ infraRED.editor = (function() {
         },
     };
 })();
-// use this file to define the category bar
+//use this file to define the category bar
 infraRED.editor.categoryBar = (function() {
     let categoryBar;
 
@@ -877,7 +876,7 @@ infraRED.editor.categoryBar = (function() {
     function toggleCategory(category) {
         if (selectedCategory == category) {
             return false;
-        } else if (selectedCategory == null) { // first time selecting a category
+        } else if (selectedCategory == null) { //first time selecting a category
             selectedCategory = category;
             selectedCategory.toggleClass('category-selected');
             infraRED.events.emit('category:change-category', null, selectedCategory.attr("name"));
@@ -941,7 +940,7 @@ infraRED.editor.categoryBar = (function() {
         },
     };
 })();
-// use this file to define the resource bar
+//use this file to define the resource bar
 infraRED.editor.resourceBar = (function() {
     let resourceBar;
     
@@ -1003,7 +1002,7 @@ infraRED.editor.resourceBar = (function() {
         },
     };
 })();
-// use this file to define the canvas bar
+//use this file to define the canvas bar
 infraRED.editor.canvas = (function() {
     const canvasSizeW = infraRED.settings.canvas.canvasSizeW;
     const canvasSizeH = infraRED.settings.canvas.canvasSizeH;
@@ -1011,7 +1010,7 @@ infraRED.editor.canvas = (function() {
 
     const SVGnamespace = infraRED.settings.canvas.SVGnamespace;
 
-    let canvasDraw; // variable used to draw on the canvas, from SVG.js 3.0
+    let canvasDraw; //variable used to draw on the canvas, from SVG.js 3.0
 
     function roundToGrid(position) {
         return Math.round(position / gridSizeGap) * gridSizeGap;
@@ -1059,7 +1058,7 @@ infraRED.editor.canvas = (function() {
         } else {
             relationshipPreviewLine = canvasDraw.line(lineCoordinates);
             relationshipPreviewLine.marker('end', 4, 4, function(add) {
-                add.polygon().plot([ // create a triangle
+                add.polygon().plot([ //create a triangle
                     [1,0],
                     [1,4],
                     [4,2]
@@ -1073,7 +1072,7 @@ infraRED.editor.canvas = (function() {
         let start = { x: capabilitySVG.x(), y: capabilitySVG.cy()};
         let end = { x: requirementSVG.x(), y: requirementSVG.cy()};
 
-        if (start.x < end.x) { // we are to the right
+        if (start.x < end.x) { //we are to the right
             start.x += capabilitySVG.width();
         } else {
             end.x += requirementSVG.width();
@@ -1102,11 +1101,11 @@ infraRED.editor.canvas = (function() {
 
     function createRelationshipPreviewLine(connectable) {
         startingPosition = {
-            // left side
+            //left side
             left: connectable.x(),
-            // right side
+            //right side
             right: connectable.x() + connectable.width(),
-            // middle height
+            //middle height
             top: connectable.cy(),
         };
 
@@ -1119,7 +1118,7 @@ infraRED.editor.canvas = (function() {
     }
 
     function onContentDrop(event, ui) {
-        // use this so the node drops in the canvas on the place where the mouse was lifted at
+        //use this so the node drops in the canvas on the place where the mouse was lifted at
         let draggableOffset = ui.helper.offset(),
         droppableOffset = $(this).offset(),
         scrollOffsetLeft = $(this).scrollLeft(),
@@ -1145,16 +1144,16 @@ infraRED.editor.canvas = (function() {
 
     function onMouseMove(event) {
         if (relationshipPreviewLine != null) {
-            // save the position of the cursor in relation to the canvas grid
+            //save the position of the cursor in relation to the canvas grid
             lineEndPosition.x = event.offsetX;
             lineEndPosition.y = event.offsetY;
-            // check if we are to the right of the connectable
+            //check if we are to the right of the connectable
             startingPosition.rightSide = lineEndPosition.x > startingPosition.right;
             drawRelationshipPreviewLine();
         }
-        // this movement only happens if we have a selected node for moving
-        // we then only use the 'canvasSelectedDragNode' variable to do movement based on itself
-        // and not the triggerer of the 'mousemove' event
+        //this movement only happens if we have a selected node for moving
+        //we then only use the 'canvasSelectedDragNode' variable to do movement based on itself
+        //and not the triggerer of the 'mousemove' event
         let canvasSelectedDragNode = infraRED.nodes.draggingNode();
         if (canvasSelectedDragNode != null) {
             let dragX = event.offsetX - canvasSelectedDragNode.offsetX;
@@ -1219,7 +1218,7 @@ infraRED.editor.canvas = (function() {
         },
     };
 })();
-// use this file to define the menu bar
+//use this file to define the menu bar
 infraRED.editor.menuBar = (function() {
     let menuBar;
 
@@ -1252,6 +1251,7 @@ infraRED.editor.menuBar = (function() {
             });
             menuBar.append(content);
 
+            //each button gets a function that when called, calls the emit event inside
             content.append(createButton('Log Resources', () => infraRED.events.emit('nodes:log-resources')));
             content.append(createButton('Log Canvas', () => infraRED.events.emit('nodes:log-canvas')));
             content.append(createButton('Log Relationships', () => infraRED.events.emit('relationships:log-all')));
@@ -1263,7 +1263,7 @@ infraRED.editor.menuBar = (function() {
         },
     };
 })();
-// use this file to define the status bar
+//use this file to define the status bar
 infraRED.editor.statusBar = (function() {
     let statusBar;
     let content;
@@ -1288,13 +1288,10 @@ infraRED.editor.statusBar = (function() {
         }
     };
 })();
-// use this file to define node behaviour
+//use this file to define node behaviour
 infraRED.editor.nodes = (function () {
     function onCanvasDrop(droppedNode, coordinates) {
         let canvasNode = infraRED.nodes.add(droppedNode);
-                
-        // 'add' method will return null and we know we are supposed to remove
-        //TODO - this may be prone to errors, since i may generate null through other ways
         if (canvasNode != 'full canvas') {
             infraRED.events.emit('nodes:canvas-drop-success', canvasNode, coordinates);
         }
@@ -1330,4 +1327,4 @@ infraRED.editor.init();
 
 //ask the user if they really want to leave
 //in case we implement some saving functionality
-//TODO - window.onbeforeunload = function() { return true; };
+//TEST - window.onbeforeunload = function() { return true; };

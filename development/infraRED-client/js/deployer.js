@@ -1,7 +1,7 @@
 infraRED.deployer = (function () {
     function deployNodes() {
         //TODO - deepcopy of my node obj list, can probably be done better
-        // i can also use this to only pass up to the server the values i want (reduce clutter)
+        //i can also use this to only pass up to the server the values i want (reduce clutter)
         let cleanNodeList = [];
         for (let node of infraRED.nodes.canvasList.getAll()) {
             let cleanNode = jQuery.extend(true, {}, node);
@@ -18,7 +18,7 @@ infraRED.deployer = (function () {
             cleanNodeList.push(cleanNode);
         }
 
-        // post the current nodes in use to server to start deployment
+        //post the current nodes in use to server to start deployment
         $.ajax({
             method: 'POST', url: '/deploy',
             contentType: 'application/json', dataType: 'json',
@@ -28,7 +28,7 @@ infraRED.deployer = (function () {
                 "nodes": cleanNodeList
             }),
 
-            //TODO - success function places value inside the return variable
+            //TEST - we get the data back from the server
             success: function(data) {
                 console.log(data);
             }

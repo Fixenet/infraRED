@@ -1,4 +1,4 @@
-// use this file to define the canvas bar
+//use this file to define the canvas bar
 infraRED.editor.canvas = (function() {
     const canvasSizeW = infraRED.settings.canvas.canvasSizeW;
     const canvasSizeH = infraRED.settings.canvas.canvasSizeH;
@@ -6,7 +6,7 @@ infraRED.editor.canvas = (function() {
 
     const SVGnamespace = infraRED.settings.canvas.SVGnamespace;
 
-    let canvasDraw; // variable used to draw on the canvas, from SVG.js 3.0
+    let canvasDraw; //variable used to draw on the canvas, from SVG.js 3.0
 
     function roundToGrid(position) {
         return Math.round(position / gridSizeGap) * gridSizeGap;
@@ -54,7 +54,7 @@ infraRED.editor.canvas = (function() {
         } else {
             relationshipPreviewLine = canvasDraw.line(lineCoordinates);
             relationshipPreviewLine.marker('end', 4, 4, function(add) {
-                add.polygon().plot([ // create a triangle
+                add.polygon().plot([ //create a triangle
                     [1,0],
                     [1,4],
                     [4,2]
@@ -68,7 +68,7 @@ infraRED.editor.canvas = (function() {
         let start = { x: capabilitySVG.x(), y: capabilitySVG.cy()};
         let end = { x: requirementSVG.x(), y: requirementSVG.cy()};
 
-        if (start.x < end.x) { // we are to the right
+        if (start.x < end.x) { //we are to the right
             start.x += capabilitySVG.width();
         } else {
             end.x += requirementSVG.width();
@@ -97,11 +97,11 @@ infraRED.editor.canvas = (function() {
 
     function createRelationshipPreviewLine(connectable) {
         startingPosition = {
-            // left side
+            //left side
             left: connectable.x(),
-            // right side
+            //right side
             right: connectable.x() + connectable.width(),
-            // middle height
+            //middle height
             top: connectable.cy(),
         };
 
@@ -114,7 +114,7 @@ infraRED.editor.canvas = (function() {
     }
 
     function onContentDrop(event, ui) {
-        // use this so the node drops in the canvas on the place where the mouse was lifted at
+        //use this so the node drops in the canvas on the place where the mouse was lifted at
         let draggableOffset = ui.helper.offset(),
         droppableOffset = $(this).offset(),
         scrollOffsetLeft = $(this).scrollLeft(),
@@ -140,16 +140,16 @@ infraRED.editor.canvas = (function() {
 
     function onMouseMove(event) {
         if (relationshipPreviewLine != null) {
-            // save the position of the cursor in relation to the canvas grid
+            //save the position of the cursor in relation to the canvas grid
             lineEndPosition.x = event.offsetX;
             lineEndPosition.y = event.offsetY;
-            // check if we are to the right of the connectable
+            //check if we are to the right of the connectable
             startingPosition.rightSide = lineEndPosition.x > startingPosition.right;
             drawRelationshipPreviewLine();
         }
-        // this movement only happens if we have a selected node for moving
-        // we then only use the 'canvasSelectedDragNode' variable to do movement based on itself
-        // and not the triggerer of the 'mousemove' event
+        //this movement only happens if we have a selected node for moving
+        //we then only use the 'canvasSelectedDragNode' variable to do movement based on itself
+        //and not the triggerer of the 'mousemove' event
         let canvasSelectedDragNode = infraRED.nodes.draggingNode();
         if (canvasSelectedDragNode != null) {
             let dragX = event.offsetX - canvasSelectedDragNode.offsetX;

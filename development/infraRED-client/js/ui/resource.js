@@ -1,4 +1,4 @@
-// use this file to define the resource bar
+//use this file to define the resource bar
 infraRED.editor.resourceBar = (function() {
     let resourceBar;
     

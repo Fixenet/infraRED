@@ -1,6 +1,8 @@
 const express = require('express');
 const path = require('path');
 
+const moment = require("moment");
+
 const app = express();
 const port = 3000;
 
@@ -11,21 +13,50 @@ let nodesFullPathList = {};
 let nodesRuntimeList = {};
 let nodesResourceList = {};
 
-async function initInfraRED() {
-    nodesFullPathList = registry.listAllNodes();
-    for (let nodeFile of Object.keys(nodesFullPathList)) {
-        //take out the .js of the string name, leaving the node name/identifier
+function loadNode(nodeFile) {
+    return new Promise(async (resolve, reject) => {
         let nodeName = nodeFile.slice(0,-3);
-        nodesRuntimeList[nodeName] = require(nodesFullPathList[nodeFile]);
-        console.log(`\n----- ${nodeName} -----`);
-        
-        //TODO - i can't await for every single node to load individually
-        await nodesRuntimeList[nodeName].load();
-    }
-    nodesResourceList = registry.buildResourceList(nodesRuntimeList);
+        try {
+            //take out the .js of the string name, leaving the node name/identifier
+            nodesRuntimeList[nodeName] = require(nodesFullPathList[nodeFile]);
+            await nodesRuntimeList[nodeName].load();
+            console.log(`${moment().format('h:mm:ss a')} - Loaded ${nodeName} node.`);
+            resolve(nodeName);
+        } catch (error) {
+            //if the node fails to load we remove it from the run time
+            delete nodesRuntimeList[nodeName];
+            console.log(`${moment().format('h:mm:ss a')} - Failed to load ${nodeName} node.`);
+            reject({
+                error: error.message, 
+                who: nodeName
+            });
+        } 
+    });
 }
 
-//TODO - have this here in case i need to load this file separately 
+async function initInfraRED() {
+    nodesFullPathList = registry.listAllNodes();
+
+    let loaderPromises = [];
+    for (let nodeFile of Object.keys(nodesFullPathList)) {
+        //creates a promise for each different node type's initial load
+        //this way node load time is independent of each other
+        //only later will the initializer wait for every loader to finish via Promise.allSettled
+        let nodeLoader = loadNode(nodeFile);
+        loaderPromises.push(nodeLoader);
+    }
+
+    //allSettled means that the 'then' will only execute when all promises either resolved or rejected
+    await Promise.allSettled(loaderPromises).then((results) => {
+        nodesResourceList = registry.buildResourceList(nodesRuntimeList);
+        results.forEach((result) => {
+            //TODO - handle informing client of rejected loadings and/or retry
+            if (result.status === 'rejected') {
+            }
+        });
+    });
+}
+
 app.get('/infraRED.js', (req, res) => {
     console.log('Sending infraRED.js ...');
     res.sendFile(path.join(__dirname, './infraRED.js'), (error) => {
@@ -35,8 +66,10 @@ app.get('/infraRED.js', (req, res) => {
 });
 
 app.get('/', async (req, res) => {
+    //TODO - client needs to be aware of this process starting
     console.log('Initializing nodes ...');
     await initInfraRED();
+    //TODO - client needs to be aware of this being complete
     console.log('Finished initializing nodes.');
 
     //set up the asset folder for the client to get frontend files, no sensitive files should go here
@@ -66,7 +99,7 @@ app.post('/deploy', (req, res) => {
     console.log(nodesToDeploy[0]);
     nodesRuntimeList[nodesToDeploy[0].type].deploy();
     
-    //TODO - for reading values on chrome
+    //TEST - send back to the client for reading values on browser
     res.status(200).send(req.body);
     res.end();
 });

@@ -1,4 +1,4 @@
-// use this file to define the base layout for the editor
+//use this file to define the base layout for the editor
 infraRED.editor = (function() {
     return {
         init: function() {

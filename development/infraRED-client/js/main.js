@@ -6,4 +6,4 @@ infraRED.editor.init();
 
 //ask the user if they really want to leave
 //in case we implement some saving functionality
-//TODO - window.onbeforeunload = function() { return true; };
+//TEST - window.onbeforeunload = function() { return true; };

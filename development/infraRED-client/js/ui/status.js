@@ -1,4 +1,4 @@
-// use this file to define the status bar
+//use this file to define the status bar
 infraRED.editor.statusBar = (function() {
     let statusBar;
     let content;

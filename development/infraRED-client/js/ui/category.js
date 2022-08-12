@@ -1,4 +1,4 @@
-// use this file to define the category bar
+//use this file to define the category bar
 infraRED.editor.categoryBar = (function() {
     let categoryBar;
 
@@ -6,7 +6,7 @@ infraRED.editor.categoryBar = (function() {
     function toggleCategory(category) {
         if (selectedCategory == category) {
             return false;
-        } else if (selectedCategory == null) { // first time selecting a category
+        } else if (selectedCategory == null) { //first time selecting a category
             selectedCategory = category;
             selectedCategory.toggleClass('category-selected');
             infraRED.events.emit('category:change-category', null, selectedCategory.attr("name"));

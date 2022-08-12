@@ -24,7 +24,7 @@ infraRED.canvas = (function() {
 
     let connectionVariables = resetConnectionVariables();
     function createConnection(connectable, connectableSVG) {
-        if (connectionVariables.isConnecting) { // we already made the first selection and now are trying to make a connection
+        if (connectionVariables.isConnecting) { //we already made the first selection and now are trying to make a connection
             try {
                 if (connectionVariables.typeConnecting != connectable.type) {
                     throw new Error('Cannot connect capabilities/requirements of different types...');
@@ -45,8 +45,8 @@ infraRED.canvas = (function() {
             } catch (error) {
                 infraRED.editor.statusBar.log(error);
             }
-        } else { // we haven't chosen the first selection to start connecting
-            if (connectionVariables.capability == null && connectionVariables.requirement == null) { // make sure
+        } else { //we haven't chosen the first selection to start connecting
+            if (connectionVariables.capability == null && connectionVariables.requirement == null) { //make sure
                 if (connectable.mode === 'capability') {
                     connectionVariables.capability = connectable;
                     connectionVariables.capabilitySVG = connectableSVG;

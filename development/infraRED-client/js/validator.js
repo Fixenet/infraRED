@@ -4,11 +4,11 @@ infraRED.validator = (function() {
             console.log('Starting the validator functionality.');
         },
 
-        // validate node type
+        //validate node type
         validateNodeMode: function(nodeMode) {
             return typeof(nodeMode) === 'string' && (nodeMode === 'capability' || nodeMode === 'requirement');
         },
-        // better validation will be done to ensure proper regex rules
+        //better validation will be done to ensure proper regex rules
         validateNodeType: function(nodeType) {
             return typeof(nodeType) === 'string';
         },
