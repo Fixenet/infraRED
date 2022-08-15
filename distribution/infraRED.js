@@ -800,7 +800,7 @@ infraRED.deployer = (function () {
         let cleanNodeList = [];
         for (let node of infraRED.nodes.canvasList.getAll()) {
             let cleanNode = jQuery.extend(true, {}, node);
-
+            
             let cleanList = [];
             for (let relationship of cleanNode.relationships) {
                 let clean = jQuery.extend(true, {}, relationship);

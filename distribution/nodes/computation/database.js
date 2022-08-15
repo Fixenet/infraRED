@@ -1,8 +1,8 @@
 module.exports = function() {
     function Database() {
         this.category = {
-            name: "Computation",
-            img: "icons\\arrow-svgrepo-com.svg",
+            name: 'Computation',
+            img: 'icons\\arrow-svgrepo-com.svg',
         };
     
         this.capabilities = {
@@ -11,22 +11,23 @@ module.exports = function() {
             
         this.requirements = {
         };
+
+        this.deploy = async function() {
+            console.log('Databasing.');
+        };
     }
 
     return {
+        create: function() {
+            return new Database();
+        },
         load: async function() {
             //TEST - takes 2 seconds to load
             await new Promise(r => setTimeout(r, 1000));
             if (Date.now() % 3 == 0) { //TEST - rng to throw an error
-                throw new Error(`It's broken.`);
+                throw new Error(`It broke, throwing an error.`);
             }
             await new Promise(r => setTimeout(r, 1000));
-        },
-        create: function() {
-            return new Database();
-        },
-        deploy: function() {
-
         },
     };
 }();

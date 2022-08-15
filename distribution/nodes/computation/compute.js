@@ -1,8 +1,8 @@
 module.exports = function() {
     function Compute() {
         this.category = {
-            name: "Computation",
-            img: "icons\\arrow-svgrepo-com.svg",
+            name: 'Computation',
+            img: 'icons\\arrow-svgrepo-com.svg',
         };
     
         this.capabilities = {
@@ -13,17 +13,18 @@ module.exports = function() {
             storage: {},
             database: {},
         };
+
+        this.deploy = async function() {
+            console.log('Computing.');
+        };
     }
 
     return {
-        load: async function() {
-            //TEST - instant load
-        },
         create: function() {
             return new Compute();
         },
-        deploy: function() {
-
+        load: async function() {
+            //TEST - instant load
         },
     };
 }();
