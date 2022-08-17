@@ -20,12 +20,19 @@ module.exports = function() {
             input2: {},
         };
 
+        //method to call when creating an instance
         this.deploy = async function() {
-            console.log('Doing some stuff.');
+            console.log('-Doing some stuff.');
             await new Promise(r => setTimeout(r, 2000));
-            console.log('Doing some more other stuff.');
+            console.log('-Doing some more other stuff.');
             await new Promise(r => setTimeout(r, 1000));
-            console.log('Finished doing stuff.');
+            console.log('-Finished doing stuff.');
+        };
+
+        //method to call when the instance is destroyed
+        this.clean = async function() {
+            console.log('-Cleaning myself.');
+            await new Promise(r => setTimeout(r, 1000));
         };
     }
     return {

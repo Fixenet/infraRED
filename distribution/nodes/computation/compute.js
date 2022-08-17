@@ -15,7 +15,14 @@ module.exports = function() {
         };
 
         this.deploy = async function() {
-            console.log('Computing.');
+            console.log('-Computing.');
+            await new Promise(r => setTimeout(r, 1500));
+            console.log('-Finished Computing.');
+        };
+
+        this.clean = async function() {
+            console.log('-Shutting down.');
+            console.log('-Cleaning myself.');
         };
     }
 

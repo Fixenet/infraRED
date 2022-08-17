@@ -2,6 +2,9 @@ const path = require('path');
 const fs = require('fs');
 const moment = require('moment');
 
+let logger = require('./logger');
+logger = logger.init('Registry');
+
 function traverseDirForFiles(dir) {
     let fileList = {};
     fs.readdirSync(dir).forEach(file => {
@@ -19,7 +22,6 @@ let nodesFullPathList = {}; //1st I get the path to the nodes
 let nodesRuntimeList = {}; //2nd I require all nodes and build a list of their exports, effectively a runtime list
 let nodesResourceList = {}; //3rd I use the method 'create' that all runtimes provide and use it to access each node's properties
                             //building the resource to show the user
-let nodesInPlayInstanceList = []; //4th I have a list of created objects for each node the user wishes to deploy
 
 function buildNodesFullPathList() {
     nodesFullPathList = traverseDirForFiles(path.join(__dirname, '../nodes'));
@@ -33,12 +35,12 @@ function loadNode(nodeFile) {
         try {
             nodesRuntimeList[nodeName] = require(nodesFullPathList[nodeFile]);
             await nodesRuntimeList[nodeName].load();
-            console.log(`${moment().format('h:mm:ss a')} - Loaded ${nodeName} node.`);
+            logger.log(`Loaded ${nodeName} node.`);
             resolve(nodeName);
         } catch (error) {
             //if the node fails to load we remove it from the runtime
             delete nodesRuntimeList[nodeName];
-            console.log(`${moment().format('h:mm:ss a')} - Failed to load ${nodeName} node.`);
+            logger.log(`Failed to load ${nodeName} node.`);
             reject({
                 error: error.message, 
                 who: nodeName
@@ -62,7 +64,7 @@ function buildResourceList() {
 }
 
 async function buildNodesRuntimeList() {
-    await buildNodesFullPathList();
+    buildNodesFullPathList();
 
     let loaderPromises = [];
     for (let nodeFile of Object.keys(nodesFullPathList)) {
@@ -82,11 +84,14 @@ async function buildNodesRuntimeList() {
         });
     });
 
-    await buildResourceList();
+    buildResourceList();
 }
 
 module.exports = {
     getPathList: () => { return nodesFullPathList; },
+
     buildRuntime: buildNodesRuntimeList,
+    getRuntimeList: () => { return nodesRuntimeList; },
+    
     getResourceList: () => { return nodesResourceList; },
 };

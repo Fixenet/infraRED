@@ -1,16 +1,11 @@
-//my requires
-const registry = require('./registry.js');
+//abstract infraRED server functionality to express server through this "middlewear"
 
-//TODO - do deployment stuff like talk to other APIs
-function deployNodes(nodesToDeploy) {
-    for (let node of nodesToDeploy) {
-        console.log(`Deploying ${node}...`);
-        nodesInPlayInstanceList.push(nodesRuntimeList[node.type].create());
-    }
-}
+//my requires
+const registry = require('./registry');
+const deployer = require('./deployer');
 
 module.exports = {
     init: registry.buildRuntime,
     listNodes: registry.getResourceList,
-    deploy: deployNodes,
+    deploy: deployer.deployNodes,
 };

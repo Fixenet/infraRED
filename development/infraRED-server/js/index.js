@@ -27,7 +27,7 @@ app.get('/', async (req, res) => {
     app.use(express.static(path.join(__dirname, './assets/')));
 
     console.log('Sending index.html ...');
-    await res.status(200).sendFile(path.join(__dirname, './assets/index.html'), (error) => {
+    res.sendFile(path.join(__dirname, './assets/index.html'), (error) => {
         if (error) console.error(error);
         res.end();
         console.log('Finished sending index.');
@@ -41,9 +41,10 @@ app.get('/listNodes', (req, res) => {
 });
 
 app.use(express.json()); 
-app.post('/deploy', (req, res) => {
+app.post('/deploy', async (req, res) => {
     console.log('Deployment request arrived at server.');
     infraRED.deploy(req.body.nodes);
+    
     //TEST - send back to the client for reading values on browser
     res.status(200).send(req.body);
     res.end();
