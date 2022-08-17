@@ -184,7 +184,7 @@ infraRED.editor.canvas = (function() {
         init: function() {
             console.log('%cCreating Canvas...', 'color: #ffc895');
 
-            canvas = $('#infraRED-ui-canvas');
+            let canvas = $('#infraRED-ui-canvas');
 
             let content = $('<div>', {
                 id: 'canvas-content',

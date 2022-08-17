@@ -336,6 +336,27 @@ infraRED.nodes = (function() {
             this.relationships.push(relationship);
         }
 
+        getPropertiesModal() {
+            let content = $('<div>', {
+                id: this.canvasID,
+                class: 'modal-content',
+            });
+
+            let close = $('<span>', {
+                class: 'close',
+                text: 'X',
+            });
+
+            content.append(close);
+            
+            close.on('click', (event) => {
+                content.remove();
+                $('.modal').css('display', 'none');
+            });
+
+            return content;
+        }
+
         getDiv() {
             let div = $('<div>', {
                 id: this.resourceID,
@@ -427,6 +448,13 @@ infraRED.nodes = (function() {
 
             node.height = drawingY + 30;
             background.size(node.width, node.height);
+
+            node.on('dblclick', (event) => {
+                let modal = $('.modal');
+                modal.css('display', 'block');
+
+                modal.append(this.getPropertiesModal());
+            });
 
             node.on('mousedown', (event) => {
                 event.stopPropagation();
@@ -844,25 +872,41 @@ infraRED.editor = (function() {
         init: function() {
             console.log('%cCreating Editor...', 'color: red');
 
-            let resourceBar = $('<div>', { id: 'infraRED-ui-resource-bar'});
+            let resourceBar = $('<div>', { id: 'infraRED-ui-resource-bar' });
             $('#infraRED-ui-root').append(resourceBar);
             infraRED.editor.resourceBar.init();
 
-            let categoryBar = $('<div>', { id: 'infraRED-ui-category-bar'});
+            let categoryBar = $('<div>', { id: 'infraRED-ui-category-bar' });
             $('#infraRED-ui-root').append(categoryBar);
             infraRED.editor.categoryBar.init();
 
-            let canvas = $('<div>', { id: 'infraRED-ui-canvas'});
+            let canvas = $('<div>', { id: 'infraRED-ui-canvas' });
             $('#infraRED-ui-root').append(canvas);
             infraRED.editor.canvas.init();
 
-            let menuBar = $('<div>', { id: 'infraRED-ui-menu-bar'});
+            let menuBar = $('<div>', { id: 'infraRED-ui-menu-bar' });
             $('#infraRED-ui-root').append(menuBar);
             infraRED.editor.menuBar.init();
 
-            let statusBar = $('<div>', { id: 'infraRED-ui-status-bar'});
+            let statusBar = $('<div>', { id: 'infraRED-ui-status-bar' });
             $('#infraRED-ui-root').append(statusBar);
             infraRED.editor.statusBar.init();
+
+            //here will be inserted settings for the nodes, modal style
+            let modal = $('<div>', {
+                class: 'modal'
+            });
+
+            //create a modal for showing node properties
+            $('#infraRED-ui-root').append(modal);
+            modal.on('click', (event) => {
+                //when the user clicks anywhere outside of the modal, close it
+                if (event.target.className === 'modal') {
+                    //remove previous content
+                    modal.empty();
+                    modal.css('display', 'none');
+                }
+            });
 
             infraRED.editor.nodes.init();
         },
@@ -1188,7 +1232,7 @@ infraRED.editor.canvas = (function() {
         init: function() {
             console.log('%cCreating Canvas...', 'color: #ffc895');
 
-            canvas = $('#infraRED-ui-canvas');
+            let canvas = $('#infraRED-ui-canvas');
 
             let content = $('<div>', {
                 id: 'canvas-content',

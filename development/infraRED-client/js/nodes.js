@@ -120,6 +120,27 @@ infraRED.nodes = (function() {
             this.relationships.push(relationship);
         }
 
+        getPropertiesModal() {
+            let content = $('<div>', {
+                id: this.canvasID,
+                class: 'modal-content',
+            });
+
+            let close = $('<span>', {
+                class: 'close',
+                text: 'X',
+            });
+
+            content.append(close);
+            
+            close.on('click', (event) => {
+                content.remove();
+                $('.modal').css('display', 'none');
+            });
+
+            return content;
+        }
+
         getDiv() {
             let div = $('<div>', {
                 id: this.resourceID,
@@ -211,6 +232,13 @@ infraRED.nodes = (function() {
 
             node.height = drawingY + 30;
             background.size(node.width, node.height);
+
+            node.on('dblclick', (event) => {
+                let modal = $('.modal');
+                modal.css('display', 'block');
+
+                modal.append(this.getPropertiesModal());
+            });
 
             node.on('mousedown', (event) => {
                 event.stopPropagation();

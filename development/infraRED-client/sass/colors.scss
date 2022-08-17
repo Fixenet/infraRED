@@ -1,9 +1,26 @@
+//Layout
 $layout-background: #ffffff;
+
+$border-width: 3px;
+$layout-border: $border-width solid #000000;
+
+$menu-height: 50px;
+$status-height: 50px;
+
+$category-width: 60px;
+$resource-width: 200px;
 
 //Canvas
 $canvas-background-color: #e9e9e9;
 $canvas-background-color-hover: #cfcfcf;
 $canvas-grid-line-color: #000000;
+
+//Node Properties Modal
+$node-modal-background-color: rgba(#000000, 0.4); //slight transparency
+$node-modal-content-border: $layout-border;
+$node-modal-content-background-color: #ffffff;
+$node-modal-content-close-button-color: #545454;
+$node-modal-content-close-button-color-hover: #000000;
 
 //Node
 $node-border-color: #616161;

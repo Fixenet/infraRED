@@ -109,3 +109,32 @@ svg g.canvas-node:hover {
         stroke: $node-border-color-hover;
     }
 }
+
+.modal-content {
+    //overwrite parent
+    z-index: 2;
+    opacity: 1;
+    cursor: default;
+
+    width: 60%;
+    margin: auto;
+    padding: 1%;
+
+    border: $node-modal-content-border;
+    background-color: $node-modal-content-background-color;
+    
+    .close {
+        color: $node-modal-content-close-button-color;
+        float: right;
+        font-size: 20px;
+        font-weight: bold;
+    }
+      
+    .close:hover,
+    .close:focus {
+        color: $node-modal-content-close-button-color-hover;
+        text-decoration: none;
+        cursor: pointer;
+    }
+}
+
