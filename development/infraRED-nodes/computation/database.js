@@ -4,6 +4,12 @@ module.exports = function() {
             name: 'Computation',
             img: 'icons\\arrow-svgrepo-com.svg',
         };
+
+        //outline what properties this node has
+        this.properties = {
+            ip: '192.168.1.2',
+            port: '6789',
+        };
     
         this.capabilities = {
             database: {},
@@ -28,11 +34,11 @@ module.exports = function() {
         },
         load: async function() {
             //TEST - takes 2 seconds to load
-            await new Promise(r => setTimeout(r, 1000));
-            if (Date.now() % 33 == 0) { //TEST - rng to throw an error
+            //await new Promise(r => setTimeout(r, 1000));
+            if (Date.now() % 11 == 0) { //TEST - rng to throw an error
                 throw new Error(`It broke, throwing an error.`);
             }
-            await new Promise(r => setTimeout(r, 1000));
+            //await new Promise(r => setTimeout(r, 1000));
         },
     };
 }();

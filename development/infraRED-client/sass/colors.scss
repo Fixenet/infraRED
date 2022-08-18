@@ -19,8 +19,13 @@ $canvas-grid-line-color: #000000;
 $node-modal-background-color: rgba(#000000, 0.4); //slight transparency
 $node-modal-content-border: $layout-border;
 $node-modal-content-background-color: #ffffff;
-$node-modal-content-close-button-color: #545454;
-$node-modal-content-close-button-color-hover: #000000;
+
+$node-modal-delete-button-background-color: #ff4d4d;
+
+$node-modal-save-button-background-color: #0fbe32;
+
+$node-modal-close-button-color: #545454;
+$node-modal-close-button-color-hover: #000000;
 
 //Node
 $node-border-color: #616161;

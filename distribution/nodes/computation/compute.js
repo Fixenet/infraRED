@@ -4,6 +4,12 @@ module.exports = function() {
             name: 'Computation',
             img: 'icons\\arrow-svgrepo-com.svg',
         };
+
+        //outline what properties this node has
+        this.properties = {
+            ip: '192.168.1.2',
+            port: '6789',
+        };
     
         this.capabilities = {
             database: {},

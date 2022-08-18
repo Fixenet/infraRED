@@ -126,18 +126,105 @@ infraRED.nodes = (function() {
                 class: 'modal-content',
             });
 
-            let close = $('<span>', {
-                class: 'close',
+            let deleteButton = $('<div>', {
+                class: 'button delete-button',
+                text: 'Delete',
+            });
+
+            let saveButton = $('<div>', {
+                class: 'button save-button',
+                text: 'Save',
+            });
+
+            let closeButton = $('<span>', {
+                class: 'button close-button',
                 text: 'X',
             });
 
-            content.append(close);
-            
-            close.on('click', (event) => {
+            function closeModal() {
                 content.remove();
                 $('.modal').css('display', 'none');
+            }
+
+            deleteButton.on('click', (event) => {
+                //close modal
+                closeModal();
+
+                //remove SVG element
+                $(`.canvas-node#${this.canvasID}`).remove();
+
+                //remove logic element
+                let deleteNode = canvasNodesList.getByID(this.canvasID);
+                canvasNodesList.remove(deleteNode);
             });
 
+            saveButton.on('click', (event) => {
+                //save values inside input boxes
+                propertyList.forEach((propertyDiv) => {
+                    let name = $(propertyDiv).children('.property-name').text();
+                    let value = $(propertyDiv).children('.property-value').val();
+
+                    //don't change values if they are null
+                    if (value !== '') {
+                        if (name === this.type) //changing the name
+                            this.name = value;
+                        else //changing properties
+                            this.properties[name] = value; 
+                    }
+                });
+
+                this.updateSVG();
+                closeModal();
+            });
+
+            closeButton.on('click', (event) => {
+                closeModal();
+            });
+
+            content.append(closeButton);
+            content.append(deleteButton);
+            content.append(saveButton);
+
+            function createProperty(name, value) {
+                let property = $('<div>', {
+                    id: `${name}`,
+                    class: 'property',
+                });
+
+                let propertyName = $('<div>', {
+                    class: 'property-name',
+                    text: name,
+                });
+
+                let propertyValue = $('<input>', {
+                    class: 'property-value',
+                    placeholder: value,
+                });
+
+                property.append(propertyName);
+                property.append(propertyValue);
+
+                return property;
+            }
+            
+            let propertyList = [];
+            let propertyContainer = $('<div>', {
+                class: 'property-list'
+            });
+
+            //the name property has the form of 'TYPE - NAME', you can't change TYPE, only NAME
+            let nameDiv = createProperty(this.type, this.name);
+            propertyContainer.append(nameDiv);
+            propertyList.push(nameDiv);
+
+            //every other property has the form of 'NAME - VALUE', you can't change NAME, only VALUE
+            for (let propertyID in this.properties) {
+                let propertyDiv = createProperty(propertyID, this.properties[propertyID]);
+                propertyContainer.append(propertyDiv);
+                propertyList.push(propertyDiv);
+            }
+
+            content.append(propertyContainer);
             return content;
         }
 
@@ -186,6 +273,7 @@ infraRED.nodes = (function() {
 
         getSVG() {
             let node = new SVG.G().addClass('canvas-node');
+            node.attr('id', this.canvasID);
             node.width = 200;
 
             let background = node.rect().radius(10).addClass('background');
@@ -195,7 +283,7 @@ infraRED.nodes = (function() {
             //adds the type background
             let typeBackground = type.rect().radius(10).move(10, 7);
             //adds the type text
-            let typeText = type.text(this.type);
+            let typeText = type.text(this.name);
 
             typeBackground.size(node.width-20, type.height);
 
@@ -233,10 +321,10 @@ infraRED.nodes = (function() {
             node.height = drawingY + 30;
             background.size(node.width, node.height);
 
+            //double click opens a modal
             node.on('dblclick', (event) => {
                 let modal = $('.modal');
                 modal.css('display', 'block');
-
                 modal.append(this.getPropertiesModal());
             });
 
@@ -271,6 +359,10 @@ infraRED.nodes = (function() {
             });
 
             return node;
+        }
+
+        updateSVG() {
+            $(`g.canvas-node#${this.canvasID} g.type tspan`).text(this.name);
         }
 
         print() {
@@ -397,6 +489,8 @@ infraRED.nodes = (function() {
         let canvasNode = new Node(resourceNode.type);
         canvasNode.resourceID = resourceNode.resourceID;
         canvasNode.canvasID = createCanvasID();
+
+        canvasNode.properties = jQuery.extend(true, {}, resourceNode.properties);
 
         for (let capability of Object.values(resourceNode.capabilities)) canvasNode.addCapability(capability.type);
         for (let requirement of Object.values(resourceNode.requirements)) canvasNode.addRequirement(requirement.type);

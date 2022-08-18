@@ -5,19 +5,25 @@ module.exports = function() {
             name: 'Example',
             img: 'icons\\computer-svgrepo-com.svg',
         };
+
+        //outline what properties this node has
+        this.properties = {
+            ip: '192.168.1.2',
+            port: '6789',
+        };
     
         //outline what capabilites this node has
         this.capabilities = {
-            output: {},
-            output1: {},
-            output2: {},
+            example1: {},
+            example2: {},
+            example3: {},
         };
         
         //outline what requirements this node has
         this.requirements = {
-            input: {},
-            input1: {},
-            input2: {},
+            example1: {},
+            example2: {},
+            example3: {},
         };
 
         //method to call when creating an instance
@@ -43,7 +49,7 @@ module.exports = function() {
         //the load method should have all the necessary setup that instancing this particular node requires
         load: async function() {
             //TEST - demonstrate a bigger load time for this node
-            await new Promise(r => setTimeout(r, 2000));
+            //await new Promise(r => setTimeout(r, 2000));
         },
     };
 }();

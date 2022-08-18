@@ -3,7 +3,7 @@ const fs = require('fs');
 const moment = require('moment');
 
 let logger = require('./logger');
-logger = logger.init('Registry');
+logger = logger.init('registry');
 
 function traverseDirForFiles(dir) {
     let fileList = {};
@@ -57,6 +57,7 @@ function buildResourceList() {
         //extract the properties from this node
         nodesResourceList[nodeName] = {
             category: node.category,
+            properties: node.properties,
             capabilities: node.capabilities,
             requirements: node.requirements,
         };

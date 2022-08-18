@@ -42,11 +42,11 @@ infraRED.editor.resourceBar = (function() {
             let nodesList = infraRED.nodes.resourceList.getAll();
 
             for (let node of nodesList) {
-                let category = node.properties.category.name;
+                let category = node.category.name;
                 if (tabList[category] == null) {
                     tabList[category] = createTab(category);
                     tabs.append(tabList[category]);
-                } 
+                }
                 tabList[category].append(node.getDiv());
             }
 

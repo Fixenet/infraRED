@@ -1,5 +1,5 @@
 let logger = require('./logger');
-logger = logger.init('Deployer');
+logger = logger.init('deployer');
 
 const registry = require('./registry');
 

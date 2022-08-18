@@ -56,10 +56,10 @@ infraRED.editor.categoryBar = (function() {
             let categoryList = [];
             let newCategory;
             for (let node of nodesList) {
-                if (categoryList.indexOf(node.properties.category.name) == -1) {
-                    newCategory = createNewCategory(node.properties.category.name, node.properties.category.img);
+                if (categoryList.indexOf(node.category.name) == -1) {
+                    newCategory = createNewCategory(node.category.name, node.category.img);
                     content.append(newCategory);
-                    categoryList.push(node.properties.category.name);
+                    categoryList.push(node.category.name);
                 }
             }
             //automatically open a category section (last one)

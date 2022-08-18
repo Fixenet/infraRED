@@ -1,0 +1,79 @@
+.modal { //this is the background of the modal
+    display: none;
+    position: fixed;
+    overflow: hidden;
+    z-index: 1;
+
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+
+    padding-top: 10%;
+    background-color: $node-modal-background-color;
+    cursor: alias; //convey the idea of click outside to go back
+}
+
+.modal-content { //this is the actual content of the modal
+    //overwrite parent
+    z-index: 2;
+    opacity: 1;
+    cursor: default;
+
+    width: 60%;
+    margin: auto;
+    padding: 1%;
+    display: block;
+
+    font-family: Arial, sans-serif;
+    border: $node-modal-content-border;
+    background-color: $node-modal-content-background-color;
+
+    .button {
+        margin-right: 10px;
+        padding: 2px;
+        font-size: 20px;
+        font-weight: bold;
+        display: inline-block;
+        width: fit-content;
+    }
+
+    .button:hover,
+    .button:focus {
+        cursor: pointer;
+    }
+    
+    .delete-button {
+        border: $node-modal-content-border;
+        background-color: $node-modal-delete-button-background-color;
+    }
+
+    .save-button {
+        border: $node-modal-content-border;
+        background-color: $node-modal-save-button-background-color;
+    }
+
+    .close-button {
+        padding-inline: 4px;
+        border: $node-modal-content-border;
+        color: $node-modal-close-button-color;
+
+        //overwrite since it's floating to the right
+        margin-right: 0px;
+        float: right;
+    }
+
+    .property-list {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: $node-modal-content-border;
+        display: block;
+
+        .property {
+            margin-top: 10px;
+            display: grid;
+            column-gap: 10px;
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+}
