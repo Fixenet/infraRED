@@ -22,16 +22,14 @@ module.exports = function() {
 
         this.deploy = async function() {
             console.log('-Computing.');
-            await new Promise(r => setTimeout(r, 1500));
+            await new Promise(r => setTimeout(r, 2000));
             console.log('-Finished Computing.');
-            await new Promise(r => setTimeout(r, 500));
         };
 
         this.clean = async function() {
             console.log('-Shutting down.');
-            await new Promise(r => setTimeout(r, 1500));
+            await new Promise(r => setTimeout(r, 1000));
             console.log('-Cleaning myself.');
-            await new Promise(r => setTimeout(r, 500));
         };
     }
 

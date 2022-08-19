@@ -41,7 +41,7 @@ app.get('/listNodes', (req, res) => {
 });
 
 app.use(express.json()); 
-app.post('/deploy', async (req, res) => {
+app.post('/deploy', (req, res) => {
     console.log('Deployment request arrived at server.');
     infraRED.deploy(req.body.nodes);
     

@@ -20,10 +20,13 @@ module.exports = function() {
 
         this.deploy = async function() {
             console.log('-Databasing.');
+            await new Promise(r => setTimeout(r, 3000));
+            console.log('-Finished Databasing.');
         };
 
         this.clean = async function() {
-            console.log('-Closing Database connection.');
+            console.log('-Shutting down.');
+            await new Promise(r => setTimeout(r, 1000));
             console.log('-Cleaning myself.');
         };
     }

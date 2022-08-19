@@ -97,20 +97,9 @@ function createNodeInstances(nodesToDeploy) {
     return orderedInstances;
 }
 
-function startNodeDeployment(node) {
-    return new Promise(async (resolve, reject) => {
-        await node.deploy();
-        resolve();
-    });
-}
-
-function finishDeployment(level) {
-    logger.log(`Deployment finished at level ${level}.`);
-}
-
 async function deployNodes(nodesToDeploy) {
     //TODO - not used anymore, i may still need it
-    if (nodesInPlayInstanceList.length !== 0) await cleanNodeInstances();
+    if (nodesInPlayInstanceList.length !== 0) cleanNodeInstances();
 
     //{ levelN: nodes, levelN+1: nodes, ... }
     let orderedNodesToDeploy = orderNodesByHierarchy(nodesToDeploy);
@@ -118,17 +107,17 @@ async function deployNodes(nodesToDeploy) {
     //{ levelN: nodeInstances, levelN+1: nodeInstances, ... }
     let orderedNodeInstances = createNodeInstances(orderedNodesToDeploy);
 
-    logger.log('Deployment started!');
-    
+    logger.log('\nDeployment started!');
+
     for (let level in orderedNodeInstances) {
         let currentLevelDeployPromises = [];
 
         for (let node of orderedNodeInstances[level]) {
-            let deployOrder = await startNodeDeployment(node);
-            currentLevelDeployPromises.push(deployOrder);
+            currentLevelDeployPromises.push(node.deploy());
         }
 
-        Promise.all(currentLevelDeployPromises).then(finishDeployment(level));
+        await Promise.all(currentLevelDeployPromises);
+        logger.log(`Deployment finished at level ${level}.`);
     }
 
     logger.log('Deployment finished!');
