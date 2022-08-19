@@ -3,29 +3,28 @@ logger = logger.init('Deployer');
 
 const registry = require('./registry');
 
-let nodesInPlayInstanceList = [];
+let currentMaxLevel = 0;
+let orderedNodeInstances = {};
 
 async function cleanNodeInstances() {
+    logger.newLine();
     logger.log('Cleanup started.');
-
-    let cleanupPromises = [];
-    //call the cleanup for each node
-    nodesInPlayInstanceList.forEach((nodeInstance) => {
-        cleanupPromises.push(new Promise(async (resolve, reject) => {
-            await nodeInstance.clean();
-            resolve();
-        }));
-        
-    });
-
-    Promise.allSettled(cleanupPromises).then(() => {
-        nodesInPlayInstanceList = [];
-    });
-
-    logger.log('Cleanup finished.');
+    for (let level in orderedNodeInstances) {
+        let cleanupPromises = [];
+        //for cleanup, start at highest level and go down to 0
+        for (let node of orderedNodeInstances[currentMaxLevel - level]) {
+            //call the cleanup for each node
+            cleanupPromises.push(node.clean());
+        }
+        await Promise.allSettled(cleanupPromises);
+        logger.log(`Cleanup finished at level ${currentMaxLevel - level}.`);
+    }
+    orderedNodeInstances = {};
+    logger.log('Cleanup finished!');
+    logger.newLine();
 }
 
-//TODO - big boi algorithm to make nodes deploy in order
+//DEPLOYMENT ALGORITHM
 //ordered by levels of deployment
 //level 1 deploys first and has nodes with no requirements
 //level 2 deploys second and only has nodes with requirements fulfilled by level 1 deployments
@@ -81,6 +80,7 @@ function orderNodesByHierarchy(nodesToDeploy) {
         orderedNodes[currentLevel] = lookupRelashionships(currentLevel++, orderedNodes, nodesToDeploy);
     }
 
+    currentMaxLevel = currentLevel-1;
     return orderedNodes;
 }
 
@@ -99,16 +99,16 @@ function createNodeInstances(nodesToDeploy) {
 
 async function deployNodes(nodesToDeploy) {
     //TODO - not used anymore, i may still need it
-    if (nodesInPlayInstanceList.length !== 0) cleanNodeInstances();
+    if (Object.keys(orderedNodeInstances).length !== 0) await cleanNodeInstances();
 
     //{ levelN: nodes, levelN+1: nodes, ... }
     let orderedNodesToDeploy = orderNodesByHierarchy(nodesToDeploy);
 
     //{ levelN: nodeInstances, levelN+1: nodeInstances, ... }
-    let orderedNodeInstances = createNodeInstances(orderedNodesToDeploy);
+    orderedNodeInstances = createNodeInstances(orderedNodesToDeploy);
 
-    logger.log('\nDeployment started!');
-
+    logger.newLine();
+    logger.log('Deployment started!');
     for (let level in orderedNodeInstances) {
         let currentLevelDeployPromises = [];
 
@@ -116,11 +116,11 @@ async function deployNodes(nodesToDeploy) {
             currentLevelDeployPromises.push(node.deploy());
         }
 
-        await Promise.all(currentLevelDeployPromises);
+        await Promise.allSettled(currentLevelDeployPromises);
         logger.log(`Deployment finished at level ${level}.`);
     }
-
     logger.log('Deployment finished!');
+    logger.newLine();
 }
 
 module.exports = {

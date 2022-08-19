@@ -9,6 +9,10 @@ class Logger {
         if (this.prefix === '') throw Error('No prefix given, please initialize logger with init().');
         console.log(`${this.prefix}@${moment().format('HH:mm:ss')}: ${msg}`);
     }
+
+    newLine() {
+        console.log(' ');
+    }
     
     error(error) {
         console.error(error);
