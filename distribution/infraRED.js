@@ -631,6 +631,28 @@ infraRED.nodes = (function() {
         }
 
         function removeNode(node) {
+            //remove all of this node's relationships from memory
+            for (let relationshipIndex in node.relationships) {
+                let relationship = node.relationships[relationshipIndex];
+                //delete SVG elem from the canvas
+                relationship.lineSVG.remove();
+                //delete relationship from both nodes
+                let otherNode;
+                if (relationship.capability.nodeID === node.canvasID) {
+                    otherNode = getNodeByIdentifier(relationship.requirement.nodeID);
+                } else if (relationship.requirement.nodeID === node.canvasID) {
+                    otherNode = getNodeByIdentifier(relationship.capability.nodeID);
+                }
+                for (let otherRelationshipIndex in otherNode.relationships) {
+                    let otherRelationship = otherNode.relationships[otherRelationshipIndex];
+                    if (relationship.canvasID === otherRelationship.canvasID) {
+                        //remove elem from array
+                        otherNode.relationships.splice(otherRelationshipIndex--, 1);
+                    }
+                }
+                //delete from the relationships code memory
+                infraRED.relationships.remove(relationship);
+            }
             delete nodeList[node.canvasID];
         }
 
