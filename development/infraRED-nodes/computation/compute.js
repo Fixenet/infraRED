@@ -24,11 +24,14 @@ module.exports = function() {
             console.log('-Computing.');
             await new Promise(r => setTimeout(r, 1500));
             console.log('-Finished Computing.');
+            await new Promise(r => setTimeout(r, 500));
         };
 
         this.clean = async function() {
             console.log('-Shutting down.');
+            await new Promise(r => setTimeout(r, 1500));
             console.log('-Cleaning myself.');
+            await new Promise(r => setTimeout(r, 500));
         };
     }
 

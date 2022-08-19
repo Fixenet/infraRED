@@ -3,7 +3,7 @@ const fs = require('fs');
 const moment = require('moment');
 
 let logger = require('./logger');
-logger = logger.init('registry');
+logger = logger.init('Registry');
 
 function traverseDirForFiles(dir) {
     let fileList = {};
