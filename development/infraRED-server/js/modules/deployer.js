@@ -118,6 +118,8 @@ async function deployNodes(nodesToDeploy) {
     //{ levelN: nodeInstances, levelN+1: nodeInstances, ... }
     let orderedNodeInstances = createNodeInstances(orderedNodesToDeploy);
 
+    logger.log('Deployment started!');
+    
     for (let level in orderedNodeInstances) {
         let currentLevelDeployPromises = [];
 
