@@ -29,7 +29,7 @@ async function cleanNodeInstances() {
 //level 1 deploys first and has nodes with no requirements
 //level 2 deploys second and only has nodes with requirements fulfilled by level 1 deployments
 //level N deploys Nth and only has nodes with requirements fulfilled by levels less than N deployments
-function lookupRelashionships(level, orderedNodes, nodesToDeploy) {
+function lookupRelationships(level, orderedNodes, nodesToDeploy) {
     let currentLevelList = [];
     for (let nodeIndex = 0; nodeIndex < nodesToDeploy.length; nodeIndex++) {
         let node = nodesToDeploy[nodeIndex];
@@ -77,7 +77,7 @@ function orderNodesByHierarchy(nodesToDeploy) {
 
     while (nodesToDeploy.length !== 0) {
         if (currentLevel > 1000) throw Error('Circular reference in node design.');
-        orderedNodes[currentLevel] = lookupRelashionships(currentLevel++, orderedNodes, nodesToDeploy);
+        orderedNodes[currentLevel] = lookupRelationships(currentLevel++, orderedNodes, nodesToDeploy);
     }
 
     currentMaxLevel = currentLevel-1;
