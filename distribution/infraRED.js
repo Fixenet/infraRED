@@ -1011,12 +1011,16 @@ infraRED.deployer = (function () {
         let cleanNodeList = [];
         for (let node of infraRED.nodes.canvasList.getAll()) {
             let cleanNode = $.extend(true, {}, node);
-        
+            
+            let cleanList = [];
             for (let relationship of cleanNode.relationships) {
-                delete relationship.lineSVG;
-                delete relationship.lineOffsetPlot;
+                let clean = $.extend(true, {}, relationship);
+                delete clean.lineSVG;
+                delete clean.lineOffsetPlot;
+                cleanList.push(clean);
             }
 
+            cleanNode.relationships = cleanList;
             cleanNodeList.push(cleanNode);
         }
         return cleanNodeList;
