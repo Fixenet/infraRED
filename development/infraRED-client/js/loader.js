@@ -18,25 +18,26 @@ infraRED.loader = (function() {
 
     function loadNodesFromServerRegistry() {
         let types = getNodesFromServerRegistry();
-        for (let type in types) {
+        for (let typeName in types) {
             //create a resource node
-            let newNode = infraRED.nodes.new(type);
+            let type = types[typeName];
+            let newNode = infraRED.nodes.new(typeName);
 
             //initialize category - used by category.js to implement category tabs
-            newNode.category = types[type].category;
+            newNode.category = type.category;
 
             //initialize properties - alter functionality of a node
-            newNode.properties = types[type].properties;
+            newNode.properties = type.properties;
+            newNode.properties.name = infraRED.settings.nodes.EMPTY_NAME;
 
             //initialize capabilities
-            for (let capability in types[type].capabilities) {
-                newNode.addCapability(capability);
+            for (let capabilityName in type.capabilities) {
+                newNode.addCapability(capabilityName, type.capabilities[capabilityName]);
             }
             //initialize requirements
-            for (let requirement in types[type].requirements) {
-                newNode.addRequirement(requirement);
+            for (let requirementName in type.requirements) {
+                newNode.addRequirement(requirementName, type.requirements[requirementName]);
             }
-            
         }
     }
 
