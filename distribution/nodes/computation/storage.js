@@ -1,5 +1,5 @@
 module.exports = function() {
-    function Database() {
+    function Storage() {
         this.category = {
             name: 'Computation',
             img: 'icons\\arrow-svgrepo-com.svg',
@@ -7,33 +7,35 @@ module.exports = function() {
 
         //outline what properties this node has
         this.properties = {
-            ip: '192.168.1.2',
-            port: '6789',
+            name: '',
         };
     
         this.capabilities = {
-            database: {},
+            storage: {
+                mount_point: null,
+            },
         };
             
         this.requirements = {
         };
 
         this.deploy = async function() {
-            console.log('-Databasing.');
+            console.log('-Building Storage space.');
             await new Promise(r => setTimeout(r, 3000));
-            console.log('-Finished Databasing.');
+            console.log(`-Storage available at ${this.capabilities.storage.mount_point}.`);
         };
 
         this.clean = async function() {
-            console.log('-Shutting down.');
+            console.log('-Closing mount point down.');
             await new Promise(r => setTimeout(r, 2000));
-            console.log('-Cleaning myself.');
+            this.capabilities.storage.mount_point = null;
+            console.log('-Shutting down and cleaning myself.');
         };
     }
 
     return {
         create: function() {
-            return new Database();
+            return new Storage();
         },
         load: async function() {
             //TEST - takes 2 seconds to load

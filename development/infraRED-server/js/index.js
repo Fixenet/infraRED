@@ -50,6 +50,15 @@ app.post('/deploy', (req, res) => {
     res.end();
 });
 
+app.post('/save', (req, res) => {
+    console.log('Save request arrived at server.');
+    infraRED.saveTemplate(req.body.name, req.body.nodes);
+    
+    //TEST - send back to the client for reading values on browser
+    res.status(200).send(req.body);
+    res.end();
+});
+
 app.listen(port, () => {
     console.log(`infraRED app listening on port ${port}`);
 });

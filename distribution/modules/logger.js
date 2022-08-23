@@ -11,7 +11,7 @@ class Logger {
     }
 
     newLine() {
-        console.log(' ');
+        console.log('');
     }
     
     error(error) {

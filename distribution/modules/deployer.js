@@ -76,7 +76,7 @@ function orderNodesByHierarchy(nodesToDeploy) {
     let currentLevel = 0;
 
     while (nodesToDeploy.length !== 0) {
-        if (currentLevel > 1000) throw Error('Circular reference in node design.');
+        if (currentLevel > 1000) throw Error('Likely circular reference in node design.');
         orderedNodes[currentLevel] = lookupRelationships(currentLevel++, orderedNodes, nodesToDeploy);
     }
 
@@ -89,9 +89,19 @@ function createNodeInstances(nodesToDeploy) {
     for (let level in nodesToDeploy) {
         orderedInstances[level] = [];
         for (let node of Object.values(nodesToDeploy[level])) {
-            //push a node instance
+            //create a node instance
             logger.log(`Creating instance for ${node.type} at level ${level} ...`);
-            orderedInstances[level].push(registry.getRuntimeList()[node.type].create());
+            let newNode = registry.getRuntimeList()[node.type].create();
+            //copy each data piece into this new node instance
+            newNode.properties = node.properties;
+            for (let capability in node.capabilities) {
+                //this effectively cleans properties that are canvas related
+                newNode.capabilities[capability] = node.capabilities[capability].properties;
+            }
+            for (let requirement in node.requirements) {
+                newNode.requirements[requirement] = node.requirements[requirement].properties;
+            }
+            orderedInstances[level].push(newNode);
         }
     }
     return orderedInstances;
@@ -124,5 +134,6 @@ async function deployNodes(nodesToDeploy) {
 }
 
 module.exports = {
+    orderNodes: orderNodesByHierarchy,
     deployNodes: deployNodes,
 };

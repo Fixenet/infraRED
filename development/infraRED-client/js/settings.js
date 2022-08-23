@@ -15,15 +15,9 @@ infraRED.settings = (function() {
         };
     })();
 
-    capabilities = (function() {
+    connectables = (function() {
         return {
-            EMPTY_NAME: 'No Name Capability',
-        };
-    })();
-
-    requirements = (function() {
-        return {
-            EMPTY_NAME: 'No Name Requirement',
+            EMPTY_NAME: 'No Name Connectable',
         };
     })();
 
@@ -36,8 +30,7 @@ infraRED.settings = (function() {
 
     return {
         canvas: canvas,
-        capabilities: capabilities,
-        requirements: requirements,
+        connectables: connectables,
         nodes: nodes,
         relationships: relationships,
     };

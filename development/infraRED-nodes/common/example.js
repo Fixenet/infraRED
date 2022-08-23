@@ -6,24 +6,38 @@ module.exports = function() {
             img: 'icons\\computer-svgrepo-com.svg',
         };
 
-        //outline what properties this node has
         this.properties = {
+            //outline what properties this node has
             ip: '192.168.1.2',
-            port: '6789',
         };
     
         //outline what capabilites this node has
         this.capabilities = {
-            example1: {},
-            example2: {},
-            example3: {},
+            example1: { 
+                port1: 1111,
+                port2: 2222,
+                port3: 3333,
+            },
+            example2: { 
+                port: '1112',
+            },
+            example3: {
+                port: '1113',
+            },
         };
         
         //outline what requirements this node has
         this.requirements = {
-            example1: {},
-            example2: {},
-            example3: {},
+            example1: { 
+                port1: '11',
+                port2: '22',
+            },
+            example2: { 
+                port: '12',
+            },
+            example3: { 
+                port: '13',
+            },
         };
 
         //method to call when creating an instance
@@ -33,6 +47,8 @@ module.exports = function() {
             console.log('-Doing some more other stuff.');
             await new Promise(r => setTimeout(r, 1000));
             console.log('-Finished doing stuff.');
+
+            console.log(this.properties.name, this.properties.ip, this.capabilities);
         };
 
         //method to call when the instance is destroyed
