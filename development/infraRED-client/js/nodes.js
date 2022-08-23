@@ -3,6 +3,29 @@ infraRED.nodes = (function() {
      * @global Holds information about the current node being dragged
      */
     let canvasSelectedDragNode = null;
+
+    function createProperty(type, name, value) {
+        let property = $('<div>', {
+            id: `${name}`,
+            class: 'property',
+        });
+        property.attr('type', type);
+
+        let propertyName = $('<div>', {
+            class: 'property-name',
+            text: name,
+        });
+
+        let propertyValue = $('<input>', {
+            class: 'property-value',
+            placeholder: value,
+        });
+
+        property.append(propertyName);
+        property.append(propertyValue);
+
+        return property;
+    }
     
     /**
      * @class Creates a connectable.
@@ -15,13 +38,14 @@ infraRED.nodes = (function() {
      */
     class Connectable {
         constructor(mode, type, nodeID) {
-            this.name = null;
-
             //select between requirement and capability connectable
             if (infraRED.validator.validateNodeMode(mode)) this.mode = mode;
 
             //type of the connectable
             this.type = type;
+
+            //data for this connectable
+            this.properties = {};
 
             //nodeID on the canvas of the parent node to this connectable
             this.nodeID = nodeID;
@@ -31,11 +55,11 @@ infraRED.nodes = (function() {
             let connectable = $('<div>', {
                 id: this.type,
                 class: 'connectable ' + this.mode,
-                text: this.name ? this.name : this.type,
+                text: this.type,
             });
 
             connectable.attr({
-                name: this.name,
+                name: this.properties.name,
                 type: this.type,
             });
 
@@ -52,12 +76,14 @@ infraRED.nodes = (function() {
             connectable.width = 200 - connectable.marginInline * 2;
 
             connectable.attr({
-                name: this.name,
+                id: this.type,
+                name: this.properties.name,
                 type: this.type,
             });
 
             let background = connectable.rect(connectable.width, connectable.height).move(0,0);
 
+            //write the type of this connectable
             connectable.plain(this.type).move(0,0).cx(connectable.width/2);
 
             connectable.on('click', (event) => {
@@ -67,6 +93,32 @@ infraRED.nodes = (function() {
             });
 
             return connectable;
+        }
+
+        getPropertiesModalSection(propertyList) {
+            let propertyContainer = $('<div>', {
+                class: `${this.mode} property-list`,
+            });
+
+            let type = $('<div>', {
+                class: `connectable-name`,
+                text: this.type,
+            });
+            propertyContainer.append(type);
+
+            //every property has the form of 'NAME - VALUE', you can't change NAME, only VALUE
+            for (let propertyID in this.properties) {
+                let propertyDiv = createProperty(this.mode, propertyID, this.properties[propertyID]);
+                propertyDiv.attr('connectable-name', this.type);
+                propertyContainer.append(propertyDiv);
+                propertyList.push(propertyDiv);
+            }
+
+            return propertyContainer;
+        }
+
+        updateSVG() {
+            $(`g.${this.mode}#${this.type} text`).text(this.properties.name !== infraRED.settings.connectables.EMPTY_NAME ? this.properties.name : this.type);
         }
 
         print() {
@@ -84,8 +136,6 @@ infraRED.nodes = (function() {
         constructor(type) {
             this.resourceID = null;
             this.canvasID = null;
-
-            this.name = infraRED.settings.nodes.EMPTY_NAME;
             
             this.type = type;
             this.properties = {};
@@ -98,21 +148,25 @@ infraRED.nodes = (function() {
 
         setName(name) {
             if (infraRED.validator.validateNodeType(name)) {
-                this.name = name;
+                this.properties.name = name;
             } else {
                 console.log('Incorrect Node name was given.');
             }
         }
 
-        addCapability(capabilityType) {
+        addCapability(capabilityType, properties) {
             //index by type since only one of each type exists in each Node
             let capability = new Connectable('capability', capabilityType, this.canvasID);
+            capability.properties = properties;
+            capability.properties.name = infraRED.settings.connectables.EMPTY_NAME;
             this.capabilities[capabilityType] = capability;
         }
 
-        addRequirement(requirementType) {
+        addRequirement(requirementType, properties) {
             //index by type since only one of each type exists in each Node
             let requirement = new Connectable('requirement', requirementType, this.canvasID);
+            requirement.properties = properties;
+            requirement.properties.name = infraRED.settings.connectables.EMPTY_NAME;
             this.requirements[requirementType] = requirement;
         }
 
@@ -161,15 +215,27 @@ infraRED.nodes = (function() {
             saveButton.on('click', (event) => {
                 //save values inside input boxes
                 propertyList.forEach((propertyDiv) => {
+                    //TODO property divs need to be based on a more identifying property, canvasID + type
+                    let type = $(propertyDiv).attr('type');
                     let name = $(propertyDiv).children('.property-name').text();
                     let value = $(propertyDiv).children('.property-value').val();
 
                     //don't change values if they are null
                     if (value !== '') {
-                        if (name === this.type) //changing the name
-                            this.name = value;
-                        else //changing properties
-                            this.properties[name] = value; 
+                        switch(type) {
+                            case 'properties':
+                                this.properties[name] = value; 
+                                break;
+                            case 'capability':
+                                let capability = $(propertyDiv).attr('connectable-name');
+                                console.log(`changing ${capability}`);
+                                this.capabilities[capability].properties[name] = value;
+                                break;
+                            case 'requirement':
+                                let requirement = $(propertyDiv).attr('connectable-name');
+                                this.requirements[requirement].properties[name] = value;
+                                break;
+                        }
                     }
                 });
 
@@ -185,43 +251,33 @@ infraRED.nodes = (function() {
             content.append(deleteButton);
             content.append(saveButton);
 
-            function createProperty(name, value) {
-                let property = $('<div>', {
-                    id: `${name}`,
-                    class: 'property',
-                });
-
-                let propertyName = $('<div>', {
-                    class: 'property-name',
-                    text: name,
-                });
-
-                let propertyValue = $('<input>', {
-                    class: 'property-value',
-                    placeholder: value,
-                });
-
-                property.append(propertyName);
-                property.append(propertyValue);
-
-                return property;
-            }
+            let type = $('<div>', {
+                class: 'node-type button',
+                text: `Node Type: ${this.type}`,
+            });
+            content.append(type);
             
             let propertyList = [];
             let propertyContainer = $('<div>', {
-                class: 'property-list'
+                class: 'property-list',
+                text: 'Node Properties'
             });
 
-            //the name property has the form of 'TYPE - NAME', you can't change TYPE, only NAME
-            let nameDiv = createProperty(this.type, this.name);
-            propertyContainer.append(nameDiv);
-            propertyList.push(nameDiv);
-
-            //every other property has the form of 'NAME - VALUE', you can't change NAME, only VALUE
+            //every property has the form of 'NAME - VALUE', you can't change NAME, only VALUE
             for (let propertyID in this.properties) {
-                let propertyDiv = createProperty(propertyID, this.properties[propertyID]);
+                let propertyDiv = createProperty('properties', propertyID, this.properties[propertyID]);
                 propertyContainer.append(propertyDiv);
                 propertyList.push(propertyDiv);
+            }
+
+            for (let requirement of Object.values(this.requirements)) {
+                let requirementDiv = requirement.getPropertiesModalSection(propertyList);
+                propertyContainer.append(requirementDiv);
+            }
+
+            for (let capability of Object.values(this.capabilities)) {
+                let capabilityDiv = capability.getPropertiesModalSection(propertyList);
+                propertyContainer.append(capabilityDiv);
             }
 
             content.append(propertyContainer);
@@ -283,7 +339,7 @@ infraRED.nodes = (function() {
             //adds the type background
             let typeBackground = type.rect().radius(10).move(10, 7);
             //adds the type text
-            let typeText = type.text(this.name);
+            let typeText = type.plain(this.type); //starts at type since it has no name
 
             typeBackground.size(node.width-20, type.height);
 
@@ -362,14 +418,20 @@ infraRED.nodes = (function() {
         }
 
         updateSVG() {
-            $(`g.canvas-node#${this.canvasID} g.type tspan`).text(this.name);
+            $(`g.canvas-node#${this.canvasID} g.type text`).text(this.properties.name !== infraRED.settings.nodes.EMPTY_NAME ? this.properties.name : this.type);
+            for (let capability of Object.values(this.capabilities)) {
+                capability.updateSVG();
+            }
+            for (let requirement of Object.values(this.requirements)) {
+                requirement.updateSVG();
+            }
         }
 
         print() {
             //this node is only present in the resource bar
             let printResult = `ResourceID ${this.resourceID}: ${this.type}`;
             if (this.canvasID != null) { //this node also exists in the canvas
-                printResult += `\nCanvasID ${this.canvasID}: ${this.name}`;
+                printResult += `\nCanvasID ${this.canvasID}: ${this.properties.name}`;
             } else {
                 printResult += `\n${JSON.stringify(this.properties)}`;
             }
@@ -462,12 +524,13 @@ infraRED.nodes = (function() {
         let logString = [];
 
         resourceNodesList.getAll().forEach(node => {
+            console.log(node);
             logString.push(node.print());
         });
 
         logString = logString.join('\n');
         infraRED.editor.statusBar.log(logString);
-        console.log(logString);
+        //TEST console.log(logString);
     }
 
     function logCanvasList() {
@@ -481,7 +544,7 @@ infraRED.nodes = (function() {
 
         logString = logString.join('\n');
         infraRED.editor.statusBar.log(logString);
-        console.log(logString);
+        //TEST console.log(logString);
     }
 
     /**
@@ -512,10 +575,10 @@ infraRED.nodes = (function() {
         canvasNode.resourceID = resourceNode.resourceID;
         canvasNode.canvasID = createCanvasID();
 
-        canvasNode.properties = jQuery.extend(true, {}, resourceNode.properties);
+        canvasNode.properties = $.extend(true, {}, resourceNode.properties);
 
-        for (let capability of Object.values(resourceNode.capabilities)) canvasNode.addCapability(capability.type);
-        for (let requirement of Object.values(resourceNode.requirements)) canvasNode.addRequirement(requirement.type);
+        for (let capability of Object.values(resourceNode.capabilities)) canvasNode.addCapability(capability.type, $.extend(true, {}, capability.properties));
+        for (let requirement of Object.values(resourceNode.requirements)) canvasNode.addRequirement(requirement.type, $.extend(true, {}, requirement.properties));
 
         canvasNodesList.add(canvasNode);
         infraRED.events.emit('nodes:move-to-canvas', canvasNode);

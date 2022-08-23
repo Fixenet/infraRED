@@ -1,7 +1,7 @@
 .modal { //this is the background of the modal
     display: none;
     position: fixed;
-    overflow: hidden;
+    overflow: auto;
     z-index: 1;
 
     left: 0;
@@ -63,7 +63,22 @@
         float: right;
     }
 
+    .node-type {
+        user-select: none;
+
+        margin-left: 30px;
+        padding: 5px;
+        border-radius: 5px;
+        background-color: $node-border-color-hover;
+    }
+
+    .node-type:hover {
+        cursor: default;
+    }
+
     .property-list {
+        user-select: none;
+
         margin-top: 10px;
         padding-top: 10px;
         border-top: $node-modal-content-border;
@@ -74,6 +89,21 @@
             display: grid;
             column-gap: 10px;
             grid-template-columns: 1fr 1fr;
+        }
+
+        .connectable-name {
+            border: 0.4vh solid;
+            font-weight: 600;
+        }
+
+        .capability .connectable-name {
+            border-color: $node-capability-border-color;
+            background-color: $node-capability-color;
+        }
+
+        .requirement .connectable-name {
+            border-color: $node-requirement-border-color;
+            background-color: $node-requirement-color;
         }
     }
 }
