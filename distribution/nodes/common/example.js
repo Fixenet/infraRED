@@ -3,7 +3,7 @@ module.exports = function() {
         //data of what goes on the category bar
         this.category = {
             name: 'Example',
-            img: 'icons\\computer-svgrepo-com.svg',
+            img: 'icons\\important.png',
         };
 
         this.properties = {

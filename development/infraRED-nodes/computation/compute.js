@@ -2,7 +2,7 @@ module.exports = function() {
     function Compute() {
         this.category = {
             name: 'Computation',
-            img: 'icons\\arrow-svgrepo-com.svg',
+            img: 'icons\\computer-svgrepo-com.svg',
         };
 
         //outline what properties this node has
