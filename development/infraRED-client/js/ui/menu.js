@@ -34,9 +34,10 @@ infraRED.editor.menuBar = (function() {
             //each button gets a function that when called, calls the emit event inside
             content.append(createButton('Log Resources', () => infraRED.events.emit('nodes:log-resources')));
             content.append(createButton('Log Canvas', () => infraRED.events.emit('nodes:log-canvas')));
-            content.append(createButton('Log Relationships', () => infraRED.events.emit('relationships:log-all')));
-            content.append(createButton('Log Current Connection', () => infraRED.events.emit('relationships:log-current-connection')));
+            //content.append(createButton('Log Relationships', () => infraRED.events.emit('relationships:log-all')));
+            //content.append(createButton('Log Current Connection', () => infraRED.events.emit('relationships:log-current-connection')));
             content.append(createButton('Deploy', () => infraRED.events.emit('relationships:deploy')));
+            content.append(createButton('Save', () => infraRED.events.emit('relationships:save', 'patternName')));
         },
         get: function() {
             return menuBar;
