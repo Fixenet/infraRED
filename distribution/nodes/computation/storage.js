@@ -5,9 +5,7 @@ module.exports = function() {
             img: 'icons\\computer-svgrepo-com.svg',
         };
 
-        //outline what properties this node has
         this.properties = {
-            name: '',
         };
     
         this.capabilities = {

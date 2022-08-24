@@ -2,8 +2,8 @@ module.exports = function() {
     function Example() {
         //data of what goes on the category bar
         this.category = {
-            name: 'Example',
-            img: 'icons\\important.png',
+            name: 'Example', //name of the category
+            img: 'icons\\important.png', //icon of the category
         };
 
         this.properties = {
@@ -51,7 +51,7 @@ module.exports = function() {
             console.log(this.properties.name, this.properties.ip, this.capabilities);
         };
 
-        //method to call when the instance is destroyed
+        //method to call when destroying an instance
         this.clean = async function() {
             console.log('-Cleaning myself.');
             await new Promise(r => setTimeout(r, 1000));
