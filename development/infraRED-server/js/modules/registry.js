@@ -30,6 +30,7 @@ function buildNodesFullPathList() {
 
 function loadNode(nodeFile) {
     return new Promise(async (resolve, reject) => {
+        //TODO ignore non JS, just in case
         //take out the .js of the string name, leaving the node name/identifier
         let nodeName = nodeFile.slice(0,-3);
         try {

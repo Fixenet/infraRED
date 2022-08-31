@@ -3,7 +3,7 @@ module.exports = function() {
         //data of what goes on the category bar
         this.category = {
             name: 'Internet of Things',
-            img: 'icons\\arrow-svgrepo-com.svg',
+            img: 'icons\\arrow_up.svg',
         };
 
         this.properties = {

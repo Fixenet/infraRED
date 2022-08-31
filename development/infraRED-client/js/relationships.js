@@ -94,7 +94,6 @@ infraRED.relationships = (function() {
 
         logString = logString.join('\n');
         infraRED.editor.statusBar.log(logString);
-        console.log(logString);
     }
 
     function setUpEvents() {

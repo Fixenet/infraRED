@@ -42,13 +42,13 @@ module.exports = function() {
 
         //method to call when creating an instance
         this.deploy = async function() {
-            console.log('-Doing some stuff.');
+            console.log(`-Doing some stuff at ${this.properties.ip}.`);
             await new Promise(r => setTimeout(r, 2000));
             console.log('-Doing some more other stuff.');
             await new Promise(r => setTimeout(r, 1000));
             console.log('-Finished doing stuff.');
 
-            console.log(this.properties.name, this.properties.ip, this.capabilities);
+            //console.log(this.properties.name, this.properties.ip, this.capabilities);
         };
 
         //method to call when destroying an instance

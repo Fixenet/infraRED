@@ -2,7 +2,7 @@ module.exports = function() {
     function Compute() {
         this.category = {
             name: 'Computation',
-            img: 'icons\\computer-svgrepo-com.svg',
+            img: 'icons\\computer.svg',
         };
 
         this.properties = {
@@ -15,7 +15,7 @@ module.exports = function() {
             
         this.requirements = {
             storage: {
-                mount_point: null,
+                mount_point: 'drive C:',
             },
         };
 

@@ -14,6 +14,28 @@
     padding-top: 5px;
     padding-bottom: 8px;
 
+    .button {
+        border-radius: 10px;
+        border: 0.4vh solid $node-border-color;
+        padding: 2px;
+        padding-inline: 4px;
+
+        font-weight: bold;
+        cursor: default;
+    }
+
+    .load-button {
+        float: left;
+        margin-left: 5px;
+        background-color: $node-modal-save-button-background-color;
+    }
+
+    .delete-button {
+        float: right;
+        margin-right: 5px;
+        background-color: $node-modal-delete-button-background-color;
+    }
+
     .type {
         width: 90%;
         padding: 5px 20px;

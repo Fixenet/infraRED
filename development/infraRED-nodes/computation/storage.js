@@ -2,15 +2,16 @@ module.exports = function() {
     function Storage() {
         this.category = {
             name: 'Computation',
-            img: 'icons\\computer-svgrepo-com.svg',
+            img: 'icons\\computer.svg',
         };
 
         this.properties = {
+            some_new_property: null,
         };
     
         this.capabilities = {
             storage: {
-                mount_point: null,
+                mount_point: 'drive C:',
             },
         };
             
