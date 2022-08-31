@@ -98,7 +98,6 @@ function createNodeInstances(nodesToDeploy) {
         orderedInstances[level] = [];
         for (let node of Object.values(nodesToDeploy[level])) {
             if (node.isPattern) { //node is a pattern so we need to handle the deployment of its insides
-                //TODO - do this work?
                 //create the instances to be made available
                 orderedInstances[level].push(new Pattern(createNodeInstances(node.patternMemory)));
             } else {
@@ -143,7 +142,6 @@ async function nodeDeploy(nodesToDeploy) {
 }
 
 async function deployNodes(nodesToDeploy) {
-    //TODO - not used anymore, i may still need it
     if (Object.keys(orderedNodeInstances).length !== 0) await cleanNodeInstances(orderedNodeInstances);
 
     //{ levelN: nodes, levelN+1: nodes, ... }

@@ -30,13 +30,29 @@ function buildNodesFullPathList() {
 
 function loadNode(nodeFile) {
     return new Promise(async (resolve, reject) => {
-        //TODO ignore non JS, just in case
+        nodeFileInfo = nodeFile.split('.');
         //take out the .js of the string name, leaving the node name/identifier
-        let nodeName = nodeFile.slice(0,-3);
+        let nodeName = nodeFileInfo[0];
         try {
+            //ignore non JS files
+            let extensionName = nodeFileInfo[1];
+            if (extensionName != 'js' || nodeFileInfo.length != 2) {
+                throw new Error('Invalid file type, nodes must be .js files.');
+            }
+
+            //this require also throws errors based on faulty methods inside the node
             nodesRuntimeList[nodeName] = require(nodesFullPathList[nodeFile]);
+
+            //TODO - here in the registry I probably need to make sure I'm loading nodes that are
+            //correctly written, or at least possess the expected methods and attributes
+            if (!(nodesRuntimeList[nodeName].hasOwnProperty('create') && nodesRuntimeList[nodeName].hasOwnProperty('load'))) {
+                throw new Error('This node is built incorrectly, needs a "create" and "load" method.');
+            }
+
+            //TODO - and then load
             await nodesRuntimeList[nodeName].load();
             logger.log(`Loaded ${nodeName} node.`);
+
             resolve(nodeName);
         } catch (error) {
             //if the node fails to load we remove it from the runtime
@@ -82,6 +98,7 @@ async function buildNodesRuntimeList() {
         results.forEach((result) => {
             //TODO - handle informing client of rejected loadings and/or retry
             if (result.status === 'rejected') {
+                console.error(result);
             }
         });
     });
