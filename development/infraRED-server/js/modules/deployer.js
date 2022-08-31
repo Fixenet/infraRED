@@ -6,20 +6,24 @@ const registry = require('./registry');
 let currentMaxLevel = 0;
 let orderedNodeInstances = {};
 
-async function cleanNodeInstances() {
+async function cleanNodeInstances(nodesToClean) {
     logger.newLine();
     logger.log('Cleanup started.');
-    for (let level in orderedNodeInstances) {
+    for (let level in nodesToClean) {
         let cleanupPromises = [];
         //for cleanup, start at highest level and go down to 0
-        for (let node of orderedNodeInstances[currentMaxLevel - level]) {
-            //call the cleanup for each node
-            cleanupPromises.push(node.clean());
+        for (let node of nodesToClean[currentMaxLevel - level]) {
+            if (node.constructor.name == 'Pattern') {
+                cleanupPromises.push(cleanNodeInstances(node.orderedInstances));
+            } else {
+                //call the cleanup for each node
+                cleanupPromises.push(node.clean());
+            }
         }
         await Promise.allSettled(cleanupPromises);
         logger.log(`Cleanup finished at level ${currentMaxLevel - level}.`);
     }
-    orderedNodeInstances = {};
+    nodesToClean = {};
     logger.log('Cleanup finished!');
     logger.newLine();
 }
@@ -84,46 +88,51 @@ function orderNodesByHierarchy(nodesToDeploy) {
     return orderedNodes;
 }
 
+function Pattern(orderedInstances){ 
+    this.orderedInstances = orderedInstances;
+}
+
 function createNodeInstances(nodesToDeploy) {
     let orderedInstances = {};
     for (let level in nodesToDeploy) {
         orderedInstances[level] = [];
         for (let node of Object.values(nodesToDeploy[level])) {
-            //create a node instance
-            logger.log(`Creating instance for ${node.type} at level ${level} ...`);
-            let newNode = registry.getRuntimeList()[node.type].create();
-            //copy each data piece into this new node instance
-            newNode.properties = node.properties;
-            for (let capability in node.capabilities) {
-                //this effectively cleans properties that are canvas related
-                newNode.capabilities[capability] = node.capabilities[capability].properties;
+            if (node.isPattern) { //node is a pattern so we need to handle the deployment of its insides
+                //TODO - do this work?
+                //create the instances to be made available
+                orderedInstances[level].push(new Pattern(createNodeInstances(node.patternMemory)));
+            } else {
+                //create a node instance
+                logger.log(`Creating instance for ${node.type} at level ${level} ...`);
+                let newNode = registry.getRuntimeList()[node.type].create();
+                //copy each data piece into this new node instance
+                newNode.properties = node.properties;
+                for (let capability in node.capabilities) {
+                    //this effectively cleans properties that are canvas related
+                    newNode.capabilities[capability] = node.capabilities[capability].properties;
+                }
+                for (let requirement in node.requirements) {
+                    newNode.requirements[requirement] = node.requirements[requirement].properties;
+                }
+                orderedInstances[level].push(newNode);
             }
-            for (let requirement in node.requirements) {
-                newNode.requirements[requirement] = node.requirements[requirement].properties;
-            }
-            orderedInstances[level].push(newNode);
         }
     }
     return orderedInstances;
 }
 
-async function deployNodes(nodesToDeploy) {
-    //TODO - not used anymore, i may still need it
-    if (Object.keys(orderedNodeInstances).length !== 0) await cleanNodeInstances();
-
-    //{ levelN: nodes, levelN+1: nodes, ... }
-    let orderedNodesToDeploy = orderNodesByHierarchy(nodesToDeploy);
-
-    //{ levelN: nodeInstances, levelN+1: nodeInstances, ... }
-    orderedNodeInstances = createNodeInstances(orderedNodesToDeploy);
-
+async function nodeDeploy(nodesToDeploy) {
     logger.newLine();
     logger.log('Deployment started!');
-    for (let level in orderedNodeInstances) {
+    for (let level in nodesToDeploy) {
         let currentLevelDeployPromises = [];
 
-        for (let node of orderedNodeInstances[level]) {
-            currentLevelDeployPromises.push(node.deploy());
+        for (let node of nodesToDeploy[level]) {
+            if (node.constructor.name == 'Pattern') {
+                currentLevelDeployPromises.push(nodeDeploy(node.orderedInstances));
+            } else {
+                currentLevelDeployPromises.push(node.deploy());
+            }
         }
 
         await Promise.allSettled(currentLevelDeployPromises);
@@ -133,7 +142,21 @@ async function deployNodes(nodesToDeploy) {
     logger.newLine();
 }
 
+async function deployNodes(nodesToDeploy) {
+    //TODO - not used anymore, i may still need it
+    if (Object.keys(orderedNodeInstances).length !== 0) await cleanNodeInstances(orderedNodeInstances);
+
+    //{ levelN: nodes, levelN+1: nodes, ... }
+    let orderedNodesToDeploy = orderNodesByHierarchy(nodesToDeploy);
+
+    //{ levelN: nodeInstances, levelN+1: nodeInstances, ... }
+    orderedNodeInstances = createNodeInstances(orderedNodesToDeploy);
+
+    await nodeDeploy(orderedNodeInstances);
+}
+
 module.exports = {
     orderNodes: orderNodesByHierarchy,
     deployNodes: deployNodes,
+    destroyNodes: cleanNodeInstances,
 };

@@ -26,6 +26,23 @@ infraRED.editor.nodes = (function () {
             });
 
             infraRED.events.on('nodes:canvas-drop', onCanvasDrop);
-        }
+        },
+        update: function(resourceNode) {
+            resourceNode.draggable({
+                appendTo: '#infraRED-ui-root',
+                containment: '#infraRED-ui-root',
+                helper: 'clone',
+                scroll: false,
+                revert: 'invalid',
+                revertDuration: 300,
+                
+                start: function(event, ui) {
+                    $(this).data({
+                        id: event.currentTarget.id,
+                        type: 'node',
+                    });
+                },
+            });
+        },
     };
 })();

@@ -37,7 +37,8 @@ infraRED.editor.menuBar = (function() {
             //content.append(createButton('Log Relationships', () => infraRED.events.emit('relationships:log-all')));
             //content.append(createButton('Log Current Connection', () => infraRED.events.emit('relationships:log-current-connection')));
             content.append(createButton('Deploy', () => infraRED.events.emit('relationships:deploy')));
-            content.append(createButton('Save', () => infraRED.events.emit('relationships:save', 'patternName')));
+            content.append(createButton('Destroy', () => infraRED.events.emit('relationships:destroy')));
+            content.append(createButton('Save', () => infraRED.events.emit('relationships:save')));
         },
         get: function() {
             return menuBar;

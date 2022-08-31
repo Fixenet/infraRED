@@ -3,13 +3,14 @@ infraRED.editor.resourceBar = (function() {
     let resourceBar;
     
     function createTab(categoryName) {
+        let idName = categoryName.toLowerCase().replaceAll(' ','');
         let newTab = $('<div>', {
-            id: categoryName.toLowerCase() + '-tab',
+            id:  idName + '-tab',
             class: 'tab',
         });
-
+        
         newTab.append($('<div>', {
-            id: categoryName.toLowerCase() + '-title',
+            id: idName + '-title',
             class: 'title',
             text: categoryName,
         }));
@@ -50,6 +51,12 @@ infraRED.editor.resourceBar = (function() {
                 tabList[category].append(node.getDiv());
             }
 
+            //add the saved patterns tab
+            let tabName = 'Saved Patterns';
+            let saves = createTab(tabName);
+            tabList[tabName] = saves;
+            tabs.append(saves);
+
             content.append(tabs);
             resourceBar.append(content);
 
@@ -57,6 +64,12 @@ infraRED.editor.resourceBar = (function() {
         },
         get: function() {
             return resourceBar;
+        },
+
+        newSavedPattern: function(nodePattern) {
+            let patternDiv = nodePattern.getDiv();
+            tabList['Saved Patterns'].append(patternDiv);
+            infraRED.editor.nodes.update(patternDiv);
         },
     };
 })();

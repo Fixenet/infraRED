@@ -6,12 +6,13 @@ const deployer = require('./deployer');
 //patterns saved as name: JSON string
 let database = {};
 
-function saveTemplate(name, nodes) {
+function savePattern(name, nodes) {
     let orderedNodes = deployer.orderNodes(nodes);
-    database[name] = JSON.stringify(orderedNodes);
-    console.log(database);
+    let orderedPattern = JSON.stringify(orderedNodes);
+    database[name] = orderedPattern;
+    return orderedPattern;
 }
 
 module.exports = {
-    saveTemplate: saveTemplate,
+    savePattern: savePattern,
 };

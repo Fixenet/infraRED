@@ -1,6 +1,6 @@
 //use this file to define the category bar
 infraRED.editor.categoryBar = (function() {
-    let categoryBar;
+    let categoryBar, content;
 
     let selectedCategory = null;
     function toggleCategory(category) {
@@ -21,10 +21,11 @@ infraRED.editor.categoryBar = (function() {
     }
 
     function createNewCategory(name, img) {
+        let idName = name.toLowerCase().replaceAll(' ','');
         let newCategory = $('<img>', {
-            id: `${name}-category`,
+            id: `${idName}-category`,
             class: 'category',
-            alt: `${name} Category`,
+            alt: `${idName} Category`,
             src: img,
         });
 
@@ -45,7 +46,7 @@ infraRED.editor.categoryBar = (function() {
 
             categoryBar = $('#infraRED-ui-category-bar');
 
-            let content = $('<div>', {
+            content = $('<div>', {
                 id: 'category-bar-content',
                 class: 'content',
             });
@@ -64,6 +65,10 @@ infraRED.editor.categoryBar = (function() {
             }
             //automatically open a category section (last one)
             toggleCategory(newCategory);
+
+            //add the saved patterns category
+            let saves = createNewCategory('Saved Patterns', 'icons\\floppy_disk.svg');
+            content.append(saves);
         },
         get: function() {
             return categoryBar;

@@ -138,6 +138,11 @@ infraRED.nodes = (function() {
             this.canvasID = null;
             
             this.type = type;
+
+            //pattern functionality
+            this.isPattern = false;
+            this.patternMemory = null;
+
             this.properties = {};
 
             this.capabilities = {};
@@ -152,6 +157,12 @@ infraRED.nodes = (function() {
             } else {
                 console.log('Incorrect Node name was given.');
             }
+        }
+
+        makePatternNode(patternComposition) {
+            //pattern functionality
+            this.isPattern = true;
+            this.patternMemory = patternComposition;
         }
 
         addCapability(capabilityType, properties) {
@@ -228,7 +239,6 @@ infraRED.nodes = (function() {
                                 break;
                             case 'capability':
                                 let capability = $(propertyDiv).attr('connectable-name');
-                                console.log(`changing ${capability}`);
                                 this.capabilities[capability].properties[name] = value;
                                 break;
                             case 'requirement':
@@ -290,10 +300,35 @@ infraRED.nodes = (function() {
                 class: 'resource node resource-node',
             });
 
-            div.append($('<div>', { 
+            if (this.isPattern) {
+                let loadButton = $('<span>', {
+                    class: 'button load-button',
+                    text: 'Load',
+                });
+                loadButton.on('click', (event) => {
+                    console.log('Load.');
+                });
+                div.append(loadButton);
+
+                let deleteButton = $('<span>', {
+                    class: 'button delete-button',
+                    text: 'Delete',
+                });
+                deleteButton.on('click', (event) => {
+                    div.remove();
+                    resourceNodesList.remove(this);
+                });
+                div.append(deleteButton);
+            }
+
+            let typeDiv = $('<div>', { 
                 class: 'type', 
                 text: this.type,
-            }));
+            });
+
+            if(this.isPattern) typeDiv.css('margin-top', '25px');
+            
+            div.append(typeDiv);
 
             if (!$.isEmptyObject(this.requirements)) {
                 let requirements = $('<div>', {
@@ -449,6 +484,10 @@ infraRED.nodes = (function() {
             nodeList[node.resourceID] = node;
         }
 
+        function removeNode(node) {
+            delete nodeList[node.resourceID];
+        }
+
         function getNodeByIdentifier(id) {
             return nodeList[id];
         }
@@ -460,6 +499,7 @@ infraRED.nodes = (function() {
 
         return {
           add: addNode,
+          remove: removeNode,
           getByID: getNodeByIdentifier,
           getAll: getNodeList,
         };
@@ -530,7 +570,6 @@ infraRED.nodes = (function() {
 
         logString = logString.join('\n');
         infraRED.editor.statusBar.log(logString);
-        //TEST console.log(logString);
     }
 
     function logCanvasList() {
@@ -544,7 +583,6 @@ infraRED.nodes = (function() {
 
         logString = logString.join('\n');
         infraRED.editor.statusBar.log(logString);
-        //TEST console.log(logString);
     }
 
     /**
@@ -575,6 +613,8 @@ infraRED.nodes = (function() {
         canvasNode.resourceID = resourceNode.resourceID;
         canvasNode.canvasID = createCanvasID();
 
+        canvasNode.isPattern = resourceNode.isPattern;
+        canvasNode.patternMemory = $.extend(true, {}, resourceNode.patternMemory);
         canvasNode.properties = $.extend(true, {}, resourceNode.properties);
 
         for (let capability of Object.values(resourceNode.capabilities)) canvasNode.addCapability(capability.type, $.extend(true, {}, capability.properties));

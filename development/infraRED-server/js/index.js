@@ -52,10 +52,15 @@ app.post('/deploy', (req, res) => {
 
 app.post('/save', (req, res) => {
     console.log('Save request arrived at server.');
-    infraRED.saveTemplate(req.body.name, req.body.nodes);
-    
-    //TEST - send back to the client for reading values on browser
-    res.status(200).send(req.body);
+    //send back a map with the levels for this pattern
+    res.status(200).send(infraRED.savePattern(req.body.name, req.body.nodes));
+    res.end();
+});
+
+app.get('/destroy', (req, res) => {
+    console.log('Destroy request arrived at server.');
+    infraRED.destroyAll();
+    res.status(200).send('Done.');
     res.end();
 });
 

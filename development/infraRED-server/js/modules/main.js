@@ -8,6 +8,7 @@ const database = require('./database');
 module.exports = {
     init: registry.buildRuntime,
     listNodes: registry.getResourceList,
-    saveTemplate: database.saveTemplate,
+    savePattern: database.savePattern,
+    destroyAll: deployer.destroyNodes,
     deploy: deployer.deployNodes,
 };
