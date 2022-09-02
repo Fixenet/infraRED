@@ -30,16 +30,13 @@ function buildNodesFullPathList() {
 
 function loadNode(nodeFile) {
     return new Promise(async (resolve, reject) => {
-        nodeFileInfo = nodeFile.split('.');
+        let nodeFileInfo = nodeFile.split('.');
         //take out the .js of the string name, leaving the node name/identifier
         let nodeName = nodeFileInfo[0];
         try {
-            //ignore non JS files
-            let extensionName = nodeFileInfo[1];
-            if (extensionName != 'js' || nodeFileInfo.length != 2) {
-                throw new Error('Invalid file type, nodes must be .js files.');
+            if (nodeFile.match(/^[A-Za-z]+\.js$/) === null) {
+                throw new Error('Invalid file name, must contain only alphabet characters and must be .js files.');
             }
-
             //this require also throws errors based on faulty methods inside the node
             nodesRuntimeList[nodeName] = require(nodesFullPathList[nodeFile]);
 
@@ -53,32 +50,41 @@ function loadNode(nodeFile) {
             await nodesRuntimeList[nodeName].load();
             logger.log(`Loaded ${nodeName} node.`);
 
+            buildResourceList(nodeName);
+
             resolve(nodeName);
         } catch (error) {
             //if the node fails to load we remove it from the runtime
             delete nodesRuntimeList[nodeName];
-            logger.log(`Failed to load ${nodeName} node.`);
+            logger.log(`Failed to load node from ${nodeFile}.`);
             reject({
                 error: error.message, 
-                who: nodeName
+                who: nodeFile,
             });
         } 
     });
 }
 
-function buildResourceList() {
-    for (let nodeName in nodesRuntimeList) {
-        //create a fake instance
-        let node = nodesRuntimeList[nodeName].create();
+function buildResourceList(nodeName) {
+    let node = nodesRuntimeList[nodeName].create();
 
-        //extract the properties from this node
-        nodesResourceList[nodeName] = {
-            category: node.category,
-            properties: node.properties,
-            capabilities: node.capabilities,
-            requirements: node.requirements,
-        };
+    if (node.category == null) {
+        throw new Error('This node is built incorrectly, needs a "category" object attribute.');
+    } else if (node.properties == null) {
+        throw new Error('This node is built incorrectly, needs a "properties" object attribute.');
+    } else if (node.capabilities == null) {
+        throw new Error('This node is built incorrectly, needs a "capabilities" object attribute.');
+    } else if (node.requirements == null) {
+        throw new Error('This node is built incorrectly, needs a "requirements" object attribute.');
     }
+
+    //extract the properties from this node
+    nodesResourceList[nodeName] = {
+        category: node.category,
+        properties: node.properties,
+        capabilities: node.capabilities,
+        requirements: node.requirements,
+    };
 }
 
 async function buildNodesRuntimeList() {
@@ -102,8 +108,6 @@ async function buildNodesRuntimeList() {
             }
         });
     });
-
-    buildResourceList();
 }
 
 module.exports = {

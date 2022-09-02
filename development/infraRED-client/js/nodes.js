@@ -215,12 +215,7 @@ infraRED.nodes = (function() {
                 //close modal
                 closeModal();
 
-                //remove SVG element
-                $(`.canvas-node#${this.canvasID}`).remove();
-
-                //remove logic element
-                let deleteNode = canvasNodesList.getByID(this.canvasID);
-                canvasNodesList.remove(deleteNode);
+                removeNodeFromCanvas(this.canvasID);
             });
 
             saveButton.on('click', (event) => {
@@ -626,8 +621,13 @@ infraRED.nodes = (function() {
         return canvasNode;
     }
 
-    function removeNodeFromCanvas(canvasNode) {
-        canvasNodesList.remove(canvasNode);
+    function removeNodeFromCanvas(canvasID) {
+        //remove SVG element
+        $(`.canvas-node#${canvasID}`).remove();
+
+        //remove logic element
+        let deleteNode = canvasNodesList.getByID(canvasID);
+        canvasNodesList.remove(deleteNode);
     }
 
     function createCanvasID() {

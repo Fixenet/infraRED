@@ -1,5 +1,5 @@
 module.exports = function() {
-    function Storage() {
+    function Bad() {
         this.category = {
             name: 'Computation',
             img: 'icons\\computer.svg',
@@ -11,7 +11,7 @@ module.exports = function() {
     
         this.capabilities = {
             storage: {
-                mount_point: 'drive C:',
+                bad: 'drive C:',
             },
         };
             
@@ -33,8 +33,8 @@ module.exports = function() {
     }
 
     return {
-        creaaaaaaaaaaaaaaaaaate: function() {
-            return new Storage();
+        create: function() {
+            return new Bad();
         },
         load: async function() {
             //TEST - takes 2 seconds to load
