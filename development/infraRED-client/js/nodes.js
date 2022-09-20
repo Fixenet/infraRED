@@ -143,6 +143,8 @@ infraRED.nodes = (function() {
             this.isPattern = false;
             this.patternMemory = null;
 
+            this.nodeSVG = null;
+
             this.properties = {};
 
             this.capabilities = {};
@@ -296,14 +298,14 @@ infraRED.nodes = (function() {
             });
 
             if (this.isPattern) {
-                let loadButton = $('<span>', {
+                /*let loadButton = $('<span>', {
                     class: 'button load-button',
                     text: 'Load',
                 });
                 loadButton.on('click', (event) => {
                     console.log('Load.');
                 });
-                div.append(loadButton);
+                div.append(loadButton);*/
 
                 let deleteButton = $('<span>', {
                     class: 'button delete-button',

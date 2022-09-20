@@ -134,6 +134,7 @@ infraRED.editor.canvas = (function() {
 
     function contentDropSuccess(canvasNode, {left, top}) {
         let canvasNodeSVG = canvasNode.getSVG();
+        canvasNode.nodeSVG = canvasNodeSVG.svg();
         canvasNodeSVG.move(left, top);
         canvasDraw.add(canvasNodeSVG);
     }

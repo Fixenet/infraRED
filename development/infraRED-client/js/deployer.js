@@ -11,8 +11,9 @@ infraRED.deployer = (function () {
             let cleanList = [];
             for (let relationship of cleanNode.relationships) {
                 let clean = $.extend(true, {}, relationship);
-                delete clean.lineSVG;
-                delete clean.lineOffsetPlot;
+                //delete clean.lineSVG;
+                clean.lineSVG = clean.lineSVG.svg();
+                //delete clean.lineOffsetPlot;
                 cleanList.push(clean);
             }
 
